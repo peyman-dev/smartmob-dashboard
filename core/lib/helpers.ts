@@ -1,0 +1,1 @@
+export const localeImagePath = (fileName: string) => `/assets/static/images/${fileName}`
