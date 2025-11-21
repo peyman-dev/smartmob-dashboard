@@ -1,11 +1,8 @@
 import React from 'react'
+import HomePage from './(home)/page'
 
 const page = () => {
-  return (
-    <div>
-      Hello world 
-    </div>
-  )
+  return <HomePage/>
 }
 
 export default page

@@ -5,8 +5,7 @@ const layout = ({children}: {
     children: ReactNode
 }) => {
   return (
-    <main id='auth-template' className='w-dvw h-dvh flex items-center justify-center flex-col'>
-        <DynamicAuthHeader />
+    <main id='auth-template' >
         {children}
     </main>
   )

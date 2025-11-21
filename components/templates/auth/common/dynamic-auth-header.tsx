@@ -6,7 +6,7 @@ const DynamicAuthHeader = () => {
       <h1 className='font-extrabold text-2xl'>
         به پنل مدیریت خوش آمدید
       </h1>
-      <p className='text-gray-600 text-sm mt-2'>
+      <p className='text-[#718096] text-sm mt-2'>
         محصولات و دیتاهای خود ر ا مدیریت کنید
       </p>
     </div>
