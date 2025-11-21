@@ -1,0 +1,1 @@
+declare module "@/public/assets/static/css/globals.css"
