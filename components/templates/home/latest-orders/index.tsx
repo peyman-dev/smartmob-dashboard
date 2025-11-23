@@ -1,6 +1,7 @@
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import Item from "./item";
 
 const LatestOrders = () => {
   return (
@@ -8,12 +9,18 @@ const LatestOrders = () => {
       <div className="flex items-center justify-between">
         <h4 className="text-lg font-bold">آخرین سفارشات</h4>
         <Link
-          className="flex items-center gap-1 text-zinc-600 text-xs"
+          className="flex items-center gap-1 bg-[#FAFAFA] px-3 py-2 rounded-md text-zinc-600 text-xs"
           href={"/orders"}
         >
           <span>مشاهده کامل</span>
           <ChevronLeft className="size-4" />
         </Link>
+      </div>
+
+      <div className="mt-4 divide-y divide-zinc-200">
+        {
+            Array.from({length: 6}).slice(0,4).map((item, i) => <Item key={i}/>)
+        }
       </div>
     </div>
   );
