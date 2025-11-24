@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "./../fonts/estedad/index.css";
-
 @theme {
   --font-estedad: "Estedad";
 
@@ -18,5 +17,5 @@ body {
 
 
 @utility container {
-  @apply w-[90%]! mx-auto md:w-full 
+  @apply w-[95%]! mx-auto md:w-full 
 }
