@@ -1,6 +1,7 @@
 
 import LoginForm from "@/components/templates/auth/login/login-form";
-import { localeImagePath } from "@/core/lib/helpers";
+import { locateImagePath } from "@/core/lib/helpers";
+import setAuthorization from "@/core/lib/set-authorization";
 import clsx from "clsx";
 
 const page = () => {
@@ -9,10 +10,10 @@ const page = () => {
       <div
         className={clsx("h-dvh hidden! invisible lg:visible lg:block! w-full", "bg-cover bg-center")}
         style={{
-          backgroundImage: `url(${localeImagePath("auth-cover.jpg")}`,
+          backgroundImage: `url(${locateImagePath("auth-cover.jpg")}`,
         }}
       ></div>
-      <LoginForm />
+      <LoginForm handleCookies={setAuthorization}/>
     </section>
   );
 };
