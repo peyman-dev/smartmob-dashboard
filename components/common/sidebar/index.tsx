@@ -1,21 +1,20 @@
 "use client";
 import React from "react";
 import Item from "./item";
-import { Box, Home, Settings, Users, X } from "lucide-react";
+import {  HandCoins, Home, Settings, Users, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useIsMobile } from "@/core/hooks/use-is-mobile";
-import { useSidebarStore } from "@/core/stores/sidebar-store";
+import { useSidebarStore } from "@/core/stores/sidebar.store";
 
 const Sidebar = () => {
   const isMobile = useIsMobile();
   const { isMenuOpen, toggleMenu } = useSidebarStore();
-  console.log(isMenuOpen);
   if (!isMobile) {
     return (
       <AnimatePresence>
         <motion.aside initial={{x: 400}} animate={{x:0}} className="min-w-[250px] sticky top-0 h-dvh space-y-3 p-6">
           <Item Icon={<Home />} href="/" label="خانه" />
-          <Item Icon={<Box />} href="/orders" label="سفارشات" />
+          <Item Icon={<HandCoins />} href="/transactions" label="انتقالات" />
           <Item Icon={<Users />} href="/users" label="کاربران" />
           <Item Icon={<Settings />} href="/settings" label="تنظیمات" />
         </motion.aside>
@@ -43,7 +42,7 @@ const Sidebar = () => {
               </button>
             </div>
             <Item Icon={<Home />} href="/" label="خانه" />
-            <Item Icon={<Box />} href="/orders" label="سفارشات" />
+            <Item Icon={<HandCoins />} href="/transctions" label="انتقالات" />
             <Item Icon={<Users />} href="/users" label="کاربران" />
             <Item Icon={<Settings />} href="/settings" label="تنظیمات" />
           </motion.aside>
