@@ -1,10 +1,10 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { UserSession } from "../types/types";
+import { User, UserSession } from "../types/types";
 import { encryptSession } from "../utils/session";
 
-export default async function setAuthorization(user: any) {
+export default async function setAuthorization(user: User) {
   const personalInfo = user.personalInfo;
 
   const session: UserSession = {
@@ -15,6 +15,7 @@ export default async function setAuthorization(user: any) {
     accessToken: user.token.access_token,
     refreshToken: user.token.refresh_token,
     expiresIn: user.token.expires_in,
+    avatar: user.accountInfo.avatar
   };
 
   const securedSession = await encryptSession(session);

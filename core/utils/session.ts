@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { UserSession } from "../types/types";
 import { jwtVerify, SignJWT } from "jose";
 
@@ -20,4 +21,20 @@ export const decryptSession = async (token: string) => {
   });
 
   return payload;
+};
+
+export const getSession = async (): Promise<UserSession | null> => {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie =
+      cookieStore.get(process.env.COOKIE_NAME as string)?.value || null;
+
+    if (!sessionCookie) return null;
+
+    const response = await decryptSession(sessionCookie);
+
+    return response as unknown as UserSession;
+  } catch (error) {
+    return null;
+  }
 };

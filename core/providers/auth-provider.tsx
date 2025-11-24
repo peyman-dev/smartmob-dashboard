@@ -1,29 +1,34 @@
-"use client"
+"use client";
+
 import React, { ReactNode, useEffect } from "react";
 import "@/core/utils/session";
-import { authorize } from "../actions";
 import { redirect, usePathname } from "next/navigation";
 import { toast } from "sonner";
+import { useSessionStore } from "../stores/auth.store";
+import LoadingScreen from "@/components/common/loading-screen";
 
 const AuthenticationProvider = ({ children }: { children: ReactNode }) => {
-  const path = usePathname()
+  const { status } = useSessionStore();
+  const path = usePathname();
+
   useEffect(() => {
-    const getMe = async () => {
-      fetch("/api/auth/session").then((r) => r.json()).then(data => {
-
-        const callbackUrl = new URL("/auth/login")
-        callbackUrl.searchParams.set("callbackUrl", path)
-        
-
-        if (!data.ok) {
-          toast.info("لطفا وارد حساب کاربری خود بشوید")
-          redirect(callbackUrl.toString())
-        }
-      })
+    if (status === "unauthenticated" && path !== "/auth/login") {
+      toast.warning("لطفا وارد حساب مدیریت خود بشوید", {
+        position: "top-left",
+        duration: 1500,
+      });
     }
-    getMe()
-  }, [])
-  return <>{children}</>;
+    if (path.startsWith("/auth/login") && status == "authenticated") {
+      redirect("/");
+    }
+  }, [status, path]);
+
+  return (
+    <>
+      {status == "loading" && <LoadingScreen />}
+      {children}
+    </>
+  );
 };
 
 export default AuthenticationProvider;

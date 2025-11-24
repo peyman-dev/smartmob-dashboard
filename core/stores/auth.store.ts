@@ -3,6 +3,7 @@
 import { toast } from "sonner";
 import { UserSession } from "../types/types";
 import { create } from "zustand";
+import Cookies from "js-cookie";
 
 type AuthStatus = "authenticated" | "loading" | "unauthenticated";
 
@@ -49,11 +50,16 @@ export const useSessionStore = create<SessionStore>((set) => ({
   session: null,
   status: "loading" as AuthStatus,
 
-  clearSession: () =>
+  clearSession: async () => {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+    });
     set({
       session: null,
       status: "unauthenticated" as AuthStatus,
     }),
+      window.location.reload();
+  },
 
   updateSession: async () => {
     set({ status: "loading" as AuthStatus });

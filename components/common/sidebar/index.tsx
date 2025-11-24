@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Item from "./item";
-import {  HandCoins, Home, Settings, Users, X } from "lucide-react";
+import {  HandCoins, Home, Settings, Users, UserSearch, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useIsMobile } from "@/core/hooks/use-is-mobile";
 import { useSidebarStore } from "@/core/stores/sidebar.store";
@@ -12,9 +12,10 @@ const Sidebar = () => {
   if (!isMobile) {
     return (
       <AnimatePresence>
-        <motion.aside initial={{x: 400}} animate={{x:0}} className="min-w-[250px] sticky top-0 h-dvh space-y-3 p-6">
+        <motion.aside initial={{x: 400}} animate={{x:0}} className="min-w-[250px] sticky top-0 h-dvh space-y-3 p-4">
           <Item Icon={<Home />} href="/" label="خانه" />
           <Item Icon={<HandCoins />} href="/transactions" label="انتقالات" />
+          <Item Icon={<UserSearch />} href="/accounts" label="حساب‌ها" />
           <Item Icon={<Users />} href="/users" label="کاربران" />
           <Item Icon={<Settings />} href="/settings" label="تنظیمات" />
         </motion.aside>
@@ -34,7 +35,7 @@ const Sidebar = () => {
             exit={{
               x: 768,
             }}
-            className="w-full fixed space-y-3 p-6 bg-white shadow-xl h-dvh"
+            className="w-full fixed space-y-3 p-6 bg-white shadow-xl h-dvh! min-h-dvh z-50"
           >
             <div className="mb-10 flex items-center justify-end">
               <button onClick={toggleMenu}>

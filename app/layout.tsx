@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "@/public/assets/static/css/globals.css";
 import DashboardLayout from "@/components/layouts/dashboard-layout";
-import { Toaster } from 'sonner';
+import { Toaster } from "sonner";
+import AuthenticationProvider from "@/core/providers/auth-provider";
+import ApplicationProvider from "@/core/providers/application-provider";
 
 export default function RootLayout({
   children,
@@ -11,8 +13,12 @@ export default function RootLayout({
   return (
     <html lang="fa-IR" dir="rtl">
       <body>
-        <Toaster richColors/>
-        <DashboardLayout>{children}</DashboardLayout>
+        <ApplicationProvider>
+          <AuthenticationProvider>
+            <Toaster richColors className="font-estedad! **:font-estedad!" />
+            <DashboardLayout>{children}</DashboardLayout>
+          </AuthenticationProvider>
+        </ApplicationProvider>
       </body>
     </html>
   );

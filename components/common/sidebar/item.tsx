@@ -1,5 +1,6 @@
 "use client";
 
+import { useSidebarStore } from "@/core/stores/sidebar.store";
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -13,11 +14,13 @@ interface IProps {
 
 const Item = ({ Icon, href, label }: IProps) => {
   const pathname = usePathname();
-  
+  const { toggleMenu } = useSidebarStore();
+
   const isActive = pathname === href;
 
   return (
     <Link
+    onClick={toggleMenu}
       href={href}
       className={clsx(
         "flex items-center gap-2.5 h-[47px] px-4 rounded-xl transition-all duration-200",

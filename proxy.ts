@@ -1,19 +1,19 @@
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { getSession } from "./core/utils/session";
 
-export function proxy(req: NextRequest) {
-  // const pathname = req.nextUrl.pathname;
-  // const dashboardToken = req.cookies.get("dashboard_session");
+export async function proxy(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+  const session = await getSession();
 
-  // if (!dashboardToken) {
-  //   const loginUrl = new URL("/auth/login", req.url);
-  //   loginUrl.searchParams.set('callbackUrl', pathname);
-  //   return NextResponse.redirect(loginUrl);
-  // }
+  if (!session?.accessToken && !pathname.startsWith("/auth/login")) {
+    const loginUrl = new URL("/auth/login", req.url);
+    loginUrl.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
   return NextResponse.next();
 }
-
 export const config = {
-  matcher: ["/"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };

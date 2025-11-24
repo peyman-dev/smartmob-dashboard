@@ -1,23 +1,30 @@
 "use client";
 import { useIsMobile } from "@/core/hooks/use-is-mobile";
-import { useSidebarStore } from "@/core/stores/sidebar-store";
+import { useSidebarStore } from "@/core/stores/sidebar.store";
 import { Menu } from "lucide-react";
 import { motion } from "motion/react";
 import React from "react";
+import UserProfile from "./user-profile";
+import DynamicPageLabel from "../dynamic-page-label";
 
 const Header = () => {
   const isMobile = useIsMobile();
-  const { isMenuOpen, setIsMenuOpen, toggleMenu } = useSidebarStore();
+  const { toggleMenu } = useSidebarStore();
 
-  if (isMobile) {
-    return (
-      <header>
-        <button onClick={toggleMenu}>
-          <Menu className="size-4" />
-        </button>
-      </header>
-    );
-  }
+  return (
+    <header className="flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        {isMobile && (
+          <button onClick={toggleMenu}>
+            <Menu className="size-4" />
+          </button>
+        )}
+        <DynamicPageLabel />
+      </div>
+
+      <UserProfile />
+    </header>
+  );
 };
 
 export default Header;

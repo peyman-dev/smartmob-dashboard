@@ -15,8 +15,9 @@ export interface UserSession {
   roles: Record<any, any>;
   deviceId: string;
   accessToken: string;
-  refreshToken: true;
+  refreshToken: string;
   expiresIn: number;
+  avatar: User["accountInfo"]["avatar"];
 }
 
 export interface User {
@@ -79,4 +80,24 @@ export interface User {
       verify: boolean;
     };
   };
+
+  token: {
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+    token_type: string;
+  };
+}
+
+export interface Account {
+  _id: string;
+  user: string;
+  fullName: string;
+  userId: string;
+  username: string;
+  cookie: string;
+  sessionId: string;
+  sessionIdSetting: string;
+  gender: -1 | 0 | 1;
+  dateCreate: number;
 }

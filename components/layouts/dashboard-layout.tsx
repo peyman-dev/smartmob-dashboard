@@ -17,10 +17,9 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
         <Sidebar />
         <section
           id="content"
-          className="bg-white *:p-5 md:p-10 space-y-5 md:space-y-10 shadow w-full min-h-dvh"
+          className="bg-white *:p-5 md:p-10 space-y-5  shadow w-full min-h-dvh"
         >
           <Header />
-          <DynamicPageLabel />
           <div>{children}</div>
         </section>
       </main>
