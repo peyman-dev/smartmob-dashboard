@@ -1,9 +1,9 @@
-import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
-import React from "react";
-import Item from "./item";
+"use client"
+import { ChevronLeft } from "lucide-react"
+import Link from "next/link"
+import Item from "./item"
 
-const LatestOrders = () => {
+const LatestOrders = ({ transactions }: { transactions: any }) => {
   return (
     <div className="p-4 border rounded-2xl border-zinc-200">
       <div className="flex items-center justify-between">
@@ -17,13 +17,15 @@ const LatestOrders = () => {
         </Link>
       </div>
 
-      <div className="mt-4 divide-y divide-zinc-200">
-        {
-            Array.from({length: 6}).slice(0,4).map((item, i) => <Item key={i}/>)
-        }
+      <div className="mt-4 divide-y divide-zinc-200 overflow-x-auto">
+        {Array.from({ length: 6 })
+          .slice(0, 4)
+          .map((item, i) => (
+            <Item key={i} />
+          ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default LatestOrders;
+export default LatestOrders

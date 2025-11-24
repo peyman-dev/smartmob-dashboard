@@ -1,21 +1,15 @@
-import dayjs from "dayjs";
+import { localeDate } from "@/core/lib/helpers";
 import "dayjs/locale/fa";
-import jalaliday from "jalaliday";
 import { CalendarDays } from "lucide-react";
 import React from "react";
 
-dayjs.extend(jalaliday);
 
 const JoinDate = ({ joinTimestamp }: { joinTimestamp: number }) => {
-  const persianDate = dayjs(joinTimestamp)
-    .calendar("jalali")
-    .locale("fa")
-    .format("D MMMM YYYY");
 
   return (
-    <div className="text-gray-500!">
+    <div className="text-gray-500! md:visible md:block hidden invisible">
       <CalendarDays className="size-3.5" />
-      {persianDate}
+      {localeDate(joinTimestamp)}
     </div>
   );
 };

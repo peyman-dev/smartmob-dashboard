@@ -1,12 +1,10 @@
-"use client";
-import { User } from "@/core/types/types";
-import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
-import React from "react";
-import UserCard from "./user-card";
+"use client"
+import type { User } from "@/core/types/types"
+import { ChevronLeft } from "lucide-react"
+import Link from "next/link"
+import UserCard from "./user-card"
 
 const RecentUsers = ({ users }: { users: User[] }) => {
-  console.log(users);
   return (
     <div className="p-4 border rounded-2xl border-zinc-200">
       <div className="flex items-center justify-between">
@@ -19,11 +17,13 @@ const RecentUsers = ({ users }: { users: User[] }) => {
           <ChevronLeft className="size-4" />
         </Link>
       </div>
-      <div className="divide-y divide-zinc-200">
-        {users?.map((user) => <UserCard user={user} key={user._id}/>)}
+      <div className="divide-y divide-zinc-200 overflow-x-auto">
+        {users?.map((user) => (
+          <UserCard user={user} key={user._id} />
+        ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RecentUsers;
+export default RecentUsers

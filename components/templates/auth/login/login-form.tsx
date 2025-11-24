@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useEffect } from "react";
 import DynamicAuthHeader from "../common/dynamic-auth-header";
 import AuthInput from "./auth-input";
 import LoginFormActions from "./actions";
@@ -11,8 +10,16 @@ import { LoginSchema } from "@/core/validations/auth-validation";
 import WithError from "./with-error";
 import { login } from "@/core/actions";
 import { toast } from "sonner";
+import { useSessionStore } from "@/core/stores/auth.store";
+import { redirect } from "next/navigation";
+import { User } from "@/core/types/types";
 
-const LoginForm = () => {
+const LoginForm = ({
+  handleCookies,
+}: {
+  handleCookies: (user: any) => void;
+}) => {
+  const { updateSession } = useSessionStore();
   const {
     getValues,
     register,
@@ -29,17 +36,40 @@ const LoginForm = () => {
   });
 
   const submitted = async (values: any) => {
-    const requestResolve = await login({
-      password: values.password,
-      username: values.username,
-    });
-
-    if (requestResolve.code == 1) {
-        toast.error("نام کاربری شما نامعتبر است.", {
-            className: "font-estedad!",
-            closeButton: true
-        })
-    }
+    toast.promise(
+      login({
+        password: values.password,
+        username: values.username,
+      }).then(async (r) => {
+        if (r.code == 1) {
+          throw new Error("نام کاربری یا گذروژه نامعتبر است.", { cause: r });
+        } else {
+          if (r.code == 200) {
+            await handleCookies(r.data as User);
+            await updateSession();
+          }
+          return r;
+        }
+      }),
+      {
+        closeButton: true,
+        loading: "درحال ورود به حساب کاربری ...",
+        className: "font-estedad!",
+        success: "شما با موفقیت وارد شدید !",
+        duration: 2500,
+        error: (r) => {
+          return r.message;
+        },
+        description(data) {
+          if (data.code == 200) {
+            return "درحال انتقال, لطفا صبور باشید ..";
+          }
+        },
+        onAutoClose(toast) {
+          redirect("/");
+        },
+      }
+    );
   };
 
   return (

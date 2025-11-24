@@ -5,7 +5,7 @@ import React from "react";
 
 const UserName = ({ user }: { user: User }) => {
   return (
-    <div>
+    <div className="flex items-center gap-2">
       <Image
         className="rounded-full"
         src={user.accountInfo.avatar.url || DEFAULT_AVATAR}
