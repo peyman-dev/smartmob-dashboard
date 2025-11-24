@@ -1,17 +1,16 @@
 "use client";
+
 import { toast } from "sonner";
 import { UserSession } from "../types/types";
 import { create } from "zustand";
-import { redirect } from "next/navigation";
 
-// Types
 type AuthStatus = "authenticated" | "loading" | "unauthenticated";
 
 interface SessionStore {
   status: AuthStatus;
   session: UserSession | null;
   clearSession: () => void;
-  updateSession: () => void;
+  updateSession: () => Promise<void>;
 }
 
 interface ApiRequest {
@@ -19,30 +18,28 @@ interface ApiRequest {
   status: AuthStatus;
 }
 
-// Functions
-
-const requestFailed = (): ApiRequest => {
-  const result = {
-    status: "unauthenticated" as AuthStatus,
-    session: null,
-  };
-
-  return result;
-};
+const requestFailed = (): ApiRequest => ({
+  status: "unauthenticated",
+  session: null,
+});
 
 const authorizeSession = async (): Promise<ApiRequest> => {
   try {
-    return fetch("/api/auth/session")
-      .then((r) => r.json())
-      .then((data) => {
-        if (!data.ok) {
-          return requestFailed();
-        }
-        return {
-          session: data,
-          status: "authenticated" as AuthStatus,
-        };
+    const res = await fetch("/api/auth/session", {});
+    const data = await res.json();
+
+    if (!data?.ok) {
+      toast.warning("لطفا وارد حساب مدیریت خود بشوید", {
+        position: "top-left",
+        duration: 1500,
       });
+      return requestFailed();
+    }
+
+    return {
+      session: data.payload as UserSession,
+      status: "authenticated",
+    };
   } catch {
     return requestFailed();
   }
@@ -51,6 +48,7 @@ const authorizeSession = async (): Promise<ApiRequest> => {
 export const useSessionStore = create<SessionStore>((set) => ({
   session: null,
   status: "loading" as AuthStatus,
+
   clearSession: () =>
     set({
       session: null,
@@ -58,11 +56,11 @@ export const useSessionStore = create<SessionStore>((set) => ({
     }),
 
   updateSession: async () => {
-    const { session, status } = await authorizeSession();
-    console.log(session, status);
+    set({ status: "loading" as AuthStatus });
+    const result = await authorizeSession();
     set({
-      status,
-      session,
+      session: result.session,
+      status: result.status,
     });
   },
 }));
