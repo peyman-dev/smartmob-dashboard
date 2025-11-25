@@ -1,26 +1,32 @@
+import OrderModeTag from "@/components/ui/order-mode-tag"
+import { Order } from "@/core/types/types"
 import { Tag } from "antd"
 import { CalendarDays } from "lucide-react"
+import Image from "next/image"
 
-const Item = () => {
+const Item = ({order}: {order: Order}) => {
+  console.log(order)
   return (
     <article className="h-14 items-center grid text-sm! grid-cols-4 *:h-full *:flex *:items-center **:flex **:items-center **:gap-1! min-w-[380px]">
       <div>
+        <Image width={32} height={32} className="rounded-full max-h-8" alt={order.img} src={order.img} />
         <p className="text-sm text-gray-900">
-          <strong>پیمان احمدی</strong>
+          {order.target}
         </p>
       </div>
-      <div className="text-xs  select-none text-[#718096]">
-        <CalendarDays className="size-3.5" />
-        <span>۲ آذر ۱۴۰۴</span>
+      <div>
+        <OrderModeTag 
+          mode={order.mode}
+        />
       </div>
       <div>
         <div className="">
-          <strong>{Number(2_599).toLocaleString("fa-ir")} سکه</strong>
+          <strong>{Number(order.quantity).toLocaleString("fa-ir")} عدد</strong>
         </div>
       </div>
       <div>
-        <Tag className="font-estedad! text-xs! select-none! cursor-pointer!" color="green">
-          تکمیل شده
+        <Tag className="font-estedad! text-xs! select-none! cursor-pointer!" color={order.status.color}>
+          {order.status.textPer}
         </Tag>
       </div>
     </article>

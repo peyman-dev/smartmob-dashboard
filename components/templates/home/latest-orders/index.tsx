@@ -2,8 +2,9 @@
 import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import Item from "./item"
+import { Order } from "@/core/types/types"
 
-const LatestOrders = ({ transactions }: { transactions: any }) => {
+const LatestOrders = ({ orders }: { orders: Order[] }) => {
   return (
     <div className="p-4 border rounded-2xl border-zinc-200">
       <div className="flex items-center justify-between">
@@ -18,10 +19,10 @@ const LatestOrders = ({ transactions }: { transactions: any }) => {
       </div>
 
       <div className="mt-4 divide-y divide-zinc-200 overflow-x-auto">
-        {Array.from({ length: 6 })
-          .slice(0, 4)
+        {Array.from(orders)
+          .slice(0, 5)
           .map((item, i) => (
-            <Item key={i} />
+            <Item order={item} key={i} />
           ))}
       </div>
     </div>
