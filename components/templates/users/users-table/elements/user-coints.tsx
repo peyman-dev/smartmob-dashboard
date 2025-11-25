@@ -11,8 +11,8 @@ const UserCoins = ({ user }: { user: User }) => {
       >
         {user.accountInfo.coin.follow} سکه فالو
       </Tag>
-      <Tag color="purple" title={`${user.accountInfo.coin.other} سکه در سایر`}>
-        {user.accountInfo.coin.other} سکه سایر
+      <Tag color="purple" title={`${user.accountInfo.coin.other} سکه در مشترک`}>
+        {user.accountInfo.coin.other} سکه مشترک
       </Tag>
     </div>
   );

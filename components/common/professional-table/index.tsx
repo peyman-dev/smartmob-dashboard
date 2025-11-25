@@ -1,14 +1,14 @@
-// components/common/ProfessionalTable.tsx
 "use client";
 
-import { useMemo, useRef, useState, FC } from "react";
+import { useMemo, useRef, FC, JSX } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
   GridReadyEvent,
   GetQuickFilterTextParams,
   ModuleRegistry,
-  AllCommunityModule, // تغییر کرد
+  AllCommunityModule,
+  ICellRendererParams,
 } from "ag-grid-community";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -17,7 +17,6 @@ interface ProfessionalTableProps<TData = any> {
   rowData: TData[];
   columnDefs: ColDef<TData>[];
   tableTitle?: string;
-  searchPlaceholder?: string;
   className?: string;
   rowHeight?: number;
   headerHeight?: number;
@@ -25,13 +24,35 @@ interface ProfessionalTableProps<TData = any> {
   onGridReady?: (event: GridReadyEvent<TData>) => void;
   loading?: boolean;
   domLayout?: "normal" | "autoHeight" | "print";
+  HeaderActions?: JSX.Element;
 }
+
+// کامپراتور هوشمند (عدد + متن فارسی/انگلیسی + null safe)
+const smartComparator = (valueA: any, valueB: any): number => {
+  // اگر هر دو null یا undefined → برابر
+  if (valueA == null && valueB == null) return 0;
+  if (valueA == null) return 1;
+  if (valueB == null) return -1;
+
+  // تلاش برای تبدیل به عدد
+  const numA = Number(valueA);
+  const numB = Number(valueB);
+
+  if (!isNaN(numA) && !isNaN(numB)) {
+    return numA - numB;
+  }
+
+  // سورت متنی با پشتیبانی کامل فارسی
+  const strA = String(valueA).trim();
+  const strB = String(valueB).trim();
+
+  return strA.localeCompare(strB, "fa", { numeric: true, sensitivity: "base" });
+};
 
 const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
   rowData,
-  columnDefs,
+  columnDefs: userColumnDefs,
   tableTitle = "لیست داده‌ها",
-  searchPlaceholder = "جستجوی سراسری...",
   className = "",
   rowHeight = 72,
   headerHeight = 56,
@@ -39,49 +60,56 @@ const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
   onGridReady,
   loading,
   domLayout = "normal",
+  HeaderActions,
 }) => {
   const gridRef = useRef<AgGridReact>(null);
-  const [globalSearch, setGlobalSearch] = useState("");
 
+  const columnDefs = useMemo(() => {
+    return userColumnDefs.map((col): ColDef<any> => {
+      const hasCustomComparator = col.comparator != null;
+      const isUnsortable = col.sortable === false;
+
+      if (hasCustomComparator || isUnsortable) {
+        return col;
+      }
+
+      const valueGetter =
+        col.valueGetter ??
+        (col.field
+          ? (params: any) => params.data?.[col.field as string]
+          : undefined);
+
+      return {
+        ...col,
+        sortable: true,
+        comparator: smartComparator,
+        valueGetter, 
+      };
+    });
+  }, [userColumnDefs]);
   const defaultColDef = useMemo<ColDef>(
     () => ({
-      sortable: true,
-      filter: true,
-      floatingFilter: true,
       resizable: true,
       flex: 1,
-      minWidth: 100,
-      getQuickFilterText: (params: GetQuickFilterTextParams) => {
-        // همه مقادیر رو به string تبدیل می‌کنه تا سرچ عددی هم کار کنه
-        return String(params.value ?? "");
-      },
+      minWidth: 120,
+      getQuickFilterText: (params: GetQuickFilterTextParams) =>
+        String(params.value ?? ""),
     }),
     []
   );
+
+  const gridKey = useMemo(() => `${rowData.length}-${Date.now()}`, [rowData]);
 
   return (
     <div className={`min-h-[700px] rounded-2xl overflow-hidden ${className}`}>
       <div className="h-24 flex items-center justify-between bg-zinc-50 text-slate-700 rounded-t-2xl px-6 border-b border-zinc-200">
         <h2 className="text-2xl font-bold">{tableTitle}</h2>
-        <input
-          className="h-10 rounded-md border border-zinc-200 px-4 w-80 placeholder:text-slate-400 focus:outline-none focus:border-slate-400 transition-colors"
-          type="text"
-          placeholder={searchPlaceholder}
-          value={globalSearch}
-          onChange={(e) => {
-            const val = e.target.value;
-            setGlobalSearch(val);
-            // @ts-ignore
-            gridRef.current?.api?.setQuickFilter(val);
-          }}
-        />
+        <div>{HeaderActions}</div>
       </div>
 
-      <div
-        dir="rtl"
-        className="ag-theme-alpine h-[calc(100vh-200px)] **:font-estedad! **:rounded-t-none!"
-      >
+      <div dir="rtl" className='ag-theme-alpine h-[calc(100vh-200px)]'>
         <AgGridReact
+          key={gridKey} 
           ref={gridRef}
           rowData={rowData}
           columnDefs={columnDefs}
@@ -89,12 +117,10 @@ const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
           enableRtl
           rowHeight={rowHeight}
           headerHeight={headerHeight}
-          rowClass="flex! **:flex! **:gap-1.5 **:items-center!"
           domLayout={domLayout}
           pagination
           paginationPageSize={paginationPageSize}
           suppressDragLeaveHidesColumns
-          quickFilterText={globalSearch}
           onGridReady={onGridReady}
           loading={loading}
           localeText={{

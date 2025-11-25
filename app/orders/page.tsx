@@ -1,12 +1,7 @@
-import Table from "@/components/common/table";
-import React from "react";
+import ClientPage from "./client-page";
 
 const page = () => {
-  return (
-    <>
-      <Table />
-    </>
-  );
+  return <ClientPage />
 };
 
 export default page;

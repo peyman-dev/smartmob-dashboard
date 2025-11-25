@@ -23,10 +23,10 @@ label {
 
   & + input {
     @apply duration-150 transition-all px-4;
-  };
+  }
 
   & + input:focus {
-    @apply ring-4 ring-sky-500/20
+    @apply ring-4 ring-sky-500/20;
   }
 
   &:hover + input {
@@ -38,3 +38,10 @@ input {
   @apply outline-none! px-4 **:font-estedad! font-estedad! placeholder:text-[13px]!;
 }
 
+button {
+  @apply cursor-pointer;
+}
+
+.ag-cell {
+  @apply flex! items-center! gap-2! **:flex! **:items-center! **:gap-2!;
+}

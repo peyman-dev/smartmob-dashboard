@@ -5,7 +5,6 @@ import { CalendarDays } from "lucide-react"
 import Image from "next/image"
 
 const Item = ({order}: {order: Order}) => {
-  console.log(order)
   return (
     <article className="h-14 items-center grid text-sm! grid-cols-4 *:h-full *:flex *:items-center **:flex **:items-center **:gap-1! min-w-[380px]">
       <div>

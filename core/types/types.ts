@@ -101,3 +101,39 @@ export interface Account {
   gender: -1 | 0 | 1;
   dateCreate: number;
 }
+
+export type Order = {
+  _id: string;
+  id: number;
+  user: string;
+  serviceId: string | null;
+  target: string;
+  targetId: string;
+  img: string;
+  comments: any[];
+  quantity: number;
+  quantityComp: number;
+  startNumber: number;
+  usersCompleted: any[];
+  mode: number;
+  status: {
+    code: number;
+    color: string;
+    text: string;
+    textPer: string;
+  };
+  dateCreate: number;
+  dateUpdate: number;
+  price: number;
+  priceModel: string;
+};
+
+
+export type CoinTransaction = {
+  _id: string
+  user1: string
+  user2: string
+  coinModel: number
+  coinNumber: number
+  dateCreate: number
+}

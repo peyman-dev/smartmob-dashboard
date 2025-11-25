@@ -5,17 +5,19 @@ import { Column } from "@ant-design/plots";
 const DetailsChart = ({
   accounts,
   users,
-  transactions,
+  orders,
+  transactions
 }: {
   accounts: number;
   users: number;
-  transactions: number;
+  orders: number;
+  transactions: number
 }) => {
-  // داده‌ها بر اساس تصویر تخمین زده شدن (تقریباً همان نسبت‌ها)
   const data = [
     { label: "حساب ها", value: accounts },
     { label: "کاربران", value: users },
-    { label: "تراکنش ها", value: transactions },
+    { label: "تراکنش ها", value: orders },
+    { label: "انتقالی های سکه", value: transactions },
   ];
 
   const config = {
@@ -72,7 +74,7 @@ const DetailsChart = ({
   };
 
   return (
-    <div className="w-full!" style={{ padding: "20px", background: "#fff", borderRadius: "12px" }}>
+    <div className="w-full! **:font-estedad!" style={{ padding: "20px", background: "#fff", borderRadius: "12px" }}>
       <Column {...config} className={"**:font-estedad!"} />
     </div>
   );

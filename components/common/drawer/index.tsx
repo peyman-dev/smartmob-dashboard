@@ -1,6 +1,7 @@
 // components/DynamicDrawer.tsx
 import React from 'react';
 import { Drawer, DrawerProps } from 'antd';
+import clsx from 'clsx';
 
 interface DynamicDrawerProps extends Omit<DrawerProps, 'open' | 'onClose'> {
   open: boolean;
@@ -31,6 +32,7 @@ const DynamicDrawer: React.FC<DynamicDrawerProps> = ({
       open={open}
       onClose={handleClose}
       width={width}
+      className={clsx("**:font-estedad!", rest?.className)}
       closeIcon={null} // optional: remove default close icon if you handle it yourself
       {...rest}
     >

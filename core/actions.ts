@@ -1,7 +1,7 @@
 "use server";
 import { sendRequest } from "./lib/axios";
 import { LoginPayloadType } from "./types/actions.types";
-import { User } from "./types/types";
+import { Order, User } from "./types/types";
 import { getSession } from "./utils/session";
 
 export const login = async (payload: LoginPayloadType) => {
@@ -33,12 +33,7 @@ export const login = async (payload: LoginPayloadType) => {
 //   return data
 // };
 
-export const getCoinsTransfers = async ({
-  page,
-  limit,
-  senderId,
-  receiver,
-}: {
+export const getOrders = async (params?: {
   page?: number;
   limit?: number;
   senderId?: string;
@@ -46,16 +41,15 @@ export const getCoinsTransfers = async ({
 }) => {
   const session = await getSession();
   try {
-    const res = await sendRequest.get("/admin/transcoin_history", {
+    const res = await sendRequest.get("/admin/orders_list", {
       params: {
-        page: page || 0,
-        limit: limit || 20,
+        page: params?.page || 0,
+        limit: params?.limit || 20,
       },
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
       },
     });
-
 
     const data = await res.data;
     return data;
@@ -127,7 +121,7 @@ export const getAccounts = async (queries?: {
   user?: string;
   username?: string;
 }) => {
-  const session = await getSession() 
+  const session = await getSession();
   const params = {
     ...queries,
   };
@@ -136,18 +130,102 @@ export const getAccounts = async (queries?: {
     const res = await sendRequest.get("/admin/accounts", {
       params,
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`
-      }
-    })
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+    });
 
+    const data = await res.data;
+
+    return data;
+  } catch (error) {
+    return {
+      ok: false,
+      error,
+    };
+  }
+};
+
+type OnlyStringAndNumber = number | string;
+
+export const updateUserInfos = async (params?: {
+  moneyTOMAN?: OnlyStringAndNumber;
+  moneyUSD?: OnlyStringAndNumber;
+  coinFollow?: OnlyStringAndNumber;
+  coinOther?: OnlyStringAndNumber;
+  currency?: "TOMAN" | "USD";
+  user: string;
+}) => {
+  const session = await getSession();
+  try {
+    const res = await sendRequest.put("/admin/users_edit", null, {
+      params,
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+    });
+
+    console.log(res);
+
+    const data = await res.data;
+    return data;
+  } catch (error) {
+    return {
+      ok: false,
+      error,
+    };
+  }
+};
+
+export const updateOrder = async (params: {
+  order: Order["_id"];
+  quantity?: number;
+  quantityComp?: number;
+  target?: string;
+  targetId?: string;
+  startNumber?: number;
+  statusCode?: number;
+  statusText?: string;
+}) => {
+  const session = await getSession();
+  try {
+    const res = await sendRequest.put("/admin/orders_edit", null, {
+      params,
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+    });
+
+    const data = await res.data;
+    return data;
+  } catch (error) {
+    return {
+      ok: false,
+      error,
+    };
+  }
+};
+
+export const getTransactionHistory = async (params?: {
+  page?: number,
+  limit?: number
+}) => {
+  try {
+    const session = await getSession();
+    const res = await sendRequest.get("/admin/transcoin_history", {
+      params: {
+        page:params?.page ?? 0 ,
+        limit: params?.limit ?? 20
+      },
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+    });
     const data = await res.data
-
     return data
   } catch (error) {
-      return {
-        ok: false,
-        error
-      }
+    return {
+      ok: false,
+      error
+    }
   }
-
 };

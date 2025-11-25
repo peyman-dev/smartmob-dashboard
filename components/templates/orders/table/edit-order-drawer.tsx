@@ -25,7 +25,6 @@ const EditOrderDrawer = ({
   isOpen: boolean;
   onSuccess: () => void;
 }) => {
-  console.log(order)
   const [values, setValues] = useState<Order>(order);
   const [status, setStatus] = useState<{statusCode?: number, statusText?: string}>({});
   const formatter: InputNumberProps<number>["formatter"] = (value) => {
@@ -52,7 +51,6 @@ const EditOrderDrawer = ({
         target: values.target,
         targetId: values.targetId,
       });
-      console.log(res);
 
       if (res.status) {
         toast.success("سفارش با موفقیت بروزرسانی شد");

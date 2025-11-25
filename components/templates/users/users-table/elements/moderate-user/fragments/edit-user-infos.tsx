@@ -196,7 +196,7 @@ const EditUserInfos = ({
               suffix={
                 <div className="flex items-center gap-1">
                   <Coins className="size-4 text-neutral-500" />
-                  <span className="text-xs text-neutral-500">سایر</span>
+                  <span className="text-xs text-neutral-500">مشترک</span>
                 </div>
               }
               onChange={(value: number | null) => {

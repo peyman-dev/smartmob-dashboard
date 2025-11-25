@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import React from "react";
 import UserProfile from "./user-profile";
 import DynamicPageLabel from "../dynamic-page-label";
+import { LanguageSelector } from "./language-selector";
 
 const Header = () => {
   const isMobile = useIsMobile();
@@ -21,8 +22,10 @@ const Header = () => {
         )}
         <DynamicPageLabel />
       </div>
-
+<div className="flex items-center gap-3">
+        <LanguageSelector />
       <UserProfile />
+</div>
     </header>
   );
 };

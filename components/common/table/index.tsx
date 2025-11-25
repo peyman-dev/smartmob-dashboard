@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Table as AntdTable } from "antd";
 import type { TableColumnType } from "antd";
-import SortOrders from "@/components/templates/orders/sort-orders";
+import SortOrders from "@/components/templates/orders/search-orders";
 
 interface IDataRowProps {
   _id: string;
