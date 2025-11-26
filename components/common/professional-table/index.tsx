@@ -90,8 +90,6 @@ const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
   const defaultColDef = useMemo<ColDef>(
     () => ({
       resizable: true,
-      flex: 1,
-      minWidth: 120,
       getQuickFilterText: (params: GetQuickFilterTextParams) =>
         String(params.value ?? ""),
     }),
@@ -103,7 +101,7 @@ const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
   return (
     <div className={`min-h-[700px] rounded-2xl overflow-hidden ${className}`}>
       <div className="h-24 flex items-center justify-between bg-zinc-50 text-slate-700 rounded-t-2xl px-6 border-b border-zinc-200">
-        <h2 className="text-2xl font-bold">{tableTitle}</h2>
+        <h2 className="md:text-xl text-base lg:text-2xl font-bold">{tableTitle}</h2>
         <div>{HeaderActions}</div>
       </div>
 
