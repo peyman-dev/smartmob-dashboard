@@ -3,17 +3,29 @@ import useToggle from "@/core/hooks/use-toggle"
 import type { User } from "@/core/types/types"
 import { Modal, Tag, Tooltip } from "antd"
 import { Copy, CopyIcon, CheckCircle2 } from "lucide-react"
-import { useState } from "react"
+import { useRef, useState } from "react"
 
 const CopyToken = ({ user }: { user: User }) => {
   const [isOpen, toggle] = useToggle()
   const [copied, setCopied] = useState(false)
+  const ref = useRef<null | any>(null)
 
   const copyAction = async () => {
+    const range = document.createRange()
+    if (!ref.current) return;
+    range.selectNodeContents(ref?.current)
+  
+    const selection = window.getSelection()
+    selection?.removeAllRanges()
+    selection?.addRange(range)
+  
     await navigator.clipboard.writeText(user.accountInfo.apiToken)
+  
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
+  
+
 
   return (
     <>
@@ -27,10 +39,10 @@ const CopyToken = ({ user }: { user: User }) => {
         <Tooltip title={copied ? "کپی شد!" : "کلیک برای کپی"}>
           <div
             onClick={copyAction}
-            className="p-4 my-6 w-full cursor-pointer bg-neutral-100 hover:bg-neutral-200 transition-colors border border-neutral-200 rounded-lg select-none inline-flex gap-4 items-center break-all"
+            className="p-4 my-6 w-full cursor-pointer bg-neutral-100 hover:bg-neutral-200 transition-colors border border-neutral-200 rounded-lg  inline-flex gap-4 items-center break-all"
           >
             {copied ? <CheckCircle2 className="text-green-600" /> : <Copy />}
-            <span className="text-sm font-mono">{user.accountInfo.apiToken}</span>
+            <span className="text-sm font-mono" ref={ref}>{user.accountInfo.apiToken}</span>
           </div>
         </Tooltip>
         <p className="text-xs text-neutral-500 text-center">روی توکن کلیک کنید تا کپی شود</p>
