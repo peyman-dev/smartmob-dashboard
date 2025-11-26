@@ -206,20 +206,39 @@ export const updateOrder = async (params: {
 };
 
 export const getTransactionHistory = async (params?: {
-  page?: number,
-  limit?: number
+  page?: number;
+  limit?: number;
 }) => {
   try {
     const session = await getSession();
     const res = await sendRequest.get("/admin/transcoin_history", {
       params: {
-        page:params?.page ?? 0 ,
-        limit: params?.limit ?? 20
+        page: params?.page ?? 0,
+        limit: params?.limit ?? 20,
       },
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
       },
     });
+    const data = await res.data;
+    return data;
+  } catch (error) {
+    return {
+      ok: false,
+      error,
+    };
+  }
+};
+
+export const getSettings = async () => {
+  try {
+    const session = await getSession();
+    const res = await sendRequest.get("/settings", {
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+    });
+
     const data = await res.data
     return data
   } catch (error) {
