@@ -1,0 +1,69 @@
+{
+  "sidebar": {
+    "home": "خانه",
+    "orders": "سفارشات",
+    "transfers": "انتقالات",
+    "accounts": "حساب‌ها",
+    "users": "کاربران",
+    "settings": "تنظیمات"
+  },
+  "home": {
+    "statistics": {
+      "title": "آمار کلی اپلیکیشن",
+      "statisticsLabels": {
+        "totalOrders": "کل سفارش‌ها",
+        "runningOrders": "در حال اجرا (کل)",
+        "followCompleted": "فالو - تکمیل شده",
+        "followRunning": "فالو - در حال اجرا",
+        "likeCompleted": "لایک - تکمیل شده",
+        "likeRunning": "لایک - در حال اجرا",
+        "commentCompleted": "کامنت - تکمیل شده",
+        "commentRunning": "کامنت - در حال اجرا",
+        "todayOrders": "سفارش‌های امروز (کل)",
+        "todayFollowOrders": "سفارش فالو امروز",
+        "todayLikeOrders": "سفارش لایک امروز",
+        "todayCommentOrders": "سفارش کامنت امروز",
+        "totalUsers": "کل کاربران",
+        "newUsersToday": "کاربر جدید امروز",
+        "totalAccounts": "کل حساب‌ها",
+        "newAccountsToday": "حساب اضافه شده امروز"
+      }
+    },
+    "latestOrders": "آخرین سفارشات",
+    "latestUsers": "جدیدترین کاربران"
+  },
+
+  "common": {
+    "amount": "مقدار",
+    "orderStatuses": {
+      "0": "در انتظار",
+      "1": "تکمیل شده",
+      "2": "درحال اجرا ..",
+      "3": "انصراف داده شده",
+      "4": "جزئی"
+    },
+    "orderMode": {
+      "0": "فالوور",
+      "1": "لایک",
+      "2": "کامنت",
+      "3": "نامعتبر"
+    },
+    "seeAll": "مشاهده همه",
+    "currency": {
+      "TOMAN": "تومان",
+      "USD": "دلار"
+    },
+    "profileDropdown": {
+      "myAccount": "حساب کاربری من",
+      "settings": "تنظیمات",
+      "signOut": "خروج از حساب",
+      "dearUser": "کاربر عزیز"
+    },
+    "pleaseWait": "لطفا منتظر بمانید ..",
+    "userRole": {
+        "manager": "مدیر",
+        "admin": "ادمین",
+        "ghost": "کاربر مهمان"
+    }
+  }
+}

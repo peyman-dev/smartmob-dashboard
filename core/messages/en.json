@@ -1,0 +1,68 @@
+{
+  "sidebar": {
+    "home": "Home",
+    "orders": "Orders",
+    "transfers": "Transfers",
+    "accounts": "Accounts",
+    "users": "Users",
+    "settings": "Settings"
+  },
+  "home": {
+    "statistics": {
+      "title": "Application Statistics",
+      "statisticsLabels": {
+        "totalOrders": "Total Orders",
+        "runningOrders": "Running (Total)",
+        "followCompleted": "Follow - Completed",
+        "followRunning": "Follow - Running",
+        "likeCompleted": "Like - Completed",
+        "likeRunning": "Like - Running",
+        "commentCompleted": "Comment - Completed",
+        "commentRunning": "Comment - Running",
+        "todayOrders": "Today's Orders (Total)",
+        "todayFollowOrders": "Today's Follow Orders",
+        "todayLikeOrders": "Today's Like Orders",
+        "todayCommentOrders": "Today's Comment Orders",
+        "totalUsers": "Total Users",
+        "newUsersToday": "New Users Today",
+        "totalAccounts": "Total Accounts",
+        "newAccountsToday": "New Accounts Today"
+      }
+    },
+    "latestOrders": "Latest orders",
+    "latestUsers": "Latest users"
+  },
+  "common": {
+    "amount": "Amount",
+    "orderStatuses": {
+      "0": "Pending ..",
+      "1": "Completed",
+      "2": "In Progress ..",
+      "3": "Canceled",
+      "4": "Partial"
+    },
+    "orderMode": {
+      "0": "Follower",
+      "1": "Like",
+      "2": "Comment",
+      "3": "Unknown"
+    },
+    "seeAll": "See all",
+    "currency": {
+      "TOMAN": "Toman (IR)",
+      "USD": "USD"
+    },
+    "profileDropdown": {
+      "myAccount": "My account",
+      "settings": "Settings",
+      "signOut": "Sign out",
+      "dearUser": "Dear User"
+    },
+    "pleaseWait": "Please wait ..",
+    "userRole": {
+      "manager": "Manager",
+      "admin": "Admin",
+      "ghost": "Guest"
+    }
+  }
+}
