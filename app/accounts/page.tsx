@@ -1,4 +1,4 @@
-"use client"
+export const revalidate = 0;
 import React, { Suspense } from "react";
 import LoadingScreen from "@/components/common/loading-screen";
 import AccountsPage from "./client-page";

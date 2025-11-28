@@ -18,11 +18,12 @@ import Copyable from "@/components/common/copyable";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import useToggle from "@/core/hooks/use-toggle";
 import { FilterField } from "../../auth/common/filter";
-import { getUserById } from "@/core/actions";
+import { getUserById, getUsersList } from "@/core/actions";
 import dynamic from "next/dynamic";
 import { Button } from "antd";
 import { useTranslations } from "next-intl";
 import { createTranslator } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 
 const Filter = dynamic(
   () =>
@@ -40,13 +41,17 @@ const persianComparator = (a: any, b: any) => {
   });
 };
 
-const UsersTable = ({
-  users,
-  refetch,
-}: {
-  users: User[];
-  refetch: () => void;
-}) => {
+const UsersTable = () => {
+    const { data, refetch, isLoading } = useQuery({
+      queryKey: ["users"],
+      queryFn: async () =>
+        await getUsersList({
+          params: {
+            limit: 20,
+            page: 0,
+          },
+        }),
+    });
   const { clearSearch, isSearching, searchResult } = useUserSearchStore();
   const [isFiltering, toggle] = useToggle(false);
   const [filterUserId, setFilterUserId] = useState("");
@@ -181,7 +186,7 @@ const UsersTable = ({
     return () => {};
   }, [paramsIsFiltering, paramsFilterUserId, path]);
 
-  if (!users?.length) return <LoadingScreen />;
+  if (!data?.data?.length || isLoading) return <LoadingScreen />;
   return (
     <div className=" rounded-2xl">
       <div className="ag-theme-alpine  **:font-estedad! **:rounded-t-none!">
@@ -206,7 +211,7 @@ const UsersTable = ({
               ? searchResult?.data?.data?.length
                 ? searchResult?.data?.data
                 : []
-              : users || []
+              : data?.data || []
           }
         />
       </div>

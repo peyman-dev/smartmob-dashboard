@@ -1,29 +1,29 @@
+// app/accounts/page.tsx
+
 "use client";
+export const revalidate = 0;
+
+import React, { useState } from "react";
+import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData } from "@tanstack/react-query";
 
 import ProfessionalTable from "@/components/common/professional-table";
 import { getAccounts } from "@/core/actions";
 import { Account } from "@/core/types/types";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import React, { useState } from "react";
-import type { ColDef } from "ag-grid-community"; // یا هر لایبرری که ProfessionalTable استفاده می‌کنه
-import { localeDate } from "@/core/lib/helpers";
-import { Button } from "antd";
-import Link from "next/link";
-import { FilterField } from "@/components/templates/auth/common/filter";
-import dynamic from "next/dynamic";
-import { useTranslations } from "next-intl";
+import type { ColDef } from "ag-grid-community";
 
-// حالا Filter رو dynamic ایمپورت کن
+import Link from "next/link";
+import dynamic from "next/dynamic"; // این خط رو فراموش نکن!
+import { FilterField } from "@/components/templates/auth/common/filter";
+
+// dynamic import با ssr: false
 const Filter = dynamic(
-  () =>
-    import("@/components/templates/auth/common/filter").then(
-      (mod) => mod.default
-    ),
-  {
-    ssr: false, // این خط کل مشکل رو حل می‌کنه
-  }
+  () => import("@/components/templates/auth/common/filter").then((mod) => mod.default),
+  { ssr: false }
 );
-const ClientPage = () => {
+
+const AccountsPage = () => {
   const [queries, setQueries] = useState<{
     page?: number;
     limit?: number;
@@ -33,8 +33,10 @@ const ClientPage = () => {
     page: 0,
     limit: 20,
   });
-  const accountsT = useTranslations("accounts");
+
+  const t = useTranslations("accounts");
   const commonT = useTranslations("common");
+
   const { data, isLoading } = useQuery({
     queryKey: ["accounts", queries],
     queryFn: () => getAccounts(queries),
@@ -45,64 +47,61 @@ const ClientPage = () => {
 
   const columnDefs: ColDef<Account>[] = [
     {
-      headerName: accountsT("user"),
+      headerName: t("user"),
       flex: 1,
-      cellRenderer: (p: { data: Account }) => {
-        return (
-          <Link
-            href={`/users?isFiltering=1&_id=${p.data._id}`}
-            className="underline"
-          >
-            {p.data?.user}
-          </Link>
-        );
-      },
+      cellRenderer: ({ data }: { data: Account }) => (
+        <Link
+          href={`/users?isFiltering=1&_id=${data._id}`}
+          className="underline text-blue-600 hover:text-blue-800"
+        >
+          {data?.user || "-"}
+        </Link>
+      ),
     },
     {
-      headerName: accountsT("fullName"),
+      headerName: t("fullName"),
       flex: 1,
       field: "fullName",
     },
     {
-      headerName: accountsT("numericId"),
+      headerName: t("numericId"),
       flex: 1,
       field: "userId",
-      getQuickFilterText: (params: any) => params.value ?? "", // ← این خط حیاتیه
+      getQuickFilterText: (params) => params.value ?? "",
     },
     {
-      headerName: accountsT("username"),
+      headerName: t("username"),
       flex: 1,
-
       field: "username",
       cellRenderer: (params: any) => (params.value ? `@${params.value}` : "-"),
     },
     {
-      headerName: accountsT("gender"),
+      headerName: t("gender"),
       flex: 1,
-
       field: "gender",
       cellRenderer: (params: any) => commonT(`gender.${params.value}`),
     },
   ];
+
   const filterFields: FilterField[] = [
     {
-      label: accountsT("filterForm.id.label"),
+      label: t("filterForm.id.label"),
       key: "id",
       type: "input",
-      placeholder:accountsT("filterForm.id.placeholder"),
+      placeholder: t("filterForm.id.placeholder"),
     },
     {
-      label: accountsT("filterForm.status.label"),
+      label: t("filterForm.status.label"),
       key: "status",
       type: "select",
       options: [
-        { label: accountsT("filterForm.status.options.active"), value: "active" },
-        { label:  accountsT("filterForm.status.options.inactive"), value: "inactive" },
-        { label:  accountsT("filterForm.status.options.pending"), value: "pending" },
+        { label: t("filterForm.status.options.active"), value: "active" },
+        { label: t("filterForm.status.options.inactive"), value: "inactive" },
+        { label: t("filterForm.status.options.pending"), value: "pending" },
       ],
     },
     {
-      label:  accountsT("filterForm.isAdmin.label"),
+      label: t("filterForm.isAdmin.label"),
       key: "isAdmin",
       type: "boolean",
     },
@@ -114,7 +113,8 @@ const ClientPage = () => {
         HeaderActions={
           <Filter
             onSubmit={(values) => {
-              console.log(values);
+              console.log("فیلتر اعمال شد:", values);
+              // بعداً اینجا setQueries رو آپدیت می‌کنی
             }}
             fields={filterFields}
           />
@@ -128,4 +128,4 @@ const ClientPage = () => {
   );
 };
 
-export default ClientPage;
+export default AccountsPage;

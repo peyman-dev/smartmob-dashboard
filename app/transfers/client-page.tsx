@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import LoadingScreen from "@/components/common/loading-screen";
 import ProfessionalTable from "@/components/common/professional-table";
 import { getTransactionHistory } from "@/core/actions";

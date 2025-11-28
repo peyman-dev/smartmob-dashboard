@@ -1,4 +1,6 @@
 "use client"
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import LoginForm from "@/components/common/login/login-form";
 import OTPForm from "@/components/common/login/otp-form";
 import { locateImagePath } from "@/core/lib/helpers";

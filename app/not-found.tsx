@@ -1,9 +1,5 @@
-import React from 'react'
 
-const NotFound = () => {
-  return (
-    <div>NotFound</div>
-  )
+export const dynamic = "force-dynamic";
+export default function NotFound() {
+  return null;
 }
-
-export default NotFound

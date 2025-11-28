@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import DynamicAuthHeader from '@/components/templates/auth/common/dynamic-auth-header'
 import React, { ReactNode } from 'react'
 

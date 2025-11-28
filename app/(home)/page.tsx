@@ -1,15 +1,16 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { AccountBalance } from "@/components/templates/home/account-balance";
 import LatestOrders from "@/components/templates/home/latest-orders/index";
 import RecentUsers from "@/components/templates/home/recent-users";
-import { getAccounts, getOrders, getTransactionHistory, getUsersList } from "@/core/actions";
+import { getAccounts, getOrders, getStatistics, getTransactionHistory, getUsersList } from "@/core/actions";
 import { useSessionStore } from "@/core/stores/auth.store";
 import { Order } from "@/core/types/types";
 import React from "react";
 import StatisticsChart from "@/components/templates/home/statistics-chart";
 
-const HomePage = async ({statistics}: {
-  statistics: any[]
-}) => {
+const HomePage = async () => {
   const orders = await getOrders({ limit: 5, page: 0 });
   const newUsers = await getUsersList({
     params: {
@@ -17,6 +18,8 @@ const HomePage = async ({statistics}: {
       page: 0,
     },
   });
+    const statistics = await getStatistics() 
+  
   // const transactions = await getTransactionHistory({
   //   limit: 20,
   //   page: 0
@@ -26,12 +29,11 @@ const HomePage = async ({statistics}: {
   //   limit: 20,
   // });
 
-  console.log(statistics)
   return (
     <div className="lg:grid lg:grid-cols-3 p-0! mx-auto space-y-10 gap-5 container">
       <div className="col-span-2 space-y-4  ">
         <StatisticsChart
-          statistics={statistics}
+          statistics={statistics?.data}
         />
         <LatestOrders orders={orders?.data as Order[]} />
         <RecentUsers users={newUsers?.data} />
