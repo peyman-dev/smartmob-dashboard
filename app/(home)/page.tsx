@@ -1,13 +1,15 @@
 import { AccountBalance } from "@/components/templates/home/account-balance";
-import DetailsChart from "@/components/templates/home/details-chart";
 import LatestOrders from "@/components/templates/home/latest-orders/index";
 import RecentUsers from "@/components/templates/home/recent-users";
 import { getAccounts, getOrders, getTransactionHistory, getUsersList } from "@/core/actions";
 import { useSessionStore } from "@/core/stores/auth.store";
 import { Order } from "@/core/types/types";
 import React from "react";
+import StatisticsChart from "@/components/templates/home/statistics-chart";
 
-const HomePage = async () => {
+const HomePage = async ({statistics}: {
+  statistics: any[]
+}) => {
   const orders = await getOrders({ limit: 5, page: 0 });
   const newUsers = await getUsersList({
     params: {
@@ -15,23 +17,21 @@ const HomePage = async () => {
       page: 0,
     },
   });
-  const transactions = await getTransactionHistory({
-    limit: 20,
-    page: 0
-  })
-  const accounts = await getAccounts({
-    page: 0,
-    limit: 20,
-  });
+  // const transactions = await getTransactionHistory({
+  //   limit: 20,
+  //   page: 0
+  // })
+  // const accounts = await getAccounts({
+  //   page: 0,
+  //   limit: 20,
+  // });
 
+  console.log(statistics)
   return (
     <div className="lg:grid lg:grid-cols-3 p-0! mx-auto space-y-10 gap-5 container">
       <div className="col-span-2 space-y-4  ">
-        <DetailsChart
-          accounts={accounts?.data?.length ??0}
-          users={newUsers?.data?.length ??0}
-          orders={orders?.data?.length ??0}
-          transactions={transactions?.data?.length ?? 0}
+        <StatisticsChart
+          statistics={statistics}
         />
         <LatestOrders orders={orders?.data as Order[]} />
         <RecentUsers users={newUsers?.data} />

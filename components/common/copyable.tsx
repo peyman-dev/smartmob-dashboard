@@ -3,6 +3,8 @@
 import { CheckCircle2, Copy } from "lucide-react";
 import { Tooltip } from "antd";
 import { useRef, useState, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
+import { dynamicDirection } from "@/core/lib/helpers";
 
 interface CopyableProps {
   text: string;
@@ -15,10 +17,11 @@ interface CopyableProps {
 const Copyable = ({
   text,
   children,
-  tooltipCopy = "کلیک برای کپی",
-  tooltipCopied = "کپی شد!",
+  tooltipCopy,
+  tooltipCopied,
   className = "",
 }: CopyableProps) => {
+  const t = useTranslations("common");
   const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -41,21 +44,14 @@ const Copyable = ({
   };
 
   return (
-    <Tooltip title={copied ? tooltipCopied : tooltipCopy}>
-      <div
-        onClick={handleCopy}
-     
-      >
+    <Tooltip title={copied ? t("copied") : t("clickToCopy")}>
+      <div {...dynamicDirection()} onClick={handleCopy}>
         {copied ? (
           <CheckCircle2 className="size-4 text-green-600 flex-shrink-0" />
         ) : (
           <Copy className="size-4 text-neutral-600 flex-shrink-0" />
         )}
-        {children ? (
-        children
-      ) : (
-        <span ref={ref}>{text}</span>
-      )}
+        {children ? children : <span ref={ref}>{text}</span>}
       </div>
     </Tooltip>
   );

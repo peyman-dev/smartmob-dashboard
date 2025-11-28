@@ -137,3 +137,5 @@ export type CoinTransaction = {
   coinNumber: number
   dateCreate: number
 }
+
+export type Locale = "en" | "fa"

@@ -1,4 +1,12 @@
 {
+  "pages": {
+    "home": "Home",
+    "orders": "Orders",
+    "transfers": "Transfers",
+    "accounts": "Accounts",
+    "users": "Users",
+    "settings": "Settings"
+  },
   "sidebar": {
     "home": "Home",
     "orders": "Orders",
@@ -32,8 +40,144 @@
     "latestOrders": "Latest orders",
     "latestUsers": "Latest users"
   },
+  "accounts": {
+    "user": "User",
+    "fullName": "Full Name",
+    "numericId": "Numeric ID",
+    "username": "Username",
+    "gender": "Gender",
+    "filterForm": {
+      "id": {
+        "label": "ID",
+        "placeholder": "e.g. 123"
+      },
+      "status": {
+        "label": "Status",
+        "options": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "pending": "Pending"
+        }
+      },
+      "isAdmin": {
+        "label": "Admin"
+      }
+    }
+  },
+
+  "orders": {
+    "orderId": "Order ID",
+    "user": "User",
+    "target": "Target",
+    "targetId": "Target ID",
+    "image": "Image",
+    "price": "Order Price",
+    "quantity": "Requested Quantity",
+    "quantityComp": "Completed Quantity",
+    "quantityStart": "Initial Quantity",
+    "mode": "Order Type",
+    "dateCreate": "Created At",
+    "dateUpdate": "Last Updated",
+    "manage": "Manage",
+    "editOrder": "Edit Order"
+  },
+  "table": {
+    "contains": "Contains",
+    "notContains": "Does Not Contain",
+    "equals": "Equals",
+    "notEqual": "Not Equal",
+    "startsWith": "Starts With",
+    "endsWith": "Ends With",
+    "filterOoo": "Filter...",
+    "noRowsToShow": "No data found",
+    "page": "Page",
+    "to": "to",
+    "of": "of",
+    "loadingOoo": "Loading..."
+  },
+  "transfers": {
+    "id": "Transfer ID",
+    "sender": "Sender",
+    "receiver": "Receiver",
+    "coinType": "Coin Type",
+    "coinCount": "Coin Count",
+    "createdAt": "Created At",
+    "actions": "Actions",
+
+    "unknown": "Unknown",
+    "followCoin": "Follow Coin",
+    "sharedCoin": "Shared Coin",
+    "countSuffix": "units"
+  },
+  "users": {
+    "id": "User ID",
+    "deviceId": "Device ID",
+    "profile": "User Profile",
+    "coins": "Coin Balance",
+    "token": "User Token",
+    "balance": "Account Balance",
+    "currency": "Currency",
+    "status": "Account Status",
+    "status_blocked": "Blocked",
+    "status_active": "Active",
+    "manage": "Manage User",
+    "noName": "No Name",
+    "confirm_user_restriction": "Are you sure you want to restrict {username}?",
+    "user_status_changed": "User details changed successfully.",
+    "changerUserDetails": "Changer user details",
+    "search_title": "Search Users",
+    "user_status": "User Status",
+    "status_placeholder": "All statuses",
+    "status_free": "Free",
+    "device_id": "Device ID",
+    "device_id_placeholder": "Example: abc123def456...",
+    "account": "Account Username",
+    "account_placeholder": "Example: @username or username",
+    "search_button": "Search",
+    "clear_button": "Clear",
+    "searchUsers": "Search in users"
+  },
+  "orderFilters": {
+    "orderStatus": "Order Status",
+    "allStatuses": "All Statuses",
+
+    "status_0": "Processing",
+    "status_1": "Completed",
+    "status_2": "In Progress",
+    "status_3": "Canceled",
+    "status_4": "Partial",
+
+    "userId": "User ID",
+    "userId_placeholder": "Example: 974d0b40006...",
+
+    "service": "Service",
+    "service_placeholder": "Service ID or name",
+
+    "target": "Target",
+    "target_placeholder": "Example: post, profile",
+
+    "targetId": "Target ID",
+    "targetId_placeholder": "Numeric or string target ID",
+
+    "dateStart": "Start Date & Time",
+    "dateStart_placeholder": "Start date & time",
+
+    "dateEnd": "End Date & Time",
+    "dateEnd_placeholder": "End date & time"
+  },
   "common": {
+    "yes": "Yes",
+    "priceModel": {
+      "USD": "USD",
+      "TOMAN": "Toman (IR)",
+      "follow": "Follower Coin",
+      "default": "Shared Coin"
+    },
+    "dynamicCoins": "{count} {coinType, select, follow {Follower} other {Other}} coins",
+    "applyFilter": "Apply filter",
+    "no": "No",
     "amount": "Amount",
+    "filter": "Filter",
     "orderStatuses": {
       "0": "Pending ..",
       "1": "Completed",
@@ -63,6 +207,23 @@
       "manager": "Manager",
       "admin": "Admin",
       "ghost": "Guest"
-    }
+    },
+    "professionalSearch": "Professional Search ",
+    "dataList": "Data List",
+    "search": "Search",
+    "clear": "Clear",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "doSearch": "Advanced Search",
+    "clickToCopy": "Click to copy",
+    "copied": "Copied !",
+    "gender": {
+      "-1": "Pending Review",
+      "0": "Male",
+      "1": "Female",
+      "2": "Unisex"
+    },
+    "id": "Id"
   }
 }

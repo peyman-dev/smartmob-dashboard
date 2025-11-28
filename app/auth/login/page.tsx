@@ -1,10 +1,13 @@
-
-import LoginForm from "@/components/templates/auth/login/login-form";
+"use client"
+import LoginForm from "@/components/common/login/login-form";
+import OTPForm from "@/components/common/login/otp-form";
 import { locateImagePath } from "@/core/lib/helpers";
 import setAuthorization from "@/core/lib/set-authorization";
+import { useTwoAuthentication } from "@/core/stores/two.athentication.store";
 import clsx from "clsx";
 
 const page = () => {
+  const {isOTPSent,setIsOTPSent} = useTwoAuthentication()
   return (
     <section className="grid  lg:grid-cols-2 gap-10 w-full mx-">
       <div
@@ -13,7 +16,10 @@ const page = () => {
           backgroundImage: `url(${locateImagePath("auth-cover.jpg")}`,
         }}
       ></div>
-      <LoginForm handleCookies={setAuthorization}/>
+      {
+        isOTPSent ? <OTPForm /> :
+        <LoginForm handleCookies={setAuthorization}/>
+      }
     </section>
   );
 };

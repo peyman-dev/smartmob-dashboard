@@ -6,6 +6,7 @@ import { Dropdown, MenuProps } from "antd";
 import { Ellipsis } from "lucide-react";
 import React, { useEffect } from "react";
 import EditOrderDrawer from "./edit-order-drawer";
+import { useTranslations } from "next-intl";
 const ModerateOrder = ({
   onSuccess,
   order,
@@ -14,12 +15,13 @@ const ModerateOrder = ({
   onSuccess: () => {};
 }) => {
   const [isOpen, toggle] = useToggle();
+  const t = useTranslations("orders");
 
   const moderateOptions: MenuProps["items"] = [
     {
-      key: 0,
-      label: "ویرایش سفارش",
-      onClick: toggle,
+      key: "0",
+      label: t("editOrder"),
+      onClick: () => toggle(),
     },
   ];
 
@@ -31,7 +33,12 @@ const ModerateOrder = ({
         </button>
       </Dropdown>
 
-      <EditOrderDrawer onSuccess={onSuccess} isOpen={isOpen} order={order} toggle={toggle} />
+      <EditOrderDrawer
+        onSuccess={onSuccess}
+        isOpen={isOpen}
+        order={order}
+        toggle={toggle}
+      />
     </>
   );
 };

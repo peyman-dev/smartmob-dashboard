@@ -1,17 +1,10 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import {
-  AllCommunityModule,
-  ColDef,
-  ValueGetterParams,
-} from "ag-grid-community";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ColDef, ValueGetterParams } from "ag-grid-community";
 import { User } from "@/core/types/types";
 import UserName from "../../home/recent-users/user-card/elements/user-name";
-import UserRole from "../../home/recent-users/user-card/elements/user-role";
-import JoinDate from "../../home/recent-users/user-card/elements/join-date";
 import UserBalance from "../../home/recent-users/user-card/elements/user-balance";
-import UserEmail from "./elements/user-email";
 import UserCoins from "./elements/user-coints";
 import ModerateUser from "./elements/moderate-user/";
 import Image from "next/image";
@@ -21,7 +14,25 @@ import LoadingScreen from "@/components/common/loading-screen";
 import SearchUsers from "../search-users";
 import { useUserSearchStore } from "../settings/user.search.store";
 import CopyToken from "../copy-token";
+import Copyable from "@/components/common/copyable";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import useToggle from "@/core/hooks/use-toggle";
+import { FilterField } from "../../auth/common/filter";
+import { getUserById } from "@/core/actions";
+import dynamic from "next/dynamic";
+import { Button } from "antd";
+import { useTranslations } from "next-intl";
+import { createTranslator } from "next-intl";
 
+const Filter = dynamic(
+  () =>
+    import("@/components/templates/auth/common/filter").then(
+      (mod) => mod.default
+    ),
+  {
+    ssr: false, // این خط کل مشکل رو حل می‌کنه
+  }
+);
 const persianComparator = (a: any, b: any) => {
   return String(a || "").localeCompare(String(b || ""), "fa", {
     sensitivity: "base",
@@ -37,49 +48,68 @@ const UsersTable = ({
   refetch: () => void;
 }) => {
   const { clearSearch, isSearching, searchResult } = useUserSearchStore();
-  console.log(searchResult)
+  const [isFiltering, toggle] = useToggle(false);
+  const [filterUserId, setFilterUserId] = useState("");
+  const params = useSearchParams();
+  const t = useTranslations("users");
+  const gt = useTranslations();
   const colDefs: ColDef<User>[] = [
-    { field: "_id", headerName: "شناسه دستگاه" },
     {
-      headerName: "پروفایل کاربر",
+      headerName: t("id"),
+      cellRenderer: (p: { data: User }) => {
+        return <Copyable text={p.data._id}>{p.data._id}</Copyable>;
+      },
+    },
+    {
+      cellRenderer: (p: { data: User }) => {
+        return <Copyable text={p.data.deviceId}>{p.data.deviceId}</Copyable>;
+      },
+      headerName: t("deviceId"),
+    },
+    {
+      headerName: t("profile"),
       valueGetter: (p: ValueGetterParams<User>) =>
         p.data?.accountInfo.name || p.data?.accountInfo.username || "بدون نام",
-      cellRenderer: (p: any) => p.data && <UserName user={p.data} />,
+      cellRenderer: (p: { data: User }) =>
+        p.data && (
+          <Copyable
+            text={
+              p.data.personalInfo.name ||
+              p.data.accountInfo.username ||
+              p.data.accountInfo.name
+            }
+          >
+            <UserName user={p.data} />
+          </Copyable>
+        ),
       comparator: persianComparator,
     },
 
-    // {
-    //   headerName: "نوع حساب",
-    //   valueGetter: (p: ValueGetterParams<User>) => {
-    //     const r = p.data?.roles;
-    //     if (r?.ghost) return "شبح";
-    //     if (r?.manager) return "مدیر";
-    //     if (r?.admin) return "ادمین";
-    //     return "عادی";
-    //   },
-    //   cellRenderer: (p: any) => p.data && <UserRole roles={p.data.roles} />,
-    //   comparator: persianComparator,
-    // },
     {
-      headerName: "موجودی سکه ها",
+      headerName: t("coins"),
       valueGetter: (p: ValueGetterParams<User>) =>
         p.data?.accountInfo.coin?.follow ?? 0,
-      cellRenderer: (p: any) => p.data && <UserCoins user={p.data} />,
+      cellRenderer: (p: any) =>
+        p.data && (
+          <Copyable text={`{follow: ${p.data?.accountInfo.coin?.follow}, other: ${p.data?.accountInfo.coin?.other}}`}>
+            <UserCoins user={p.data} />
+          </Copyable>
+        ),
       comparator: (a: any, b: any) => (b ?? 0) - (a ?? 0),
       sort: "desc" as const,
     },
     {
-      headerName: "توکن کاربر",
-      cellRenderer: (p: any) => p.data && <CopyToken user={p.data}/>,
+      headerName: t("token"),
+      cellRenderer: (p: any) => p.data && <CopyToken user={p.data} />,
     },
     {
-      headerName: "موجودی حساب",
+      headerName: t("balance"),
       cellRenderer: (p: any) => p.data && <UserBalance user={p.data} />,
     },
     {
-      headerName: "ارز",
+      headerName: t("currency"),
       valueGetter: (p: ValueGetterParams<User>) =>
-        p.data?.accountInfo.currency === "TOMAN" ? "تومان" : "دلار",
+        gt(`common.currency.${p.data?.accountInfo.currency}`),
       cellRenderer: (p: any) => {
         if (!p.data) return null;
         const isToman = p.data.accountInfo.currency === "TOMAN";
@@ -96,48 +126,24 @@ const UsersTable = ({
               height={32}
               alt=""
             />
-            <span>{isToman ? "تومان" : "دلار"}</span>
+            <span>{gt(`common.currency.${p.data.accountInfo.currency}`)}</span>
           </div>
         );
       },
       comparator: persianComparator,
       filter: "agSetColumnFilter",
-      filterParams: { values: ["تومان", "دلار"] },
     },
-    // {
-    //   headerName: "تاریخ عضویت",
-    //   valueGetter: (p: ValueGetterParams<User>) =>
-    //     p.data?.accountInfo.joinDate ?? 0,
-    //   cellRenderer: (p: any) =>
-    //     p.data && <JoinDate joinTimestamp={p.data.accountInfo.joinDate} />,
-    //   comparator: (_: any, __: any, nodeA: any, nodeB: any) =>
-    //     (nodeA.data?.accountInfo.joinDate ?? 0) -
-    //     (nodeB.data?.accountInfo.joinDate ?? 0),
-    // },
-    // {
-    //   headerName: "آخرین بازدید",
-    //   valueGetter: (p: ValueGetterParams<User>) =>
-    //     p.data?.accountInfo.loginDate ?? 0,
-    //   cellRenderer: (p: any) =>
-    //     p.data && <JoinDate joinTimestamp={p.data.accountInfo.loginDate} />,
-    //   comparator: (_: any, __: any, nodeA: any, nodeB: any) =>
-    //     (nodeA.data?.accountInfo.loginDate ?? 0) -
-    //     (nodeB.data?.accountInfo.loginDate ?? 0),
-    // },
-    // {
-    //   headerName: "ایمیل",
-    //   valueGetter: (p: ValueGetterParams<User>) =>
-    //     p.data?.contacts.email.email ?? "",
-    //   cellRenderer: (p: any) =>
-    //     p.data && <UserEmail contacts={p.data.contacts} />,
-    //   comparator: persianComparator,
-    // },
+
     {
-      headerName: "وضعیت حساب",
-      cellRenderer: (p: {data: User} ) => <span>{p.data.accountInfo.status ? "مسدود شده" : "آزاد"}</span> ,
+      headerName: t("status"),
+      cellRenderer: (p: { data: User }) => (
+        <span>
+          {p.data.accountInfo.status ? t("status_blocked") : t("status_active")}
+        </span>
+      ),
     },
     {
-      headerName: "مدیریت کاربر",
+      headerName: t("manage"),
       cellRenderer: (p: any) =>
         p.data && <ModerateUser user={p.data} onSuccess={refetch} />,
       sortable: false,
@@ -145,22 +151,63 @@ const UsersTable = ({
       floatingFilter: false,
     },
   ];
+  const path = usePathname();
+  const paramsIsFiltering = params.get("isFiltering");
+  const paramsFilterUserId = params.get("_id") || "";
+  const getFilterParams = () => {
+    const isFiltering = params.get("isFiltering");
+    const filterUserId = params.get("_id") || "";
+
+    setFilterUserId(filterUserId as string);
+
+    if (Number(isFiltering)) {
+      toggle(true);
+    } else {
+      toggle(false);
+    }
+  };
+
+  const fields: FilterField[] = [
+    {
+      label: t("id"),
+      type: "input",
+      key: "_id",
+      defaultValue: filterUserId,
+    },
+  ];
+
+  useEffect(() => {
+    getFilterParams();
+    return () => {};
+  }, [paramsIsFiltering, paramsFilterUserId, path]);
 
   if (!users?.length) return <LoadingScreen />;
   return (
-    <div className="min-h-[700px] rounded-2xl overflow-hidden">
-      <div className="h-24 flex items-center justify-between bg-zinc-50 text-slate-700 rounded-t-lg px-6">
-        <h2 className="text-2xl font-bold">لیست کاربران</h2>
-      </div>
-
-      <div
-        dir="rtl"
-        className="ag-theme-alpine h-[calc(100vh-200px)] **:font-estedad! **:rounded-t-none!"
-      >
+    <div className=" rounded-2xl">
+      <div className="ag-theme-alpine  **:font-estedad! **:rounded-t-none!">
         <ProfessionalTable
-          HeaderActions={<SearchUsers />}
+          HeaderActions={
+            <div className="flex items-center gap-2">
+              <SearchUsers />
+              <Filter
+                fields={fields}
+                defaultOpen={isFiltering}
+                onSubmit={async (values) => {
+                  console.log(values._id);
+                  const res = await getUserById(values?._id);
+                  console.log(res);
+                }}
+              />
+            </div>
+          }
           columnDefs={colDefs}
-          rowData={isSearching ? (searchResult?.data?.data?.length ? searchResult?.data?.data : []) : users || []}
+          rowData={
+            isSearching
+              ? searchResult?.data?.data?.length
+                ? searchResult?.data?.data
+                : []
+              : users || []
+          }
         />
       </div>
     </div>

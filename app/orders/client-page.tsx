@@ -11,69 +11,66 @@ import { Order } from "@/core/types/types";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import React from "react";
+import Copyable from "@/components/common/copyable";
+import { useTranslations } from "next-intl";
 
 interface IParams {
   data: Order;
 }
 
 const ClientPage = () => {
+  const t = useTranslations("orders");
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => await getOrders(),
   });
+  const commonT = useTranslations("common");
 
-  const { searchResult, isSearching, clearSearch } = useSearchStore();
-
+  const { searchResult, isSearching } = useSearchStore();
 
   if (isLoading) return <LoadingScreen />;
-  const orders: Order[] =   data?.data;
+  const orders: Order[] = data?.data;
 
   const colDefs = [
     {
-      headerName: "شناسه سفارش",
-      valueGetter: (params: {data: Order}) => params.data._id,
+      headerName: t("orderId"),
+      valueGetter: (params: { data: Order }) => params.data._id,
       cellRenderer: (param: IParams) => {
         const { data } = param;
-
-        return data?._id;
+        return <Copyable text={data?._id}>{data?._id}</Copyable>;
       },
     },
     {
-      headerName: "کاربر",
-      valueGetter: (params: {data: Order}) => params.data.user,
+      headerName: t("user"),
+      valueGetter: (params: { data: Order }) => params.data.user,
       cellRenderer: (param: IParams) => {
         const { data } = param;
-
-        return data?.target;
+        return <Copyable text={data?.user}>{data?.user}</Copyable>;
       },
     },
     {
-      headerName: "هدف",
-      valueGetter: (params: {data: Order}) => params.data.target,
-      cellRenderer: (param: { data: Order }) => {
+      headerName: t("target"),
+      valueGetter: (params: { data: Order }) => params.data.target,
+      cellRenderer: (param: IParams) => {
         const { data } = param;
-
-        return data?.targetId;
+        return <Copyable text={data?.target}>{data?.target}</Copyable>;
       },
     },
     {
-      headerName: "شناسه هدف",
-      valueGetter: (params: {data: Order}) => params.data.targetId,
+      headerName: t("targetId"),
+      valueGetter: (params: { data: Order }) => params.data.targetId,
       cellRenderer: (param: IParams) => {
         const { data } = param;
-
-        return data?.target;
+        return <Copyable text={data?.targetId}>{data?.targetId}</Copyable>;
       },
     },
     {
-      headerName: "تصویر",
+      headerName: t("image"),
       cellRenderer: (param: IParams) => {
         const { data } = param;
-
         return (
           <div>
             <Image
-              // src={(data.img as string) || ""}
               src={""}
               width={32}
               height={32}
@@ -85,63 +82,86 @@ const ClientPage = () => {
       },
     },
     {
-      headerName: "مبلغ سفارش",
-      valueGetter: (params: {data: Order}) => params.data.price,
+      headerName: t("price"),
+      valueGetter: (params: { data: Order }) => params.data.price,
       cellRenderer: (param: IParams) => {
         const { data } = param;
+        const model = data.priceModel;
 
-        return data?.price;
+        const text = `${data.price} ${commonT(
+          `priceModel.${
+            ["USD", "TOMAN", "follow"].includes(model) ? model : "default"
+          }`
+        )}`;
+        return <Copyable text={text}>{text}</Copyable>;
       },
     },
     {
-      headerName: "تعداد تکمیل شده‌ها",
-      valueGetter: (params: {data: Order}) => params.data.quantity,
+      headerName: t("quantity"),
+      valueGetter: (params: { data: Order }) => params.data.quantity,
       cellRenderer: (param: IParams) => {
         const { data } = param;
-
-        return data?.quantityComp;
+        return (
+          <Copyable text={data?.quantity?.toString()}>
+            {data?.quantity}
+          </Copyable>
+        );
       },
     },
     {
-      headerName: "تعداد هنگام شروع",
-      valueGetter: (params: {data: Order}) => params.data.quantityComp,
+      headerName: t("quantityComp"),
+      valueGetter: (params: { data: Order }) => params.data.quantityComp,
       cellRenderer: (param: IParams) => {
         const { data } = param;
-
-        return data?.quantityComp;
+        return (
+          <Copyable text={data?.quantityComp?.toString()}>
+            {data?.quantityComp}
+          </Copyable>
+        );
       },
     },
+    // {
+    //   headerName: t(""),
+    //   valueGetter: (params: { data: Order }) => params.data.quantityComp,
+    //   cellRenderer: (param: IParams) => {
+    //     const { data } = param;
+    //     return (
+    //       <Copyable text={data?.quantityComp?.toString()}>
+    //         {data?.quantityComp}
+    //       </Copyable>
+    //     );
+    //   },
+    // },
     {
-      headerName: "نوع سفارش",
-      valueGetter: (params: {data: Order}) => params.data.status.code,
+      headerName: t("mode"),
+      valueGetter: (params: { data: Order }) => params.data.status.code,
       cellRenderer: (param: IParams) => {
         const { data } = param;
-
         return <OrderModeTag mode={data.mode} />;
       },
     },
     {
-      headerName: "تاریخ ثبت",
-      valueGetter: (params: {data: Order}) => params.data.dateCreate,
+      headerName: t("dateCreate"),
+      valueGetter: (params: { data: Order }) => params.data.dateCreate,
       cellRenderer: (param: IParams) => {
         const { data } = param;
-
-        return localeDate(data.dateCreate);
+        const text = localeDate(data.dateCreate);
+        return <Copyable text={text}>{text}</Copyable>;
       },
     },
     {
-      headerName: "تاریخ آخرین بروزرسانی",
-      valueGetter: (params: {data: Order}) => params.data.dateUpdate,
+      headerName: t("dateUpdate"),
+      valueGetter: (params: { data: Order }) => params.data.dateUpdate,
       cellRenderer: (param: IParams) => {
         const { data } = param;
-        return localeDate(data.dateUpdate);
+        const text = localeDate(data.dateUpdate);
+        return <Copyable text={text}>{text}</Copyable>;
       },
     },
     {
-      headerName: "مدیریت",
+      headerName: t("manage"),
       cellRenderer: (param: IParams) => {
         const { data } = param;
-
         return <ModerateOrder onSuccess={refetch} order={data} />;
       },
     },
@@ -151,7 +171,13 @@ const ClientPage = () => {
     <div>
       <ProfessionalTable
         columnDefs={colDefs}
-        rowData={isSearching? (searchResult?.data?.data?.length ? searchResult?.data?.data : []) : orders}
+        rowData={
+          isSearching
+            ? searchResult?.data?.data?.length
+              ? searchResult?.data?.data
+              : []
+            : orders
+        }
         HeaderActions={<SearchOrders />}
       />
     </div>

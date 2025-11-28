@@ -10,6 +10,7 @@ import {
   AllCommunityModule,
   ICellRendererParams,
 } from "ag-grid-community";
+import { useTranslations } from "next-intl";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -63,6 +64,8 @@ const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
   HeaderActions,
 }) => {
   const gridRef = useRef<AgGridReact>(null);
+  const t = useTranslations("common");
+  const tableT = useTranslations("table");
 
   const columnDefs = useMemo(() => {
     return userColumnDefs.map((col): ColDef<any> => {
@@ -83,7 +86,7 @@ const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
         ...col,
         sortable: true,
         comparator: smartComparator,
-        valueGetter, 
+        valueGetter,
       };
     });
   }, [userColumnDefs]);
@@ -101,13 +104,15 @@ const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
   return (
     <div className={`min-h-[700px] rounded-2xl overflow-hidden ${className}`}>
       <div className="h-24 flex items-center justify-between bg-zinc-50 text-slate-700 rounded-t-2xl px-6 border-b border-zinc-200">
-        <h2 className="md:text-xl text-base lg:text-2xl font-bold">{tableTitle}</h2>
-        <div>{HeaderActions}</div>
+        <h2 className="md:text-xl text-base lg:text-2xl font-bold">
+          {t("dataList")}
+        </h2>
+        <div className="*:rounded-lg!">{HeaderActions}</div>
       </div>
 
-      <div dir="rtl" className='ag-theme-alpine h-[calc(100vh-200px)]'>
+      <div className="ag-theme-alpine h-[calc(100vh-200px)]">
         <AgGridReact
-          key={gridKey} 
+          key={gridKey}
           ref={gridRef}
           rowData={rowData}
           columnDefs={columnDefs}
@@ -122,18 +127,18 @@ const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
           onGridReady={onGridReady}
           loading={loading}
           localeText={{
-            contains: "شامل",
-            notContains: "شامل نشود",
-            equals: "مساوی",
-            notEqual: "نامساوی",
-            startsWith: "شروع با",
-            endsWith: "پایان با",
-            filterOoo: "فیلتر...",
-            noRowsToShow: "داده‌ای یافت نشد",
-            page: "صفحه",
-            to: "تا",
-            of: "از",
-            loadingOoo: "در حال بارگذاری...",
+            contains: tableT("contains"),
+            notContains: tableT("notContains"),
+            equals: tableT("equals"),
+            notEqual: tableT("notEqual"),
+            startsWith: tableT("startsWith"),
+            endsWith: tableT("endsWith"),
+            filterOoo: tableT("filterOoo"),
+            noRowsToShow: tableT("noRowsToShow"),
+            page: tableT("page"),
+            to: tableT("to"),
+            of: tableT("of"),
+            loadingOoo: tableT("loadingOoo"),
           }}
         />
       </div>

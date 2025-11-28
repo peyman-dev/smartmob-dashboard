@@ -1,9 +1,9 @@
+import { useLocalization } from "../stores/localization.store";
+
 export const locateImagePath = (fileName: string) =>
   `/assets/static/images/${fileName}`;
-export const localeDate = (
-  timestamp: number,
-  locale: "fa" | "en" = "fa"
-) => {
+export const localeDate = (timestamp: number) => {
+  const locale = useLocalization.getState().locale;
   const date = new Date(timestamp * 1000);
 
   const locales = {
@@ -18,7 +18,6 @@ export const localeDate = (
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-  
   }).format(date);
 };
 
@@ -52,3 +51,17 @@ export const statuses = [
 
 export const findActiveStatus = (statusIndex: number) =>
   statuses.find((stat) => stat.index == statusIndex);
+
+export const dynamicDirection = () => {
+  const locale = useLocalization.getState().locale;
+
+  if (locale == "en")
+    return {
+      dir: "ltr",
+    };
+  else {
+    return {
+      dir: "rtl",
+    };
+  }
+};

@@ -7,7 +7,22 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import type { ColDef } from "ag-grid-community"; // یا هر لایبرری که ProfessionalTable استفاده می‌کنه
 import { localeDate } from "@/core/lib/helpers";
+import { Button } from "antd";
+import Link from "next/link";
+import { FilterField } from "@/components/templates/auth/common/filter";
+import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 
+// حالا Filter رو dynamic ایمپورت کن
+const Filter = dynamic(
+  () =>
+    import("@/components/templates/auth/common/filter").then(
+      (mod) => mod.default
+    ),
+  {
+    ssr: false, // این خط کل مشکل رو حل می‌کنه
+  }
+);
 const ClientPage = () => {
   const [queries, setQueries] = useState<{
     page?: number;
@@ -18,7 +33,8 @@ const ClientPage = () => {
     page: 0,
     limit: 20,
   });
-
+  const accountsT = useTranslations("accounts");
+  const commonT = useTranslations("common");
   const { data, isLoading } = useQuery({
     queryKey: ["accounts", queries],
     queryFn: () => getAccounts(queries),
@@ -27,61 +43,82 @@ const ClientPage = () => {
 
   const accounts: Account[] = data?.data ?? [];
 
-  // ستون‌ها کاملاً تایپ‌سیف با Account
   const columnDefs: ColDef<Account>[] = [
     {
-      headerName: "شناسه دیتابیس",
-      field: "_id",
-      width: 220,
-      filter: true,
-    },
-    {
-      headerName: "نام کامل",
-      field: "fullName",
+      headerName: accountsT("user"),
       flex: 1,
-      minWidth: 120,
+      cellRenderer: (p: { data: Account }) => {
+        return (
+          <Link
+            href={`/users?isFiltering=1&_id=${p.data._id}`}
+            className="underline"
+          >
+            {p.data?.user}
+          </Link>
+        );
+      },
     },
     {
-        headerName: "آیدی عددی",
-        field: "userId",
-        width: 140,
-        filter: "agTextColumnFilter",  // ← عوضش کن از agNumberColumnFilter به agTextColumnFilter
-        getQuickFilterText: (params: any) => params.value ?? "", // ← این خط حیاتیه
-      },
+      headerName: accountsT("fullName"),
+      flex: 1,
+      field: "fullName",
+    },
     {
-      headerName: "یوزرنیم",
+      headerName: accountsT("numericId"),
+      flex: 1,
+      field: "userId",
+      getQuickFilterText: (params: any) => params.value ?? "", // ← این خط حیاتیه
+    },
+    {
+      headerName: accountsT("username"),
+      flex: 1,
+
       field: "username",
-      width: 160,
       cellRenderer: (params: any) => (params.value ? `@${params.value}` : "-"),
     },
     {
-      headerName: "جنسیت",
+      headerName: accountsT("gender"),
+      flex: 1,
+
       field: "gender",
-      width: 100,
-      cellRenderer: (params: any) => {
-        if (params.value === 1) return "مرد";
-        if (params.value === 0) return "زن";
-        return "نامشخص";
-      },
+      cellRenderer: (params: any) => commonT(`gender.${params.value}`),
+    },
+  ];
+  const filterFields: FilterField[] = [
+    {
+      label: accountsT("filterForm.id.label"),
+      key: "id",
+      type: "input",
+      placeholder:accountsT("filterForm.id.placeholder"),
     },
     {
-      headerName: "تاریخ ساخت",
-      field: "dateCreate",
-      width: 150,
-      valueFormatter: (params: any) =>
-        // new Date(params.value * 1000).toLocaleDateString("fa-IR"),
-      localeDate(params.value)
+      label: accountsT("filterForm.status.label"),
+      key: "status",
+      type: "select",
+      options: [
+        { label: accountsT("filterForm.status.options.active"), value: "active" },
+        { label:  accountsT("filterForm.status.options.inactive"), value: "inactive" },
+        { label:  accountsT("filterForm.status.options.pending"), value: "pending" },
+      ],
     },
     {
-      headerName: "سشن",
-      width: 110,
-      cellRenderer: (params: any) => (params.data.sessionId ? "موجود" : "خالی"),
+      label:  accountsT("filterForm.isAdmin.label"),
+      key: "isAdmin",
+      type: "boolean",
     },
   ];
 
   return (
     <div className="p-4">
       <ProfessionalTable
+        HeaderActions={
+          <Filter
+            onSubmit={(values) => {
+              console.log(values);
+            }}
+            fields={filterFields}
+          />
+        }
         columnDefs={columnDefs}
         rowData={accounts}
         loading={isLoading}

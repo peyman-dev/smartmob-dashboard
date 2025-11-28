@@ -15,7 +15,7 @@ export function AccountBalance({
   className,
 }: AccountBalanceProps) {
   return (
-    <div className={clsx("w-full  ", className)} dir="rtl">
+    <div className={clsx("w-full  ", className)}>
       <div className="relative overflow-hidden rounded-3xl w-full! min-w-full! bg-linear-to-br from-blue-600 via-blue-700 to-blue-800 p-8 shadow-2xl">
         <div className="absolute -top-20 -right-20 size-40 bg-white/8 rounded-full"></div>
         <div className="absolute -top-20 -right-20 size-50 bg-white/7 rounded-full"></div>

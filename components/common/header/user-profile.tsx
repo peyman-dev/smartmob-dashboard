@@ -6,34 +6,38 @@ import { useSessionStore } from "@/core/stores/auth.store";
 import { User } from "@/core/types/types";
 import { Dropdown, MenuProps } from "antd";
 import { LogOut, Settings, UserPen } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import React from "react";
 
 const UserProfile = () => {
   const { session, status, clearSession } = useSessionStore();
   const [isOpen, toggle] = useToggle();
+  const t = useTranslations("common.profileDropdown");
+  const globalT = useTranslations("common");
 
+  console.log(session);
   const menuItems: MenuProps["items"] = [
     {
-      label: "حساب کاربری",
-      key: 1,
+      label: t("myAccount"),
+      key: "'1",
       icon: <UserPen className="size-4 text-zinc-500" />,
       className: "font-estedad!",
       onClick() {},
     },
     {
-      label: "تنظیمات",
-      key: 2,
+      label: t("settings"),
+      key: "2",
       icon: <Settings className="size-4 text-zinc-500" />,
       className: "font-estedad!",
       onClick() {},
     },
     {
-      type: "divider"
+      type: "divider",
     },
     {
-      label: "خروج از حساب",
-      key: 3,
+      label: t("signOut"),
+      key: "3",
       icon: <LogOut className="size-4" />,
       className: "font-estedad! text-red-500!",
       onClick: clearSession,
@@ -45,23 +49,30 @@ const UserProfile = () => {
       <Dropdown
         onOpenChange={toggle}
         trigger={["click"]}
-        className="text-sm!"
+        className="max-w-max! text-sm!"
         menu={{ items: menuItems }}
       >
         <div
-          className="flex px-6 ps-2 cursor-pointer hover:shadow select-none  py-1.5 rounded-lg border border-zinc-200 items-center gap-3"
-          onClick={toggle}
+          className="flex lg:px-6 px-2 lg:ps-2 cursor-pointer hover:shadow select-none  py-1.5 rounded-lg border border-zinc-200 items-center gap-3"
+          onClick={() => toggle()}
         >
           <Image width={42} height={42} alt="" src={DEFAULT_AVATAR} />
-          <div className="space-y-2">
-            <p className="text-xs ">{session?.name || "نام وارد نشده"}</p>
-            <UserRole roles={session?.roles as User["roles"]} />
+          <div className="space-y-2  lg:visible lg:block hidden invisible">
+            <p className="text-xs lg:visible lg:block hidden invisible">
+              {session?.name || t("dearUser")}
+            </p>
+            <UserRole
+              className=" lg:visible lg:block hidden invisible"
+              roles={session?.roles as User["roles"]}
+            />
           </div>
         </div>
       </Dropdown>
     );
   } else {
-    return <p className="text-sm text-slate-500">درحال بارگذاری ...</p>;
+    return (
+      <p className="text-sm text-slate-500">{globalT("pleaseWait")}</p>
+    );
   }
 };
 

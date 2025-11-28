@@ -41,10 +41,11 @@ const EditOrderDrawer = ({
   const [isPending, startTransition] = useTransition();
 
   const handleOk = () => {
+ 
     startTransition(async () => {
       const res = await updateOrder({
         order: order._id,
-        statusCode: Number(status?.statusCode),
+        statusCode: Number(status?.statusCode) || order.status.code,
         quantity: values.quantity,
         quantityComp: values.quantityComp,
         startNumber: values.startNumber,

@@ -4,6 +4,7 @@ import { updateUserInfos } from "@/core/actions";
 import { User } from "@/core/types/types";
 import { Button, Input, InputNumber, InputNumberProps, Select } from "antd";
 import { Coins } from "lucide-react";
+import { useTranslations } from "next-intl";
 import React, { useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -20,6 +21,8 @@ const EditUserInfos = ({
 }) => {
   const [values, setValues] = useState<User>(user);
   const [isEditingData, startTransition] = useTransition();
+  const t = useTranslations("users")
+  const commonT = useTranslations("common")
 
   const isCurrencyTOMAN = values.accountInfo.currency == "TOMAN"
 
@@ -44,7 +47,7 @@ const EditUserInfos = ({
           if (res.status) {
             toggleDrawer()
             onSuccess()
-            toast.success("اطلاعات کاربر با موفقیت تغییر کرد", {
+            toast.success(t('user_status_changed'), {
               position: "top-right",
             });
           } else {
@@ -57,7 +60,7 @@ const EditUserInfos = ({
       footer={
         <div className="flex items-center gap-2 py-3 justify-end">
           <Button color="red" variant="filled">
-            انصراف
+            {commonT("cancel")}
           </Button>
           <Button
             loading={isEditingData}
@@ -65,12 +68,12 @@ const EditUserInfos = ({
             variant="solid"
             color="blue"
           >
-            ذخیره ویرایش
+            {commonT("saveChanges")}
           </Button>
         </div>
       }
       className="*:space-y-4"
-      title="ویرایش اطلاعات کاربر"
+      title={t("changeUserDetails")}
       open={isDrawerOpen}
       onClose={toggleDrawer}
     >

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "sonner";
 
 export const sendRequest = axios.create({
     baseURL: "https://api.rivafollower.com/base",
@@ -36,6 +37,11 @@ sendRequest.interceptors.response.use(
         const { config, response, request } = error;
 
         if (response) {
+            if (response.status == 400) {
+                return toast.error('عملیات ناموفق بود !',{
+                    description: response.data.data
+                })
+            }
             console.error("خطای پاسخ سرور ❌", {
                 url: config?.url,
                 method: config?.method?.toUpperCase(),

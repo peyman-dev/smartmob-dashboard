@@ -9,6 +9,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { tv } from "tailwind-variants";
 import EditUserInfos from "./fragments/edit-user-infos";
+import { useTranslations } from "next-intl";
 
 const ModerateUser = ({
   user,
@@ -17,6 +18,8 @@ const ModerateUser = ({
   user: User;
   onSuccess: () => void;
 }) => {
+  const t= useTranslations("users")
+  const gt = useTranslations()
   const [isOpen, toggle] = useToggle();
   const [isPending, startTransition] = useTransition();
   const [isDropdownOpen, toggleDropdown] = useToggle();
@@ -42,7 +45,7 @@ const ModerateUser = ({
       });
 
       if (response.status) {
-        toast.success("وضعیت کاربر با موفقیت تغییر کرد");
+        toast.success(t("user_status_changed"));
       } else {
         toast.error("خطایی رخ داده است.");
       }
@@ -57,13 +60,13 @@ const ModerateUser = ({
       label: "مدیریت دسترسی کاربر",
       extra: <Lock className="size-4.5" />,
       key: 1,
-      onClick: toggle,
+        onClick:() => toggle(),
       className: "h-10 text-sm!",
     },
     {
       label: "تغییر اطلاعات",
       key: 2,
-      onClick: toggleDrawer,
+        onClick:() => toggleDrawer(),
       className: "h-10 text-sm!",
       extra: <UserPen className="size-4.5" />,
     },
@@ -92,22 +95,17 @@ const ModerateUser = ({
           color: isUserBanned ? "blue" : "red",
           loading: isPending,
         }}
-        title={isUserBanned ? "آزادسازی کاربر" : "محدودسازی کاربر"}
+        title={isUserBanned ? t("unblockUser") : t("blockUser")}
         className="**:font-estedad!"
-        okText="تائید"
-        onCancel={toggle}
-        cancelText="انصراف"
+        okText={gt("common.confirm")}
+        onCancel={() => (toggle())}
+        cancelText={gt("common.cancel")}
         onOk={handleOk}
         // centered
       >
         <div className="py-10 text-center">
           <p>
-            آیا از {isUserBanned ? "آزادسازی این" : "محدود کردن"} کاربر
-            <span className="underline font-bold max-w-max mx-1">
-              {" "}
-              {user.accountInfo.name}{" "}
-            </span>
-            اطمینان دارید؟
+          {t("confirm_user_restriction", {username: user.accountInfo.username, action: isUserBanned ? t("unblockUser") : t("blockUser")})}
           </p>
         </div>
       </Modal>

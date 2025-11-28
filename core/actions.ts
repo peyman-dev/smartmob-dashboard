@@ -233,14 +233,33 @@ export const getTransactionHistory = async (params?: {
 export const getSettings = async () => {
   try {
     const session = await getSession();
-    const res = await sendRequest.get("/settings", {
+    const res = await sendRequest.get("/setting", {
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
       },
     });
 
-    const data = await res.data
-    return data
+    const data = await res.data;
+    return data;
+  } catch (error) {
+    return {
+      ok: false,
+      error,
+    };
+  }
+};
+
+export const getStatistics = async () => {
+  try {
+    const session = await getSession();
+    const res = await sendRequest.get("/admin/statistics", {
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+    });
+    const data = await res.data;
+
+    return data;
   } catch (error) {
     return {
       ok: false,
@@ -248,3 +267,22 @@ export const getSettings = async () => {
     }
   }
 };
+
+
+export const getUserById = async (user: string) => {
+  try {
+    const res = await sendRequest.get("/admin/users", {
+      params: {
+        user,
+        page:0, 
+        limit: 20
+      }
+    })
+    const data= await res.data
+    return data
+  } catch (error) {
+    return {
+      ok: false,error
+    }
+  }
+}

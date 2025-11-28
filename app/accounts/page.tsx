@@ -1,8 +1,14 @@
-import React from 'react'
-import ClientPage from './client-page'
+"use client"
+import React, { Suspense } from "react";
+import LoadingScreen from "@/components/common/loading-screen";
+import AccountsPage from "./client-page";
 
 const page = () => {
-  return <ClientPage />
-}
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      {<AccountsPage />}
+    </Suspense>
+  );
+};
 
-export default page
+export default page;

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import DynamicAuthHeader from "../common/dynamic-auth-header";
+import DynamicAuthHeader from "../../templates/auth/common/dynamic-auth-header";
 import AuthInput from "./auth-input";
 import LoginFormActions from "./actions";
 import LoginButton from "./login-button";
@@ -13,12 +13,14 @@ import { toast } from "sonner";
 import { useSessionStore } from "@/core/stores/auth.store";
 import { redirect } from "next/navigation";
 import { User } from "@/core/types/types";
+import { useTwoAuthentication } from "@/core/stores/two.athentication.store";
 
 const LoginForm = ({
   handleCookies,
 }: {
   handleCookies: (user: any) => void;
 }) => {
+  const {setIsOTPSent} = useTwoAuthentication()
   const { updateSession } = useSessionStore();
   const {
     getValues,
@@ -36,6 +38,7 @@ const LoginForm = ({
   });
 
   const submitted = async (values: any) => {
+    // setIsOTPSent(true)
     toast.promise(
       login({
         password: values.password,

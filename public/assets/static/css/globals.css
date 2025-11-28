@@ -45,3 +45,7 @@ button {
 .ag-cell {
   @apply flex! items-center! gap-2! **:flex! **:items-center! **:gap-2!;
 }
+
+canvas {
+  @apply font-estedad! **:font-estedad!
+}

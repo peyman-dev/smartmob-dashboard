@@ -1,4 +1,12 @@
 {
+  "pages": {
+    "home": "خانه",
+    "orders": "سفارشات",
+    "transfers": "انتقالات",
+    "accounts": "حساب‌ها",
+    "users": "کاربران",
+    "settings": "تنظیمات"
+  },
   "sidebar": {
     "home": "خانه",
     "orders": "سفارشات",
@@ -32,8 +40,142 @@
     "latestOrders": "آخرین سفارشات",
     "latestUsers": "جدیدترین کاربران"
   },
+  "accounts": {
+    "user": "کاربر",
+    "fullName": "نام کامل",
+    "numericId": "آیدی عددی",
+    "username": "یوزرنیم",
+    "gender": "جنسیت",
+    "filterForm": {
+      "id": {
+        "label": "شناسه",
+        "placeholder": "مثلاً 123"
+      },
+      "status": {
+        "label": "وضعیت",
+        "options": {
+          "active": "فعال",
+          "inactive": "غیرفعال",
+          "pending": "در انتظار"
+        }
+      },
+      "isAdmin": {
+        "label": "ادمین"
+      }
+    }
+  },
+  "orders": {
+    "orderId": "شناسه سفارش",
+    "user": "کاربر",
+    "target": "هدف",
+    "targetId": "شناسه هدف",
+    "image": "تصویر",
+    "price": "مبلغ سفارش",
+    "quantity": "تعداد درخواستی",
+    "quantityComp": "تعداد تکمیل شده‌ها",
+    "quantityStart": "تعداد هنگام شروع",
+    "mode": "نوع سفارش",
+    "dateCreate": "تاریخ ثبت",
+    "dateUpdate": "تاریخ آخرین بروزرسانی",
+    "manage": "مدیریت",
+    "editOrder": "ویرایش سفارش"
+  },
+  "table": {
+    "contains": "شامل",
+    "notContains": "شامل نشود",
+    "equals": "مساوی",
+    "notEqual": "نامساوی",
+    "startsWith": "شروع با",
+    "endsWith": "پایان با",
+    "filterOoo": "فیلتر...",
+    "noRowsToShow": "داده‌ای یافت نشد",
+    "page": "صفحه",
+    "to": "تا",
+    "of": "از",
+    "loadingOoo": "در حال بارگذاری..."
+  },
+  "transfers": {
+    "id": "شناسه انتقال",
+    "sender": "فرستنده",
+    "receiver": "دریافت کننده",
+    "coinType": "نوع سکه",
+    "coinCount": "تعداد سکه",
+    "createdAt": "زمان ایجاد",
+    "actions": "مدیریت",
+
+    "unknown": "نامشخص",
+    "followCoin": "سکه فالو",
+    "sharedCoin": "سکه مشترک",
+    "countSuffix": "عدد"
+  },
+  "users": {
+    "id": "شناسه کاربر",
+    "deviceId": "شناسه دستگاه",
+    "profile": "پروفایل کاربر",
+    "coins": "موجودی سکه‌ها",
+    "token": "توکن کاربر",
+    "balance": "موجودی حساب",
+    "currency": "ارز",
+    "status": "وضعیت حساب",
+    "status_blocked": "مسدود شده",
+    "status_active": "آزاد",
+    "manage": "مدیریت کاربر",
+    "noName": "بدون نام",
+    "confirm_user_restriction": "آیا از {action} کاربر {username} اطمینان دارید؟",
+    "unblockUser": "آزادسازی ",
+    "blockUser": "مسدود کاردن ",
+    "user_status_changed": "وضعیت کاربر با موفقیت تغییر کرد",
+    "changerUserDetails": "ویرایش اطلاعات کاربر",
+    "user_status": "وضعیت کاربر",
+    "status_placeholder": "همه وضعیت‌ها",
+    "status_free": "آزاد",
+    "device_id": "شناسه دستگاه",
+    "device_id_placeholder": "مثال: abc123def456...",
+    "account": "نام کاربری (account)",
+    "account_placeholder": "مثال: @username یا username",
+    "search_button": "جستجو",
+    "clear_button": "پاک کردن",
+    "searchUsers": "جستجوی کاربران"
+  },
+  "orderFilters": {
+    "orderStatus": "وضعیت سفارش",
+    "allStatuses": "همه وضعیت‌ها",
+
+    "status_0": "در حال پردازش",
+    "status_1": "تکمیل شده",
+    "status_2": "در حال انجام",
+    "status_3": "انصراف داده شده",
+    "status_4": "جزئی",
+
+    "userId": "شناسه کاربر",
+    "userId_placeholder": "مثال: 974d0b40006...",
+
+    "service": "سرویس",
+    "service_placeholder": "شناسه یا نام سرویس",
+
+    "target": "هدف (target)",
+    "target_placeholder": "مثال: post, profile",
+
+    "targetId": "شناسه هدف (targetId)",
+    "targetId_placeholder": "شناسه عددی یا رشته‌ای هدف",
+
+    "dateStart": "از تاریخ و ساعت",
+    "dateStart_placeholder": "تاریخ و ساعت شروع",
+
+    "dateEnd": "تا تاریخ و ساعت",
+    "dateEnd_placeholder": "تاریخ و ساعت پایان"
+  },
 
   "common": {
+    "filter": "فیلترسازی",
+    "applyFilter": "اعمال فیلتر",
+    "priceModel": {
+      "USD": "دلار",
+      "TOMAN": "تومان",
+      "follow": "سکه فالوور",
+      "default": "سکه مشترک"
+    },
+    "dynamicCoins": "{count} سکه {coinType, select, follow {فالوور} other {مشترک}}",
     "amount": "مقدار",
     "orderStatuses": {
       "0": "در انتظار",
@@ -61,9 +203,28 @@
     },
     "pleaseWait": "لطفا منتظر بمانید ..",
     "userRole": {
-        "manager": "مدیر",
-        "admin": "ادمین",
-        "ghost": "کاربر مهمان"
-    }
+      "manager": "مدیر",
+      "admin": "ادمین",
+      "ghost": "کاربر مهمان"
+    },
+    "professionalSearch": "جستجوی پیشرفته",
+    "dataList": "لیست داده‌ها",
+    "search": "جستجو",
+    "clear": "پاکسازی",
+    "saveChanges": "ذخیره تغییرات",
+    "cancel": "انصراف",
+    "confirm": "تائید و ادامه",
+    "doSearch": "جستجو کنید",
+    "clickToCopy": "کلیک برای کپی",
+    "copied": "کپی شد!",
+    "yes": "بله",
+    "no": "خیر",
+    "gender": {
+      "-1": "در انتظار بررسی",
+      "0": "مرد",
+      "1": "زن",
+      "2": "مشترک"
+    },
+    "id": "شناسه"
   }
 }

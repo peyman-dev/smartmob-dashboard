@@ -1,4 +1,5 @@
 "use client";
+
 import DynamicDrawer from "@/components/common/drawer";
 import useToggle from "@/core/hooks/use-toggle";
 import { Button, DatePicker, Input, Select } from "antd";
@@ -6,6 +7,7 @@ import { Search } from "lucide-react";
 import React, { useTransition } from "react";
 import { useSearchStore } from "./search.store";
 import dayjs from "dayjs";
+import { useTranslations } from "next-intl";
 
 type SearchFormValues = {
   status?: 0 | 1 | 2 | 3 | 4;
@@ -13,11 +15,14 @@ type SearchFormValues = {
   serviceId?: string;
   target?: string;
   targetId?: string;
-  dateStart?: number; // timestamp in ms
-  dateEnd?: number;   // timestamp in ms
+  dateStart?: number;
+  dateEnd?: number;
 };
 
-const SearchOrders = () => {
+const OrderFilters = () => {
+  const tCommon = useTranslations("common");
+  const t = useTranslations("orderFilters");
+
   const [values, setValues] = React.useState<SearchFormValues>({});
   const [isDrawerOpen, toggle] = useToggle();
   const [isPending, startTransition] = useTransition();
@@ -35,16 +40,15 @@ const SearchOrders = () => {
         target: values.target?.trim() || undefined,
         targetId: values.targetId?.trim() || undefined,
         dateStart: values.dateStart,
-        dateEnd: values.dateEnd,
+        dateEnd: values.dateEnd
       });
-
-      toggle(); // اختیاری: بعد از جستجو دراور بسته بشه
+      toggle();
     });
   };
 
   const handleClear = () => {
-      toggle(); // اختیاری: بعد از جستجو دراور بسته بشه
-      setValues({});
+    toggle();
+    setValues({});
     clearSearch();
   };
 
@@ -52,42 +56,43 @@ const SearchOrders = () => {
     <>
       <div className="*:cursor-pointer *:flex *:items-center *:gap-1 *:h-10 *:rounded-lg *:bg-white *:justify-center *:hover:shadow-sm text-xs *:px-3 *:border *:border-zinc-200">
         <Button
-          onClick={toggle}
+          onClick={() => toggle()}
           className="h-10!"
           iconPosition="end"
           icon={<Search className="size-4.5" />}
         >
-          <span>جستجو پیشرفته</span>
+          <span>{tCommon("professionalSearch")}</span>
         </Button>
       </div>
 
-      <DynamicDrawer open={isDrawerOpen} toggle={toggle} title="جستجو کنید">
+      <DynamicDrawer open={isDrawerOpen} toggle={toggle} title={tCommon("doSearch")}>
         <div className="space-y-5">
+
           {/* وضعیت سفارش */}
           <div className="space-y-2">
-            <label>وضعیت سفارش</label>
+            <label>{t("orderStatus")}</label>
             <Select
               allowClear
-              placeholder="همه وضعیت‌ها"
+              placeholder={t("allStatuses")}
               className="w-full h-10"
               value={values.status}
               onChange={(v) => setValues((p) => ({ ...p, status: v }))}
               options={[
-                { label: "در حال پردازش", value: 0 },
-                { label: "تکمیل شده", value: 1 },
-                { label: "در حال انجام", value: 2 },
-                { label: "انصراف داده شده", value: 3 },
-                { label: "جزئی", value: 4 },
+                { label: t("status_0"), value: 0 },
+                { label: t("status_1"), value: 1 },
+                { label: t("status_2"), value: 2 },
+                { label: t("status_3"), value: 3 },
+                { label: t("status_4"), value: 4 }
               ]}
             />
           </div>
 
           {/* شناسه کاربر */}
           <div className="space-y-2">
-            <label>شناسه کاربر</label>
+            <label>{t("userId")}</label>
             <Input
               dir="ltr"
-              placeholder="مثال: 974d0b40006..."
+              placeholder={t("userId_placeholder")}
               value={values.user ?? ""}
               onChange={(e) => setValues((p) => ({ ...p, user: e.target.value }))}
             />
@@ -95,10 +100,10 @@ const SearchOrders = () => {
 
           {/* سرویس */}
           <div className="space-y-2">
-            <label>سرویس</label>
+            <label>{t("service")}</label>
             <Input
               dir="ltr"
-              placeholder="شناسه یا نام سرویس"
+              placeholder={t("service_placeholder")}
               value={values.serviceId ?? ""}
               onChange={(e) => setValues((p) => ({ ...p, serviceId: e.target.value }))}
             />
@@ -106,10 +111,10 @@ const SearchOrders = () => {
 
           {/* هدف */}
           <div className="space-y-2">
-            <label>هدف (target)</label>
+            <label>{t("target")}</label>
             <Input
               dir="ltr"
-              placeholder="مثال: post, profile"
+              placeholder={t("target_placeholder")}
               value={values.target ?? ""}
               onChange={(e) => setValues((p) => ({ ...p, target: e.target.value }))}
             />
@@ -117,42 +122,46 @@ const SearchOrders = () => {
 
           {/* شناسه هدف */}
           <div className="space-y-2">
-            <label>شناسه هدف (targetId)</label>
+            <label>{t("targetId")}</label>
             <Input
               dir="ltr"
-              placeholder="شناسه عددی یا رشته‌ای هدف"
+              placeholder={t("targetId_placeholder")}
               value={values.targetId ?? ""}
               onChange={(e) => setValues((p) => ({ ...p, targetId: e.target.value }))}
             />
           </div>
 
-          {/* از تاریخ */}
+          {/* تاریخ شروع */}
           <div className="space-y-2">
-            <label>از تاریخ</label>
+            <label>{t("dateStart")}</label>
             <DatePicker
+              showTime
+              dir="ltr"
               className="w-full h-10"
-              placeholder="انتخاب تاریخ"
+              placeholder={t("dateStart_placeholder")}
               value={values.dateStart ? dayjs(values.dateStart) : null}
               onChange={(date) =>
                 setValues((p) => ({
                   ...p,
-                  dateStart: date ? date.startOf("day").valueOf() : undefined,
+                  dateStart: date ? date.valueOf() : undefined
                 }))
               }
             />
           </div>
 
-          {/* تا تاریخ */}
+          {/* تاریخ پایان */}
           <div className="space-y-2">
-            <label>تا تاریخ</label>
+            <label>{t("dateEnd")}</label>
             <DatePicker
+              showTime
+              dir="ltr"
               className="w-full h-10"
-              placeholder="انتخاب تاریخ"
+              placeholder={t("dateEnd_placeholder")}
               value={values.dateEnd ? dayjs(values.dateEnd) : null}
               onChange={(date) =>
                 setValues((p) => ({
                   ...p,
-                  dateEnd: date ? date.endOf("day").valueOf() : undefined,
+                  dateEnd: date ? date.valueOf() : undefined
                 }))
               }
             />
@@ -167,10 +176,11 @@ const SearchOrders = () => {
               loading={isPending || isSearching}
               onClick={handleSearch}
             >
-              جستجو
+              {tCommon("search")}
             </Button>
+
             <Button size="large" className="flex-1" onClick={handleClear}>
-              پاک کردن
+              {tCommon("clear")}
             </Button>
           </div>
         </div>
@@ -179,4 +189,4 @@ const SearchOrders = () => {
   );
 };
 
-export default SearchOrders;
+export default OrderFilters;

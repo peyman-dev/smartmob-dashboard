@@ -1,9 +1,19 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 
-const useToggle = (): [isOpen: boolean, toggle: () => void] => {
-  const [state, setState] = useState(false);
-  const toggle = () => setState(!state);
+const useToggle = (
+  init: boolean = false
+): [boolean, (custom?: boolean) => void] => {
+  const [state, setState] = useState(init);
+
+  const toggle = (custom?: boolean) => {
+    if (typeof custom === "boolean") {
+      setState(custom);
+    } else {
+      setState((prev) => !prev);
+    }
+  };
+
   return [state, toggle];
 };
 
