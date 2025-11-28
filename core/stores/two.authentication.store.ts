@@ -2,6 +2,10 @@ import { create } from "zustand";
 
 interface IProps {
     isOTPSent: boolean,
+    username: string,
+    password: string,
+    setUsername: (username: string) => void; 
+    setPassword: (password: string) => void;
     setIsOTPSent: (isOTPSent: boolean) => void;
     OTPCode: number,
     setOTPCode: (OTPCode: number) => void;
@@ -13,7 +17,15 @@ export const useTwoAuthentication = create<IProps>((set) => ({
   setIsOTPSent: (isOTPSent) => set({ isOTPSent }),
   OTPCode: 0,
   setOTPCode: (OTPCode) => set({OTPCode}),
-  status: "none"
+  status: "none",
+  username: "",
+  password: "",
+  setPassword(password) {
+    set({password})
+  },
+  setUsername(username) {
+    set({username})
+  },
 }));
 
 

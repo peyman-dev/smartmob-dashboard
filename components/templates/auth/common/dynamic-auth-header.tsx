@@ -1,5 +1,5 @@
 "use client";
-import { useTwoAuthentication } from "@/core/stores/two.athentication.store";
+import { useTwoAuthentication } from "@/core/stores/two.authentication.store";
 import React from "react";
 
 const DynamicAuthHeader = () => {
