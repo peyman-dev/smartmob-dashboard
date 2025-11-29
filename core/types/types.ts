@@ -139,3 +139,57 @@ export type CoinTransaction = {
 }
 
 export type Locale = "en" | "fa"
+
+
+type CurrencyLimits = {
+  min: number;
+  max: number;
+};
+
+type CheckoutMinMax = {
+  TOMAN: CurrencyLimits;
+  USD: CurrencyLimits;
+};
+
+type Url = {
+  nameServer: string;
+  urlServer: string;
+};
+
+type PrivacyItem = {
+  title: string;
+  data: string;
+};
+
+type FaqItem = {
+  title: string;
+  data: string;
+};
+
+export type Setting = 
+  | { name: "systemStatus"; desc: string; data: { enfejarTimer: boolean } }
+  | { name: "socialsMedia"; desc: string; data: { 
+      telegramSupport: string; 
+      telegramChannel: string; 
+      instagramSupport: string; 
+      instagramPage: string; 
+      website: string 
+    } }
+  | { name: "ipServer"; desc: string; data: string }
+  | { name: "lastVersion"; desc: string; data: number }
+  | { name: "changeList"; desc: string; data: string }
+  | { name: "zarinPalMerchant"; desc: string; data: string }
+  | { name: "zarinPalRedirect"; desc: string; data: string }
+  | { name: "checkoutMinMax"; desc: string; data: CheckoutMinMax }
+  | { name: "urls"; desc: string; data: Url[] }
+  | { name: "privacy"; desc: string; data: PrivacyItem[] }
+  | { name: "faq"; desc: string; data: FaqItem[] }
+  | { name: "lastOrderId"; desc: string; data: number }
+  | { name: "lastVersionEnable"; desc: string; data: number }
+  | { name: "newVersionLink"; desc: string; data: string }
+  | { name: "orderLimit"; desc: string; data: CurrencyLimits };
+
+// اگر بخوای کل تنظیمات رو به صورت آرایه مدیریت کنی
+export type SettingsArray = Setting[];
+
+export type UserFindEndpoints = "users" | "accounts" | "transfers";

@@ -1,4 +1,6 @@
 // stores/useUserSearchStore.ts
+import { getUserById } from "@/core/actions";
+import { User } from "@/core/types/types";
 import { create } from "zustand";
 
 type UserSearchParams = {
@@ -16,6 +18,7 @@ interface UserSearchStore {
   setIsSearching: (value: boolean) => void;
   setSearchResult: (result: any) => void;
   clearSearch: () => void;
+  searchById: (userId: string) => Promise<any>;
 }
 
 const buildQuery = (params?: UserSearchParams): string => {
@@ -54,4 +57,13 @@ export const useUserSearchStore = create<UserSearchStore>((set) => ({
   setIsSearching: (value) => set({ isSearching: value }),
   setSearchResult: (result) => set({ searchResult: result }),
   clearSearch: () => set({ searchResult: null, isSearching: false }),
+  async searchById(userId) {
+    await searchUser(userId)
+  },
 }));
+
+const searchUser = async (userId: string) => {
+  try {
+    // const res = await getUserById(userId);
+  } catch (error) {}
+};

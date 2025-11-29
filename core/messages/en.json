@@ -112,6 +112,8 @@
   "users": {
     "id": "User ID",
     "deviceId": "Device ID",
+    "userAccessManagement": "User Access Management",
+    "editInformation": "Edit Information",
     "profile": "User Profile",
     "coins": "Coin Balance",
     "token": "User Token",

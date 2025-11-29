@@ -42,17 +42,18 @@ const persianComparator = (a: any, b: any) => {
 };
 
 const UsersTable = () => {
-    const { data, refetch, isLoading } = useQuery({
-      queryKey: ["users"],
-      queryFn: async () =>
-        await getUsersList({
-          params: {
-            limit: 20,
-            page: 0,
-          },
-        }),
-    });
-  const { clearSearch, isSearching, searchResult } = useUserSearchStore();
+  const { data, refetch, isLoading } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () =>
+      await getUsersList({
+        params: {
+          limit: 20,
+          page: 0,
+        },
+      }),
+  });
+  const { clearSearch, isSearching, searchResult, searchById } =
+    useUserSearchStore();
   const [isFiltering, toggle] = useToggle(false);
   const [filterUserId, setFilterUserId] = useState("");
   const params = useSearchParams();
@@ -96,7 +97,9 @@ const UsersTable = () => {
         p.data?.accountInfo.coin?.follow ?? 0,
       cellRenderer: (p: any) =>
         p.data && (
-          <Copyable text={`{follow: ${p.data?.accountInfo.coin?.follow}, other: ${p.data?.accountInfo.coin?.other}}`}>
+          <Copyable
+            text={`{follow: ${p.data?.accountInfo.coin?.follow}, other: ${p.data?.accountInfo.coin?.other}}`}
+          >
             <UserCoins user={p.data} />
           </Copyable>
         ),
@@ -181,10 +184,19 @@ const UsersTable = () => {
     },
   ];
 
+  const getTargetUserDetails = async () => {
+    const users: User[] = data?.data
+    const deviceId = users?.find(user => user._id == paramsFilterUserId)?.deviceId
+    console.log(deviceId, paramsFilterUserId)
+    await searchById(paramsFilterUserId);
+  };
+
   useEffect(() => {
     getFilterParams();
+    getTargetUserDetails()
     return () => {};
-  }, [paramsIsFiltering, paramsFilterUserId, path]);
+  }, [paramsIsFiltering, paramsFilterUserId, path, data, data?.data]);
+  console.log(data?.data)
 
   if (!data?.data?.length || isLoading) return <LoadingScreen />;
   return (
@@ -199,8 +211,8 @@ const UsersTable = () => {
                 defaultOpen={isFiltering}
                 onSubmit={async (values) => {
                   console.log(values._id);
-                  const res = await getUserById(values?._id);
-                  console.log(res);
+                  // const res = await getUserById(values?._id);
+                  // console.log(res);
                 }}
               />
             </div>

@@ -16,7 +16,6 @@ const UserProfile = () => {
   const t = useTranslations("common.profileDropdown");
   const globalT = useTranslations("common");
 
-  console.log(session);
   const menuItems: MenuProps["items"] = [
     {
       label: t("myAccount"),

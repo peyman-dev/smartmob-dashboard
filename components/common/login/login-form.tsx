@@ -13,15 +13,13 @@ import { toast } from "sonner";
 import { useSessionStore } from "@/core/stores/auth.store";
 import { redirect } from "next/navigation";
 import { User } from "@/core/types/types";
-import { useTwoAuthentication } from "@/core/stores/two.athentication.store";
+import { useTwoAuthentication } from "@/core/stores/two.authentication.store";
+import { useTransition } from "react";
 
-const LoginForm = ({
-  handleCookies,
-}: {
-  handleCookies: (user: any) => void;
-}) => {
-  const {setIsOTPSent} = useTwoAuthentication()
+const LoginForm = () => {
+  const { setIsOTPSent, setPassword, setUsername } = useTwoAuthentication();
   const { updateSession } = useSessionStore();
+  const [isPending, startAsyncAction] = useTransition();
   const {
     getValues,
     register,
@@ -38,41 +36,58 @@ const LoginForm = ({
   });
 
   const submitted = async (values: any) => {
-    // setIsOTPSent(true)
-    toast.promise(
-      login({
-        password: values.password,
-        username: values.username,
-      }).then(async (r) => {
-        if (r.code == 1) {
-          throw new Error("نام کاربری یا گذروژه نامعتبر است.", { cause: r });
-        } else {
-          if (r.code == 200) {
-            await handleCookies(r.data as User);
-            await updateSession();
+    // toast.promise(
+    startAsyncAction(
+      async () =>
+        await login({
+          password: values.password,
+          username: values.username,
+        }).then(async (r) => {
+          if (r.code == 1) {
+            toast.error("اطلاعات نامعتبر", {
+              position: "top-right",
+              description: "نام کاربری یا گذرواژه شما اشتباه است."
+            });
+          } else if (r.code == 4) {
+            toast.error("لطفا منتظر بمانید", {
+              position: "top-right",
+              description: "رمز یکبار مصرف برای شما ارسال شده است"
+            });
+            setIsOTPSent(true)
+          } else {
+            if (r.code == 201) {
+              // await handleCookies(r.data as User);
+              setUsername(values.username);
+              setPassword(values.password);
+              setIsOTPSent(true);
+              toast.success("کد عبور با موفقیت ارسال گردید", {
+                position: "top-right",
+              });
+              // await updateSession();
+            }
           }
-          return r;
-        }
-      }),
-      {
-        closeButton: true,
-        loading: "درحال ورود به حساب کاربری ...",
-        className: "font-estedad!",
-        success: "شما با موفقیت وارد شدید !",
-        duration: 2500,
-        error: (r) => {
-          return r.message;
-        },
-        description(data) {
-          if (data.code == 200) {
-            return "درحال انتقال, لطفا صبور باشید ..";
-          }
-        },
-        onAutoClose(toast) {
-          redirect("/");
-        },
-      }
+        })
     );
+
+    // {
+    //   closeButton: true,
+    //   loading: "درحال ورود به حساب کاربری ...",
+    //   className: "font-estedad!",
+    //   success: "شما با موفقیت وارد شدید !",
+    //   duration: 2500,
+    //   error: (r) => {
+    //     return r.message;
+    //   },
+    //   description(data) {
+    //     if (data.code == 200) {
+    //       return "درحال انتقال, لطفا صبور باشید ..";
+    //     }
+    //   },
+    //   onAutoClose(toast) {
+    //     redirect("/");
+    //   },
+    // }
+    // );
   };
 
   return (
@@ -104,7 +119,7 @@ const LoginForm = ({
         />
       </WithError>
       <LoginFormActions />
-      <LoginButton onSubmit={() => {}} />
+      <LoginButton loading={isPending} />
     </form>
   );
 };

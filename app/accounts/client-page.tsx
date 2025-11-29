@@ -3,19 +3,21 @@
 "use client";
 export const revalidate = 0;
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import { keepPreviousData } from "@tanstack/react-query";
 
 import ProfessionalTable from "@/components/common/professional-table";
-import { getAccounts } from "@/core/actions";
+import { getAccount, getAccounts } from "@/core/actions";
 import { Account } from "@/core/types/types";
 import type { ColDef } from "ag-grid-community";
 
 import Link from "next/link";
 import dynamic from "next/dynamic"; // این خط رو فراموش نکن!
 import { FilterField } from "@/components/templates/auth/common/filter";
+import useUserFinder from "@/core/hooks/use-user-finder";
+import { Button } from "antd";
 
 // dynamic import با ssr: false
 const Filter = dynamic(
@@ -36,6 +38,15 @@ const AccountsPage = () => {
 
   const t = useTranslations("accounts");
   const commonT = useTranslations("common");
+  const {userId,clearAllParams,foundedUsers,isSearchingUser} = useUserFinder()
+
+  useEffect(() => {
+    const f = async () => {
+      const r = await getAccount(userId as string)
+      console.log(r)
+    }
+    f()
+  },[userId])
 
   const { data, isLoading } = useQuery({
     queryKey: ["accounts", queries],
@@ -51,10 +62,10 @@ const AccountsPage = () => {
       flex: 1,
       cellRenderer: ({ data }: { data: Account }) => (
         <Link
-          href={`/users?isFiltering=1&_id=${data._id}`}
+          href={`/users?isFiltering=1&_id=${data.userId}`}
           className="underline text-blue-600 hover:text-blue-800"
         >
-          {data?.user || "-"}
+          {data?.userId || "-"}
         </Link>
       ),
     },
@@ -107,20 +118,24 @@ const AccountsPage = () => {
     },
   ];
 
+  console.log(data)
   return (
-    <div className="p-4">
+    <div className="  container">
       <ProfessionalTable
-        HeaderActions={
+        HeaderActions={<div className="flex items-center gap-2">
           <Filter
             onSubmit={(values) => {
               console.log("فیلتر اعمال شد:", values);
               // بعداً اینجا setQueries رو آپدیت می‌کنی
             }}
             fields={filterFields}
-          />
+            />
+            <Button onClick={clearAllParams}>
+            </Button>
+            </div>
         }
         columnDefs={columnDefs}
-        rowData={accounts}
+        rowData={isSearchingUser ? foundedUsers as any[] : accounts}
         loading={isLoading}
         domLayout="autoHeight"
       />

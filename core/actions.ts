@@ -1,10 +1,21 @@
 "use server";
 import { sendRequest } from "./lib/axios";
 import { LoginPayloadType } from "./types/actions.types";
-import { Order, User } from "./types/types";
+import { Order, User, UserFindEndpoints } from "./types/types";
 import { getSession } from "./utils/session";
 
 export const login = async (payload: LoginPayloadType) => {
+  const writeParams = () => {
+    if (payload?.code) {
+      return {
+        params: {
+          code: payload.code,
+        },
+      };
+    } else {
+      return null;
+    }
+  };
   try {
     const res = await sendRequest.post(
       "/enrollment/login",
@@ -13,6 +24,7 @@ export const login = async (payload: LoginPayloadType) => {
         headers: {
           "Content-Type": "application/json",
         },
+        ...writeParams(),
       }
     );
 
@@ -263,26 +275,106 @@ export const getStatistics = async () => {
   } catch (error) {
     return {
       ok: false,
-      error
-    }
+      error,
+    };
   }
 };
 
 
-export const getUserById = async (user: string) => {
+export const getUserById = async (
+  endpoint: UserFindEndpoints,
+  user: string
+) => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    return { ok: false, error: "No access token" };
+  }
+
+  const params: Record<string, any> = {
+    page: 0,
+    limit: 20,
+  };
+
+  // مپ کردن endpoint به آدرس واقعی API + پارامترهای صحیح
+  let url = "";
+  switch (endpoint) {
+    case "users":
+      url = "/admin/users";
+      params.account = user; // جستجو با username اکانت
+      break;
+
+    case "accounts":
+      url = "/admin/accounts";
+      params.user = user;      // جستجو با user _id
+      params.username = user;  // یا با username (هر دو رو می‌ذاریم که مطمئن بشیم)
+      break;
+
+    case "transfers":
+      url = "/admin/transcoin_history";  // این مهمه! نه transfers
+      params.sender = user;
+      params.receiver = user;
+      break;
+  }
+
   try {
-    const res = await sendRequest.get("/admin/users", {
+    const res = await sendRequest.get(url, {
+      params,
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    });
+
+    return { ok: true, data: res.data };
+  } catch (error: any) {
+    return {
+      ok: false,
+      error: error.response?.data || error.message || "Request failed",
+    };
+  }
+};
+
+export const getAccount = async (userId: string) => {
+  try {
+    const session = await getSession()
+    const res=  await sendRequest.get("/admin/accounts", {
       params: {
-        user,
-        page:0, 
-        limit: 20
+        user: userId
+      },
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
       }
     })
-    const data= await res.data
+
+    const data = await res.data
+
     return data
+
   } catch (error) {
-    return {
-      ok: false,error
-    }
+    
   }
 }
+
+
+export const updateSetting = async (name: string, value: string) => {
+  const session = await getSession();
+  try {
+    const res = await sendRequest.put("/admin/settings_edit", undefined, {
+      params: {
+        name,
+        data: value,
+      },
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+    });
+    const data = await res.data;
+
+    return data;
+  } catch (error) {
+    return {
+      ok: false,
+      error,
+    };
+  }
+};

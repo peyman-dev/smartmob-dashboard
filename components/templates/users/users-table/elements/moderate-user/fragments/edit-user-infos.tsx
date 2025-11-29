@@ -12,7 +12,7 @@ const EditUserInfos = ({
   isDrawerOpen,
   toggleDrawer,
   user,
-  onSuccess
+  onSuccess,
 }: {
   isDrawerOpen: boolean;
   toggleDrawer: () => void;
@@ -21,10 +21,10 @@ const EditUserInfos = ({
 }) => {
   const [values, setValues] = useState<User>(user);
   const [isEditingData, startTransition] = useTransition();
-  const t = useTranslations("users")
-  const commonT = useTranslations("common")
+  const t = useTranslations("users");
+  const commonT = useTranslations("common");
 
-  const isCurrencyTOMAN = values.accountInfo.currency == "TOMAN"
+  const isCurrencyTOMAN = values.accountInfo.currency == "TOMAN";
 
   const formatter: InputNumberProps<number>["formatter"] = (value) => {
     const [start, end] = `${value}`.split(".") || [];
@@ -32,8 +32,7 @@ const EditUserInfos = ({
     return `$ ${end ? `${v}.${end}` : `${v}`}`;
   };
 
-
-  const handleEdit =  () => {
+  const handleEdit = () => {
     startTransition(async () => {
       const { coin, currency, money } = values.accountInfo;
       const res = await updateUserInfos({
@@ -44,15 +43,15 @@ const EditUserInfos = ({
         moneyUSD: money.USD,
         user: values._id,
       });
-          if (res.status) {
-            toggleDrawer()
-            onSuccess()
-            toast.success(t('user_status_changed'), {
-              position: "top-right",
-            });
-          } else {
-            toast.error("خطایی هنگام ویرایش اطلاعات کاربر رخ داده است")
-          }
+      if (res.status) {
+        toggleDrawer();
+        onSuccess();
+        toast.success(t("user_status_changed"), {
+          position: "top-right",
+        });
+      } else {
+        toast.error("خطایی هنگام ویرایش اطلاعات کاربر رخ داده است");
+      }
     });
   };
   return (
@@ -95,27 +94,27 @@ const EditUserInfos = ({
           options={[
             {
               value: "TOMAN",
-              label: "تومان",
+              label: commonT("currency.TOMAN"),
               className: "font-estedad!",
-              disabled: isCurrencyTOMAN
+              disabled: isCurrencyTOMAN,
             },
             {
               value: "USD",
-              label: "دلار",
+              label: commonT("currency.USD"),
               className: "font-estedad!",
-              disabled: !isCurrencyTOMAN
+              disabled: !isCurrencyTOMAN,
             },
           ]}
         />
       </div>
       <div>
-        <label htmlFor="">موجودی حساب</label>
+        <label htmlFor="">{t("balance")}</label>
         <div className="mt-2! grid grid-cols-2 gap-4!">
           <div>
             <InputNumber
               formatter={formatter}
               value={values.accountInfo.money.TOMAN}
-              suffix="تومان"
+              suffix={commonT("currency.TOMAN")}
               className="h-10 mt-2.5! rounded-lg border border-neutral-200 w-full!"
               onChange={(value) => {
                 setValues((rest) => ({
@@ -131,7 +130,8 @@ const EditUserInfos = ({
               }}
             />
             <p className="text-xs mt-1 5 text-sky-500">
-              {values.accountInfo.money.TOMAN.toLocaleString("fa-IR")} تومان
+              {values.accountInfo.money.TOMAN.toLocaleString()}
+              {commonT("currency.TOMAN")}
             </p>
           </div>
           <div className="w-full!">
@@ -143,7 +143,7 @@ const EditUserInfos = ({
               formatter={formatter}
               value={Math.floor(values.accountInfo.money.USD)}
               className="h-10 mt-2.5! rounded-lg border border-neutral-200 w-full!"
-              suffix="دلار"
+              suffix={commonT("currency.USD")}
               onChange={(value) => {
                 setValues((rest) => ({
                   ...rest,
@@ -158,13 +158,14 @@ const EditUserInfos = ({
               }}
             />
             <p className="text-xs mt-1 5 text-sky-500 font-estedad!">
-              {values.accountInfo.money.USD.toLocaleString("fa-IR")} دلار
+              {values.accountInfo.money.USD.toLocaleString()}{" "}
+              {commonT("currency.USD")}
             </p>
           </div>
         </div>
       </div>
       <div>
-        <label htmlFor="">تعداد سکه‌ها</label>
+        <label htmlFor="">{t("coins")}</label>
         <div className="mt-2! grid grid-cols-2 gap-4!">
           <div>
             <InputNumber
@@ -185,7 +186,7 @@ const EditUserInfos = ({
               suffix={
                 <div className="flex items-center gap-1">
                   <Coins className="size-4 text-neutral-500" />
-                  <span className="text-xs text-neutral-500">فالوور</span>
+                  <span className="text-xs text-neutral-500">{commonT("priceModel.default")}</span>
                 </div>
               }
               className="h-10 mt-2.5! rounded-lg border border-neutral-200 w-full!"
@@ -199,7 +200,7 @@ const EditUserInfos = ({
               suffix={
                 <div className="flex items-center gap-1">
                   <Coins className="size-4 text-neutral-500" />
-                  <span className="text-xs text-neutral-500">مشترک</span>
+                  <span className="text-xs text-neutral-500">{commonT("priceModel.other")}</span>
                 </div>
               }
               onChange={(value: number | null) => {

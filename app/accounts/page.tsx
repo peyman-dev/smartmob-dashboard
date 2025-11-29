@@ -6,7 +6,7 @@ import AccountsPage from "./client-page";
 const page = () => {
   return (
     <Suspense fallback={<LoadingScreen />}>
-      {<AccountsPage />}
+      <AccountsPage />
     </Suspense>
   );
 };

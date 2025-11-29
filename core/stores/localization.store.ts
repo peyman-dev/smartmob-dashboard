@@ -22,7 +22,6 @@ export const useLocalization = create<LocalizationState>((set, get) => ({
     try {
       const res = await fetch("/api/locale/messages");
       const data = await res.json();
-      console.log(data)
       set({
         locale: data.locale,
         messages: data.messages,

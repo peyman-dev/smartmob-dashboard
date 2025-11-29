@@ -4,6 +4,7 @@ export const revalidate = 0;
 import LoadingScreen from "@/components/common/loading-screen";
 import ProfessionalTable from "@/components/common/professional-table";
 import { getTransactionHistory } from "@/core/actions";
+import useUserFinder from "@/core/hooks/use-user-finder";
 import { localeDate } from "@/core/lib/helpers";
 import { CoinTransaction } from "@/core/types/types";
 import { useQuery } from "@tanstack/react-query";
@@ -14,6 +15,7 @@ import Link from "next/link";
 import React from "react";
 
 const ClientPage = () => {
+  const {} = useUserFinder()
   const { data, isLoading } = useQuery({
     queryKey: ["coin_transactions"],
     queryFn: async () =>

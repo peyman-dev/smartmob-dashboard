@@ -2,13 +2,12 @@
 import { Button } from 'antd';
 import React, { useTransition } from 'react'
 
-const LoginButton = ({onSubmit}: {
-    onSubmit: () => void;
+const LoginButton = ({loading}: {
+  loading?: boolean
 }) => {
-    const [isPending, startTransition] = useTransition()
 
   return (
-    <Button htmlType='submit' variant='solid' color='blue' loading={isPending} className='w-full min-h-14! font-estedad! font-medium' >
+    <Button htmlType='submit' variant='solid' color='blue' loading={loading} className='w-full min-h-14! font-estedad! font-medium' >
         ورود
     </Button>
   )

@@ -4,12 +4,13 @@ import { moderateUserStatus } from "@/core/actions";
 import useToggle from "@/core/hooks/use-toggle";
 import { User } from "@/core/types/types";
 import { Dropdown, MenuProps, Modal } from "antd";
-import { Ban, Ellipsis, Lock, UserCheck, UserPen } from "lucide-react";
+import { Ban, Ellipsis, Lock, ShoppingBag, TrendingUpDown, UserCheck, UserPen, Users } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { tv } from "tailwind-variants";
 import EditUserInfos from "./fragments/edit-user-infos";
 import { useTranslations } from "next-intl";
+import useUserFinder from "@/core/hooks/use-user-finder";
 
 const ModerateUser = ({
   user,
@@ -18,6 +19,7 @@ const ModerateUser = ({
   user: User;
   onSuccess: () => void;
 }) => {
+  const {navigateToWithUser} = useUserFinder()
   const t= useTranslations("users")
   const gt = useTranslations()
   const [isOpen, toggle] = useToggle();
@@ -57,18 +59,41 @@ const ModerateUser = ({
 
   const menuItems: MenuProps["items"] = [
     {
-      label: "مدیریت دسترسی کاربر",
+      label: t("userAccessManagement"),
       extra: <Lock className="size-4.5" />,
       key: 1,
         onClick:() => toggle(),
       className: "h-10 text-sm!",
     },
     {
-      label: "تغییر اطلاعات",
+      label: t("editInformation"),
       key: 2,
         onClick:() => toggleDrawer(),
       className: "h-10 text-sm!",
       extra: <UserPen className="size-4.5" />,
+    },
+    {
+      label: "حساب های کاربر",
+      key: 3,
+        onClick:() => navigateToWithUser("/accounts", user._id),
+      className: "h-10 text-sm!",
+      extra: <Users className="size-4.5" />,
+    },
+    {
+      label: "انتقالات کاربر",
+      key: 4,
+            onClick:() => navigateToWithUser("/transfers", user._id),
+
+      className: "h-10 text-sm!",
+      extra: <TrendingUpDown className="size-4.5" />,
+    },
+    {
+      label: "سفارشات کاربر",
+      key: 5,
+            onClick:() => navigateToWithUser("/orders", user._id),
+
+      className: "h-10 text-sm!",
+      extra: <ShoppingBag className="size-4.5" />,
     },
   ];
 

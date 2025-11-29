@@ -109,6 +109,9 @@
     "countSuffix": "عدد"
   },
   "users": {
+    "userAccessManagement": "مدیریت دسترسی کاربر",
+    "editInformation": "ویرایش اطلاعات",
+    "accountBalance": "موجودی حساب",
     "id": "شناسه کاربر",
     "deviceId": "شناسه دستگاه",
     "profile": "پروفایل کاربر",
