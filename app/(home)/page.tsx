@@ -30,23 +30,14 @@ const HomePage = async () => {
   // });
 
   return (
-    <div className="lg:grid lg:grid-cols-3 p-0! mx-auto space-y-10 gap-5 container">
-      <div className="col-span-2 space-y-4  ">
+    <div className="p-0! mx-auto space-y-10 gap-5 container ">
         <StatisticsChart
           statistics={statistics?.data}
         />
         <LatestOrders orders={orders?.data as Order[]} />
         <RecentUsers users={newUsers?.data} />
-      </div>
 
-      <div className="lg:cols-span-1 w-full!">
-        <AccountBalance
-          balance="$5,000.00"
-          brand="موجودی حساب"
-          provider="Smart Mob"
-          className="w-full!"
-        />
-      </div>
+     
     </div>
   );
 };

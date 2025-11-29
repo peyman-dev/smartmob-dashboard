@@ -1,40 +1,47 @@
-// hooks/useUserFinder.ts
 "use client";
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { getUserById } from "@/core/actions";
-import { UserFindEndpoints } from "@/core/types/types";
+import {
+  getAdminUsers,
+  getAdminAccounts,
+  getAdminTransfers,
+  getAdminOrders,
+} from "@/core/actions";
 import { toast } from "sonner";
+import { Button } from "antd";
+import { useTranslations } from "next-intl";
+
+type Endpoint = "users" | "accounts" | "transfers" | "orders";
 
 const useUserFinder = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname(); // اینو از Next.js بگیر، نه location!
+  const pathname = usePathname();
 
   const [foundedUsers, setFoundedUsers] = useState<any[]>([]);
   const [isSearchingUser, setIsSearchingUser] = useState(false);
 
   const userId = searchParams.get("userId");
 
-  // مپ کردن pathname به endpoint
-  const getEndpointFromPath = (path: string): UserFindEndpoints | null => {
+  const getEndpointFromPath = (path: string): Endpoint | null => {
     if (path.startsWith("/users")) return "users";
+    if (path.startsWith("/orders")) return "orders";
     if (path.startsWith("/accounts")) return "accounts";
-    if (path.startsWith("/transfers") || path.startsWith("/transcoin")) return "transfers";
+    if (path.startsWith("/transfers") || path.startsWith("/transcoin"))
+      return "transfers";
     return null;
   };
 
   const setUserParams = useCallback(
-    (userId: string | null) => {
+    (id: string | null) => {
       const params = new URLSearchParams(searchParams);
-      if (userId) {
-        params.set("userId", userId);
-      } else {
-        params.delete("userId");
-      }
-      const query = params.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+      if (id) params.set("userId", id);
+      else params.delete("userId");
+
+      router.replace(params.toString() ? `${pathname}?${params.toString()}` : pathname, {
+        scroll: false,
+      });
     },
     [searchParams, router, pathname]
   );
@@ -45,48 +52,69 @@ const useUserFinder = () => {
     setFoundedUsers([]);
   }, [router, pathname]);
 
-  const clearUserParams = useCallback(() => {
-    setUserParams(null);
-  }, [setUserParams]);
+  const clearUserParams = useCallback(() => setUserParams(null), [setUserParams]);
 
   const navigateToWithUser = useCallback(
-    (url: string, userId?: string) => {
-      const newUrl = userId ? `${url}?userId=${userId}` : url;
-      router.push(newUrl);
+    (url: string, id?: string) => {
+      router.push(id ? `${url}?userId=${id}` : url);
     },
     [router]
   );
 
-  // فقط وقتی userId هست و در صفحه مجاز هستیم، درخواست بزنیم
   useEffect(() => {
     if (!userId) {
-      setIsSearchingUser(false);
       setFoundedUsers([]);
+      setIsSearchingUser(false);
       return;
     }
 
     const endpoint = getEndpointFromPath(pathname);
     if (!endpoint) {
+      setFoundedUsers([]);
       setIsSearchingUser(false);
       return;
     }
 
-    const fetchUser = async () => {
+    const fetchData = async () => {
       setIsSearchingUser(true);
-      const res = await getUserById(endpoint, userId);
-      if (res.ok && res.data?.data) {
-        setFoundedUsers(res.data?.data);
-      } else {
-        toast.warning("متاسفانه هیچ دیتایی یافت نشد !", {
-            position: "top-right"
-        })
-        setFoundedUsers([]);
-        setIsSearchingUser(false);
+
+      let result;
+      switch (endpoint) {
+        case "users":
+          result = await getAdminUsers(userId);
+          break;
+        case "accounts":
+          result = await getAdminAccounts(userId);
+          break;
+        case "transfers":
+          result = await getAdminTransfers(userId);
+          break;
+        case "orders":
+          result = await getAdminOrders(userId);
+          break;
       }
+
+      console.log(result)
+
+      if (result?.ok && result.data?.data) {
+        setFoundedUsers(result.data.data);
+      } else {
+        setFoundedUsers([]);
+      }
+
     };
 
-    fetchUser();
+    fetchData();
   }, [userId, pathname]);
+
+  const t = useTranslations("common");
+
+  const StopSearchingButton = () =>
+    isSearchingUser ? (
+      <Button variant="filled" color="red" onClick={clearAllParams}>
+        {t("clear")}
+      </Button>
+    ) : null;
 
   return {
     userId,
@@ -94,8 +122,10 @@ const useUserFinder = () => {
     foundedUsers,
     setUserParams,
     clearUserParams,
+    StopSearchingButton,
     clearAllParams,
     navigateToWithUser,
+    setIsSearchingUser,
   };
 };
 

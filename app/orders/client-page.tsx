@@ -1,4 +1,5 @@
-"use client";export const dynamic = "force-dynamic";
+"use client";
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import LoadingScreen from "@/components/common/loading-screen";
 import ProfessionalTable from "@/components/common/professional-table";
@@ -11,9 +12,10 @@ import { localeDate } from "@/core/lib/helpers";
 import { Order } from "@/core/types/types";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import React from "react";
 import Copyable from "@/components/common/copyable";
 import { useTranslations } from "next-intl";
+import useUserFinder from "@/core/hooks/use-user-finder";
+import { Button, Tooltip } from "antd";
 
 interface IParams {
   data: Order;
@@ -26,6 +28,7 @@ const ClientPage = () => {
     queryFn: async () => await getOrders(),
   });
   const commonT = useTranslations("common");
+  const { foundedUsers, clearAllParams, isSearchingUser,navigateToWithUser } = useUserFinder();
 
   const { searchResult, isSearching } = useSearchStore();
 
@@ -46,7 +49,11 @@ const ClientPage = () => {
       valueGetter: (params: { data: Order }) => params.data.user,
       cellRenderer: (param: IParams) => {
         const { data } = param;
-        return <Copyable text={data?.user}>{data?.user}</Copyable>;
+        return (
+          <Tooltip title={t("userOrdersFiltering")}>
+            <p className="underline text-blue-500 cursor-pointer" onClick={() => navigateToWithUser("/orders", data.user)}>{data?.user}</p>
+          </Tooltip>
+        );
       },
     },
     {
@@ -72,7 +79,7 @@ const ClientPage = () => {
         return (
           <div>
             <Image
-              src={""}
+              src={data.img}
               width={32}
               height={32}
               className="rounded-full max-w-8! max-h-8!"
@@ -173,13 +180,24 @@ const ClientPage = () => {
       <ProfessionalTable
         columnDefs={colDefs}
         rowData={
-          isSearching
+          isSearchingUser
+            ? foundedUsers
+            : isSearching
             ? searchResult?.data?.data?.length
               ? searchResult?.data?.data
               : []
             : orders
         }
-        HeaderActions={<SearchOrders />}
+        HeaderActions={
+          <div className="flex items-center gap-3">
+            {isSearchingUser && (
+              <Button variant="filled" color="red" onClick={clearAllParams}>
+                {commonT("clear")}
+              </Button>
+            )}
+            <SearchOrders />
+          </div>
+        }
       />
     </div>
   );

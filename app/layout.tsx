@@ -16,7 +16,7 @@ export default function RootLayout({
         <LocaleProvider>
           <ApplicationProvider>
             <AuthenticationProvider>
-              <Toaster richColors className="font-estedad! **:font-estedad!" />
+              <Toaster richColors position="top-right" className="font-estedad! **:font-estedad!" />
               <DashboardLayout>{children}</DashboardLayout>
             </AuthenticationProvider>
           </ApplicationProvider>

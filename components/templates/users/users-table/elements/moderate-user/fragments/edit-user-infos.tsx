@@ -20,6 +20,7 @@ const EditUserInfos = ({
   onSuccess: () => void;
 }) => {
   const [values, setValues] = useState<User>(user);
+  console.log(user);
   const [isEditingData, startTransition] = useTransition();
   const t = useTranslations("users");
   const commonT = useTranslations("common");
@@ -35,6 +36,8 @@ const EditUserInfos = ({
   const handleEdit = () => {
     startTransition(async () => {
       const { coin, currency, money } = values.accountInfo;
+      console.log({
+      });
       const res = await updateUserInfos({
         coinOther: coin.other,
         coinFollow: coin.follow,
@@ -42,7 +45,9 @@ const EditUserInfos = ({
         moneyTOMAN: money.TOMAN,
         moneyUSD: money.USD,
         user: values._id,
+        email: values.contacts.email.email,
       });
+      console.log(res);
       if (res.status) {
         toggleDrawer();
         onSuccess();
@@ -72,10 +77,32 @@ const EditUserInfos = ({
         </div>
       }
       className="*:space-y-4"
-      title={t("changeUserDetails")}
+      title={t("editInformation")}
       open={isDrawerOpen}
       onClose={toggleDrawer}
     >
+      <div className="space-y-2">
+        <label>{commonT("email")}</label>
+        <Input
+          dir="ltr"
+          placeholder={commonT("email_placeholder")}
+          value={values.contacts.email?.email ?? ""}
+          onChange={(e) => {
+            const newEmail = e.target.value;
+
+            setValues((prev) => ({
+              ...prev,
+              contacts: {
+                ...prev.contacts,
+                email: {
+                  ...(prev.contacts.email ?? {}),
+                  email: newEmail,
+                },
+              },
+            }));
+          }}
+        />
+      </div>
       <div className="*:block">
         <label htmlFor="user-currency">ارز حساب</label>
         <Select
@@ -186,7 +213,9 @@ const EditUserInfos = ({
               suffix={
                 <div className="flex items-center gap-1">
                   <Coins className="size-4 text-neutral-500" />
-                  <span className="text-xs text-neutral-500">{commonT("priceModel.default")}</span>
+                  <span className="text-xs text-neutral-500">
+                    {commonT("priceModel.follow")}
+                  </span>
                 </div>
               }
               className="h-10 mt-2.5! rounded-lg border border-neutral-200 w-full!"
@@ -200,7 +229,9 @@ const EditUserInfos = ({
               suffix={
                 <div className="flex items-center gap-1">
                   <Coins className="size-4 text-neutral-500" />
-                  <span className="text-xs text-neutral-500">{commonT("priceModel.other")}</span>
+                  <span className="text-xs text-neutral-500">
+                    {commonT("priceModel.default")}
+                  </span>
                 </div>
               }
               onChange={(value: number | null) => {

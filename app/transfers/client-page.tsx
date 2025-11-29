@@ -15,7 +15,13 @@ import Link from "next/link";
 import React from "react";
 
 const ClientPage = () => {
-  const {} = useUserFinder()
+  const {
+    isSearchingUser,
+    StopSearchingButton,
+    foundedUsers,
+    navigateToWithUser,
+  } = useUserFinder();
+  console.log(foundedUsers);
   const { data, isLoading } = useQuery({
     queryKey: ["coin_transactions"],
     queryFn: async () =>
@@ -32,6 +38,9 @@ const ClientPage = () => {
   return (
     <>
       <ProfessionalTable
+      HeaderActions={<div>
+        <StopSearchingButton />
+      </div>}
         columnDefs={[
           {
             headerName: t("id"),
@@ -46,12 +55,12 @@ const ClientPage = () => {
               if (!userId) return "نامشخص";
 
               return (
-                <Link
-                  href={`users?isFiltering=true&_id=${p?.data.user1} `}
-                  className="text-blue-600 hover:underline"
+                <button
+                  className="text-blue-600 cursor-pointer underline"
+                  onClick={() => navigateToWithUser("/users", p.data.user1)}
                 >
                   {p.data.user1}
-                </Link>
+                </button>
               );
             },
           },
@@ -62,12 +71,12 @@ const ClientPage = () => {
               if (!userId) return "نامشخص";
 
               return (
-                <Link
-                  href={`/users?isFiltering=true&_id=${p?.data.user2}`}
-                  className="text-blue-600 hover:underline"
+                <button
+                  className="text-blue-600 cursor-pointer underline"
+                  onClick={() => navigateToWithUser("/users", p.data.user2)}
                 >
                   {p.data.user2 || p.data.user2 || p.data.user2 || userId}
-                </Link>
+                </button>
               );
             },
           },
@@ -76,8 +85,8 @@ const ClientPage = () => {
             cellRenderer: (p: { data: CoinTransaction }) => {
               return (
                 <Tag className="font-estedad!">
-                {p.data.coinModel == 0 ? t("followCoin") : t("sharedCoin")}
-              </Tag>
+                  {p.data.coinModel == 0 ? t("followCoin") : t("sharedCoin")}
+                </Tag>
               );
             },
           },
@@ -85,24 +94,24 @@ const ClientPage = () => {
           {
             headerName: t("coinCount"),
             cellRenderer: (p: { data: CoinTransaction }) =>
-              `${p.data.coinNumber} ${t("countSuffix")}`
+              `${p.data.coinNumber} ${t("countSuffix")}`,
           },
           {
             headerName: t("createdAt"),
             cellRenderer: (p: { data: CoinTransaction }) =>
-              localeDate(p.data.dateCreate)
+              localeDate(p.data.dateCreate),
           },
-      
+
           {
             headerName: t("actions"),
             cellRenderer: () => (
               <button className="rotate-90 text-zinc-500">
                 <Ellipsis />
               </button>
-            )
-          }
+            ),
+          },
         ]}
-        rowData={transactions || []}
+        rowData={isSearchingUser ? foundedUsers : transactions || []}
       />
     </>
   );

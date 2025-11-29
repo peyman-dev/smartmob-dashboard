@@ -137,7 +137,10 @@
     "account_placeholder": "Example: @username or username",
     "search_button": "Search",
     "clear_button": "Clear",
-    "searchUsers": "Search in users"
+    "searchUsers": "Search in users",
+"accounts_of_user": "User Accounts",
+    "user_transfers": "User Transfers",
+    "user_orders": "User Orders"
   },
   "orderFilters": {
     "orderStatus": "Order Status",
@@ -217,6 +220,8 @@
     "saveChanges": "Save changes",
     "cancel": "Cancel",
     "confirm": "Confirm",
+    "update_success": "Data updated successfully",
+    "update_failed": "Data update failed",
     "doSearch": "Advanced Search",
     "clickToCopy": "Click to copy",
     "copied": "Copied !",
@@ -226,6 +231,9 @@
       "1": "Female",
       "2": "Unisex"
     },
-    "id": "Id"
+    "id": "Id",
+    "email": "Email address",
+    "email_placeholder": "example: admin@smartmob.ir",
+    "searchUser": "searchUsers"
   }
 }

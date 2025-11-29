@@ -7,23 +7,28 @@ import { Search } from "lucide-react";
 import React, { useTransition } from "react";
 import { useUserSearchStore } from "./settings/user.search.store";
 import { useTranslations } from "next-intl";
+import useUserFinder from "@/core/hooks/use-user-finder";
 
 type SearchFormValues = {
   status?: 0 | 1;
   deviceId?: string;
   account?: string;
+  email?: string;
 };
 
 const SearchUsers = () => {
   const [values, setValues] = React.useState<SearchFormValues>({});
   const [isDrawerOpen, toggle] = useToggle();
   const [isPending, startTransition] = useTransition();
-  const usersT = useTranslations("users")
-  const t = useTranslations("common")
+  const usersT = useTranslations("users");
+  const t = useTranslations("common");
+  const {setIsSearchingUser, clearAllParams} = useUserFinder()
 
-  const { search,  clearSearch, setIsSearching } = useUserSearchStore();
+  const { search, clearSearch, setIsSearching } = useUserSearchStore();
 
   const handleSearch = () => {
+    setIsSearchingUser(false)
+    clearAllParams()
     startTransition(async () => {
       await search({
         page: 0,
@@ -31,14 +36,15 @@ const SearchUsers = () => {
         status: values.status,
         deviceId: values.deviceId?.trim() || undefined,
         account: values.account?.trim() || undefined,
+        email: values.email?.trim() || undefined,
       });
       toggle(); // دراور رو می‌بنده بعد از جستجو (اختیاری)
-    setIsSearching(true)
-});
+      setIsSearching(true);
+    });
   };
 
   const handleClear = () => {
-    setIsSearching(false)
+    setIsSearching(false);
     setValues({});
     clearSearch();
     toggle();
@@ -48,17 +54,22 @@ const SearchUsers = () => {
     <>
       <div className="*:cursor-pointer *:flex *:items-center *:gap-1 *:h-10 *:rounded-lg *:bg-white *:justify-center *:hover:shadow-sm text-xs *:px-3 *:border *:border-zinc-200">
         <Button
-           onClick={() => toggle()}
+          onClick={() => toggle()}
           iconPosition="end"
-          
+          className="rounded-lg!"
           icon={<Search className="size-4.5" />}
         >
           <span>{usersT("searchUsers")}</span>
         </Button>
       </div>
 
-      <DynamicDrawer open={isDrawerOpen} toggle={toggle} title={usersT("searchUsers")}>
+      <DynamicDrawer
+        open={isDrawerOpen}
+        toggle={toggle}
+        title={usersT("searchUsers")}
+      >
         <div className="space-y-5">
+        
           {/* وضعیت کاربر */}
           <div className="space-y-2">
             <label>{usersT("user_status")}</label>
@@ -82,7 +93,9 @@ const SearchUsers = () => {
               dir="ltr"
               placeholder={usersT("device_id_placeholder")}
               value={values.deviceId ?? ""}
-              onChange={(e) => setValues((p) => ({ ...p, deviceId: e.target.value }))}
+              onChange={(e) =>
+                setValues((p) => ({ ...p, deviceId: e.target.value }))
+              }
             />
           </div>
 
@@ -93,7 +106,9 @@ const SearchUsers = () => {
               dir="ltr"
               placeholder={usersT("account_placeholder")}
               value={values.account ?? ""}
-              onChange={(e) => setValues((p) => ({ ...p, account: e.target.value }))}
+              onChange={(e) =>
+                setValues((p) => ({ ...p, account: e.target.value }))
+              }
             />
           </div>
 

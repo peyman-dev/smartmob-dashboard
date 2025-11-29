@@ -5,7 +5,7 @@ import { ColDef, ValueGetterParams } from "ag-grid-community";
 import { User } from "@/core/types/types";
 import UserName from "../../home/recent-users/user-card/elements/user-name";
 import UserBalance from "../../home/recent-users/user-card/elements/user-balance";
-import UserCoins from "./elements/user-coints";
+import UserCoins from "./elements/user-coins";
 import ModerateUser from "./elements/moderate-user/";
 import Image from "next/image";
 import { locateImagePath } from "@/core/lib/helpers";
@@ -15,15 +15,12 @@ import SearchUsers from "../search-users";
 import { useUserSearchStore } from "../settings/user.search.store";
 import CopyToken from "../copy-token";
 import Copyable from "@/components/common/copyable";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import useToggle from "@/core/hooks/use-toggle";
-import { FilterField } from "../../auth/common/filter";
-import { getUserById, getUsersList } from "@/core/actions";
+import {  useSearchParams } from "next/navigation";
+import {  getUsersList } from "@/core/actions";
 import dynamic from "next/dynamic";
-import { Button } from "antd";
 import { useTranslations } from "next-intl";
-import { createTranslator } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
+import useUserFinder from "@/core/hooks/use-user-finder";
 
 const Filter = dynamic(
   () =>
@@ -52,9 +49,9 @@ const UsersTable = () => {
         },
       }),
   });
-  const { clearSearch, isSearching, searchResult, searchById } =
-    useUserSearchStore();
-  const [isFiltering, toggle] = useToggle(false);
+  const { isSearching, searchResult, searchById } = useUserSearchStore();
+  const { foundedUsers, isSearchingUser, StopSearchingButton } =
+    useUserFinder();
   const [filterUserId, setFilterUserId] = useState("");
   const params = useSearchParams();
   const t = useTranslations("users");
@@ -159,67 +156,32 @@ const UsersTable = () => {
       floatingFilter: false,
     },
   ];
-  const path = usePathname();
-  const paramsIsFiltering = params.get("isFiltering");
-  const paramsFilterUserId = params.get("_id") || "";
-  const getFilterParams = () => {
-    const isFiltering = params.get("isFiltering");
-    const filterUserId = params.get("_id") || "";
 
-    setFilterUserId(filterUserId as string);
-
-    if (Number(isFiltering)) {
-      toggle(true);
-    } else {
-      toggle(false);
-    }
-  };
-
-  const fields: FilterField[] = [
-    {
-      label: t("id"),
-      type: "input",
-      key: "_id",
-      defaultValue: filterUserId,
-    },
-  ];
-
-  const getTargetUserDetails = async () => {
-    const users: User[] = data?.data
-    const deviceId = users?.find(user => user._id == paramsFilterUserId)?.deviceId
-    console.log(deviceId, paramsFilterUserId)
-    await searchById(paramsFilterUserId);
-  };
-
-  useEffect(() => {
-    getFilterParams();
-    getTargetUserDetails()
-    return () => {};
-  }, [paramsIsFiltering, paramsFilterUserId, path, data, data?.data]);
-  console.log(data?.data)
+  // const fields: FilterField[] = [
+  //   {
+  //     label: t("id"),
+  //     type: "input",
+  //     key: "_id",
+  //     defaultValue: filterUserId,
+  //   },
+  // ];
 
   if (!data?.data?.length || isLoading) return <LoadingScreen />;
   return (
     <div className=" rounded-2xl">
-      <div className="ag-theme-alpine  **:font-estedad! **:rounded-t-none!">
+      <div className="ag-theme-alpine  **:font-estedad!">
         <ProfessionalTable
           HeaderActions={
             <div className="flex items-center gap-2">
+              <StopSearchingButton />
               <SearchUsers />
-              <Filter
-                fields={fields}
-                defaultOpen={isFiltering}
-                onSubmit={async (values) => {
-                  console.log(values._id);
-                  // const res = await getUserById(values?._id);
-                  // console.log(res);
-                }}
-              />
             </div>
           }
           columnDefs={colDefs}
           rowData={
-            isSearching
+            isSearchingUser
+              ? foundedUsers
+              : isSearching
               ? searchResult?.data?.data?.length
                 ? searchResult?.data?.data
                 : []

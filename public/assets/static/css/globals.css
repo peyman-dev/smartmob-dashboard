@@ -47,5 +47,11 @@ button {
 }
 
 canvas {
-  @apply font-estedad! **:font-estedad!
+  @apply font-estedad! **:font-estedad!;
+}
+.ag-root-wrapper {
+  @apply **:rounded-t-none!;
+  .ag-header-row {
+    @apply rounded-t-none!;
+  }
 }

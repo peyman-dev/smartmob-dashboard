@@ -13,26 +13,26 @@ const OrderModeTag = ({ mode }: { mode: number }) => {
     case 0:
       return (
         <Tag className={tagUI()} color={"blue"}>
-          {t("common.orderMode.0")} Order
+          {t("common.orderMode.0")}
         </Tag>
       );
 
     case 1:
       return (
         <Tag className={tagUI()} color={"blue"}>
-          {t("common.orderMode.1")} Order
+          {t("common.orderMode.1")}
         </Tag>
       );
 
     case 2:
       return (
         <Tag className={tagUI()} color={"blue"}>
-          {t("common.orderMode.2")} Order
+          {t("common.orderMode.2")}
         </Tag>
       );
 
     default:
-      <Tag className={tagUI()}>{t("common.orderMode.3")} Order</Tag>;
+      <Tag className={tagUI()}>{t("common.orderMode.3")} </Tag>;
   }
 };
 

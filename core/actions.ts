@@ -166,6 +166,7 @@ export const updateUserInfos = async (params?: {
   coinOther?: OnlyStringAndNumber;
   currency?: "TOMAN" | "USD";
   user: string;
+  email?: string;
 }) => {
   const session = await getSession();
   try {
@@ -280,7 +281,6 @@ export const getStatistics = async () => {
   }
 };
 
-
 export const getUserById = async (
   endpoint: UserFindEndpoints,
   user: string
@@ -296,29 +296,153 @@ export const getUserById = async (
     limit: 20,
   };
 
-  // مپ کردن endpoint به آدرس واقعی API + پارامترهای صحیح
   let url = "";
   switch (endpoint) {
     case "users":
       url = "/admin/users";
-      params.account = user; // جستجو با username اکانت
+      params.account = user; 
       break;
 
     case "accounts":
       url = "/admin/accounts";
-      params.user = user;      // جستجو با user _id
-      params.username = user;  // یا با username (هر دو رو می‌ذاریم که مطمئن بشیم)
+      params.user = user; 
+      params.username = user; 
       break;
 
     case "transfers":
-      url = "/admin/transcoin_history";  // این مهمه! نه transfers
+      url = "/admin/transcoin_history";
       params.sender = user;
       params.receiver = user;
       break;
+
+    case "orders":
+      url = "/admin/orders_list";
+      params.user = user
+      break;
   }
 
+  
   try {
     const res = await sendRequest.get(url, {
+      params,
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    });
+
+    return { ok: true, data: res.data };
+  } catch (error: any) {
+    return {
+      ok: false,
+      error: error.response?.data || error.message || "Request failed",
+    };
+  }
+};
+export const getAdminUsers = async (user: string) => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    return { ok: false, error: "No access token" };
+  }
+
+  const params: Record<string, any> = {
+    page: 0,
+    limit: 20,
+    user,
+  };
+
+  try {
+    const res = await sendRequest.get("/admin/users", {
+      params,
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    });
+
+    return { ok: true, data: res.data };
+  } catch (error: any) {
+    return {
+      ok: false,
+      error: error.response?.data || error.message || "Request failed",
+    };
+  }
+};
+
+export const getAdminAccounts = async (user: string) => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    return { ok: false, error: "No access token" };
+  }
+
+  const params: Record<string, any> = {
+    page: 0,
+    limit: 20,
+    user,
+  };
+
+  try {
+    const res = await sendRequest.get("/admin/accounts", {
+      params,
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    });
+
+    return { ok: true, data: res.data };
+  } catch (error: any) {
+    return {
+      ok: false,
+      error: error.response?.data || error.message || "Request failed",
+    };
+  }
+};
+
+export const getAdminTransfers = async (user: string) => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    return { ok: false, error: "No access token" };
+  }
+
+  const params: Record<string, any> = {
+    page: 0,
+    limit: 20,
+    sender: user,
+  };
+
+  try {
+    const res = await sendRequest.get("/admin/transcoin_history", {
+      params,
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    });
+
+    return { ok: true, data: res.data };
+  } catch (error: any) {
+    return {
+      ok: false,
+      error: error.response?.data || error.message || "Request failed",
+    };
+  }
+};
+
+export const getAdminOrders = async (user: string) => {
+  const session = await getSession();
+
+  if (!session?.accessToken) {
+    return { ok: false, error: "No access token" };
+  }
+
+  const params: Record<string, any> = {
+    page: 0,
+    limit: 20,
+    user,
+  };
+
+  try {
+    const res = await sendRequest.get("/admin/orders_list", {
       params,
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
@@ -336,34 +460,30 @@ export const getUserById = async (
 
 export const getAccount = async (userId: string) => {
   try {
-    const session = await getSession()
-    const res=  await sendRequest.get("/admin/accounts", {
+    const session = await getSession();
+    const res = await sendRequest.get("/admin/accounts", {
       params: {
-        user: userId
+        user: userId,
       },
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
-      }
-    })
+      },
+    });
 
-    const data = await res.data
+    const data = await res.data;
 
-    return data
+    return data;
+  } catch (error) {}
+};
 
-  } catch (error) {
-    
-  }
-}
-
-
-export const updateSetting = async (name: string, value: string) => {
+export const updateSetting = async (payload: {
+  name: string;
+  data: string;
+}) => {
   const session = await getSession();
   try {
     const res = await sendRequest.put("/admin/settings_edit", undefined, {
-      params: {
-        name,
-        data: value,
-      },
+      params: payload,
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
       },

@@ -2,7 +2,6 @@
 
 import { useSidebarStore } from "@/core/stores/sidebar.store";
 import clsx from "clsx";
-import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { ReactNode } from "react";
@@ -16,7 +15,6 @@ interface IProps {
 const Item = ({ Icon, href, label }: IProps) => {
   const pathname = usePathname();
   const { toggleMenu } = useSidebarStore();
-  const s = useTranslations()
 
   const isActive = pathname === href;
 

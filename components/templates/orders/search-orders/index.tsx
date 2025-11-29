@@ -8,6 +8,7 @@ import React, { useTransition } from "react";
 import { useSearchStore } from "./search.store";
 import dayjs from "dayjs";
 import { useTranslations } from "next-intl";
+import useUserFinder from "@/core/hooks/use-user-finder";
 
 type SearchFormValues = {
   status?: 0 | 1 | 2 | 3 | 4;
@@ -22,6 +23,7 @@ type SearchFormValues = {
 const OrderFilters = () => {
   const tCommon = useTranslations("common");
   const t = useTranslations("orderFilters");
+  const { setIsSearchingUser } = useUserFinder();
 
   const [values, setValues] = React.useState<SearchFormValues>({});
   const [isDrawerOpen, toggle] = useToggle();
@@ -30,6 +32,7 @@ const OrderFilters = () => {
   const { search, isSearching, clearSearch } = useSearchStore();
 
   const handleSearch = () => {
+    setIsSearchingUser(false)
     startTransition(async () => {
       await search({
         page: 0,
@@ -40,7 +43,7 @@ const OrderFilters = () => {
         target: values.target?.trim() || undefined,
         targetId: values.targetId?.trim() || undefined,
         dateStart: values.dateStart,
-        dateEnd: values.dateEnd
+        dateEnd: values.dateEnd,
       });
       toggle();
     });
@@ -65,9 +68,12 @@ const OrderFilters = () => {
         </Button>
       </div>
 
-      <DynamicDrawer open={isDrawerOpen} toggle={toggle} title={tCommon("doSearch")}>
+      <DynamicDrawer
+        open={isDrawerOpen}
+        toggle={toggle}
+        title={tCommon("doSearch")}
+      >
         <div className="space-y-5">
-
           {/* وضعیت سفارش */}
           <div className="space-y-2">
             <label>{t("orderStatus")}</label>
@@ -82,7 +88,7 @@ const OrderFilters = () => {
                 { label: t("status_1"), value: 1 },
                 { label: t("status_2"), value: 2 },
                 { label: t("status_3"), value: 3 },
-                { label: t("status_4"), value: 4 }
+                { label: t("status_4"), value: 4 },
               ]}
             />
           </div>
@@ -94,7 +100,9 @@ const OrderFilters = () => {
               dir="ltr"
               placeholder={t("userId_placeholder")}
               value={values.user ?? ""}
-              onChange={(e) => setValues((p) => ({ ...p, user: e.target.value }))}
+              onChange={(e) =>
+                setValues((p) => ({ ...p, user: e.target.value }))
+              }
             />
           </div>
 
@@ -105,7 +113,9 @@ const OrderFilters = () => {
               dir="ltr"
               placeholder={t("service_placeholder")}
               value={values.serviceId ?? ""}
-              onChange={(e) => setValues((p) => ({ ...p, serviceId: e.target.value }))}
+              onChange={(e) =>
+                setValues((p) => ({ ...p, serviceId: e.target.value }))
+              }
             />
           </div>
 
@@ -116,7 +126,9 @@ const OrderFilters = () => {
               dir="ltr"
               placeholder={t("target_placeholder")}
               value={values.target ?? ""}
-              onChange={(e) => setValues((p) => ({ ...p, target: e.target.value }))}
+              onChange={(e) =>
+                setValues((p) => ({ ...p, target: e.target.value }))
+              }
             />
           </div>
 
@@ -127,7 +139,9 @@ const OrderFilters = () => {
               dir="ltr"
               placeholder={t("targetId_placeholder")}
               value={values.targetId ?? ""}
-              onChange={(e) => setValues((p) => ({ ...p, targetId: e.target.value }))}
+              onChange={(e) =>
+                setValues((p) => ({ ...p, targetId: e.target.value }))
+              }
             />
           </div>
 
@@ -143,7 +157,7 @@ const OrderFilters = () => {
               onChange={(date) =>
                 setValues((p) => ({
                   ...p,
-                  dateStart: date ? date.valueOf() : undefined
+                  dateStart: date ? date.valueOf() : undefined,
                 }))
               }
             />
@@ -161,7 +175,7 @@ const OrderFilters = () => {
               onChange={(date) =>
                 setValues((p) => ({
                   ...p,
-                  dateEnd: date ? date.valueOf() : undefined
+                  dateEnd: date ? date.valueOf() : undefined,
                 }))
               }
             />

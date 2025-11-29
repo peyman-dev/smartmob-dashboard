@@ -128,18 +128,16 @@ export type Order = {
   priceModel: string;
 };
 
-
 export type CoinTransaction = {
-  _id: string
-  user1: string
-  user2: string
-  coinModel: number
-  coinNumber: number
-  dateCreate: number
-}
+  _id: string;
+  user1: string;
+  user2: string;
+  coinModel: number;
+  coinNumber: number;
+  dateCreate: number;
+};
 
-export type Locale = "en" | "fa"
-
+export type Locale = "en" | "fa";
 
 type CurrencyLimits = {
   min: number;
@@ -166,30 +164,50 @@ type FaqItem = {
   data: string;
 };
 
-export type Setting = 
-  | { name: "systemStatus"; desc: string; data: { enfejarTimer: boolean } }
-  | { name: "socialsMedia"; desc: string; data: { 
-      telegramSupport: string; 
-      telegramChannel: string; 
-      instagramSupport: string; 
-      instagramPage: string; 
-      website: string 
-    } }
-  | { name: "ipServer"; desc: string; data: string }
-  | { name: "lastVersion"; desc: string; data: number }
-  | { name: "changeList"; desc: string; data: string }
-  | { name: "zarinPalMerchant"; desc: string; data: string }
-  | { name: "zarinPalRedirect"; desc: string; data: string }
-  | { name: "checkoutMinMax"; desc: string; data: CheckoutMinMax }
-  | { name: "urls"; desc: string; data: Url[] }
-  | { name: "privacy"; desc: string; data: PrivacyItem[] }
-  | { name: "faq"; desc: string; data: FaqItem[] }
-  | { name: "lastOrderId"; desc: string; data: number }
-  | { name: "lastVersionEnable"; desc: string; data: number }
-  | { name: "newVersionLink"; desc: string; data: string }
-  | { name: "orderLimit"; desc: string; data: CurrencyLimits };
+export type Setting =
+  | {
+      name: "systemStatus";
+      desc: string;
+      editable: boolean;
+      data: { enfejarTimer: boolean };
+    }
+  | {
+      name: "socialsMedia";
+      desc: string;
+      editable: boolean;
+      data: {
+        telegramSupport: string;
+        telegramChannel: string;
+        instagramSupport: string;
+        instagramPage: string;
+        website: string;
+      };
+    }
+  | { name: "ipServer"; desc: string; editable: boolean; data: string }
+  | { name: "lastVersion"; desc: string; editable: boolean; data: number }
+  | { name: "changeList"; desc: string; editable: boolean; data: string }
+  | { name: "zarinPalMerchant"; desc: string; editable: boolean; data: string }
+  | { name: "zarinPalRedirect"; desc: string; editable: boolean; data: string }
+  | {
+      name: "checkoutMinMax";
+      desc: string;
+      editable: boolean;
+      data: CheckoutMinMax;
+    }
+  | { name: "urls"; desc: string; editable: boolean; data: Url[] }
+  | { name: "privacy"; desc: string; editable: boolean; data: PrivacyItem[] }
+  | { name: "faq"; desc: string; editable: boolean; data: FaqItem[] }
+  | { name: "lastOrderId"; desc: string; editable: boolean; data: number }
+  | { name: "lastVersionEnable"; desc: string; editable: boolean; data: number }
+  | { name: "newVersionLink"; desc: string; editable: boolean; data: string }
+  | {
+      name: "orderLimit";
+      desc: string;
+      editable: boolean;
+      data: CurrencyLimits;
+    };
 
 // اگر بخوای کل تنظیمات رو به صورت آرایه مدیریت کنی
 export type SettingsArray = Setting[];
 
-export type UserFindEndpoints = "users" | "accounts" | "transfers";
+export type UserFindEndpoints = "users" | "accounts" | "transfers" | "orders";

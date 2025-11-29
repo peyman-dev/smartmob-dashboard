@@ -78,7 +78,8 @@
     "dateCreate": "تاریخ ثبت",
     "dateUpdate": "تاریخ آخرین بروزرسانی",
     "manage": "مدیریت",
-    "editOrder": "ویرایش سفارش"
+    "editOrder": "ویرایش سفارش",
+    "userOrdersFiltering": "فیلتر کردن سفارشات کاربر"
   },
   "table": {
     "contains": "شامل",
@@ -109,6 +110,7 @@
     "countSuffix": "عدد"
   },
   "users": {
+
     "userAccessManagement": "مدیریت دسترسی کاربر",
     "editInformation": "ویرایش اطلاعات",
     "accountBalance": "موجودی حساب",
@@ -138,7 +140,10 @@
     "account_placeholder": "مثال: @username یا username",
     "search_button": "جستجو",
     "clear_button": "پاک کردن",
-    "searchUsers": "جستجوی کاربران"
+    "searchUsers": "جستجوی کاربران",
+    "accounts_of_user": "حساب های کاربر",
+    "user_transfers": "انتقالات کاربر",
+    "user_orders": "سفارشات کاربر"
   },
   "orderFilters": {
     "orderStatus": "وضعیت سفارش",
@@ -171,6 +176,8 @@
 
   "common": {
     "filter": "فیلترسازی",
+    "update_success": "دیتا باموفقیت بروزرسانی شد",
+    "update_failed": "بروزرسانی دیتا ناموفق بود !",
     "applyFilter": "اعمال فیلتر",
     "priceModel": {
       "USD": "دلار",
@@ -228,6 +235,9 @@
       "1": "زن",
       "2": "مشترک"
     },
-    "id": "شناسه"
+    "id": "شناسه",
+    "email": "پست الکترونیکی",
+    "email_placeholder": "مثال: admin@smartmob.ir",
+    "searchUser": "جستجوی کاربر"
   }
 }

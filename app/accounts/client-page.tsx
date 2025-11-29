@@ -38,15 +38,9 @@ const AccountsPage = () => {
 
   const t = useTranslations("accounts");
   const commonT = useTranslations("common");
-  const {userId,clearAllParams,foundedUsers,isSearchingUser} = useUserFinder()
+  const {StopSearchingButton,foundedUsers,isSearchingUser} = useUserFinder()
 
-  useEffect(() => {
-    const f = async () => {
-      const r = await getAccount(userId as string)
-      console.log(r)
-    }
-    f()
-  },[userId])
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["accounts", queries],
@@ -61,12 +55,11 @@ const AccountsPage = () => {
       headerName: t("user"),
       flex: 1,
       cellRenderer: ({ data }: { data: Account }) => (
-        <Link
-          href={`/users?isFiltering=1&_id=${data.userId}`}
-          className="underline text-blue-600 hover:text-blue-800"
+        <p
+          // className="underline text-blue-600 hover:text-blue-800"
         >
           {data?.userId || "-"}
-        </Link>
+        </p>
       ),
     },
     {
@@ -118,11 +111,11 @@ const AccountsPage = () => {
     },
   ];
 
-  console.log(data)
   return (
     <div className="  container">
       <ProfessionalTable
         HeaderActions={<div className="flex items-center gap-2">
+          <StopSearchingButton />
           <Filter
             onSubmit={(values) => {
               console.log("فیلتر اعمال شد:", values);
@@ -130,8 +123,7 @@ const AccountsPage = () => {
             }}
             fields={filterFields}
             />
-            <Button onClick={clearAllParams}>
-            </Button>
+         
             </div>
         }
         columnDefs={columnDefs}

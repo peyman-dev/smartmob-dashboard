@@ -12,7 +12,6 @@ const languages = [
 
 export function LanguageSelector() {
   const { locale, changeLocale, refetchMessages, status } = useLocalization();
-  console.log(locale);
   const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (v: "en" | "fa") => {

@@ -17,7 +17,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
         <Sidebar />
         <section
           id="content"
-          className="bg-white p-5  space-y-0 md:space-y-5  shadow w-full min-h-dvh"
+          className="bg-white p-5  space-y-0 md:space-y-5 container shadow w-full min-h-dvh"
         >
           <Header />
           <div>{children}</div>

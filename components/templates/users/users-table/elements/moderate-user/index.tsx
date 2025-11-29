@@ -20,7 +20,7 @@ const ModerateUser = ({
   onSuccess: () => void;
 }) => {
   const {navigateToWithUser} = useUserFinder()
-  const t= useTranslations("users")
+  const t = useTranslations("users")
   const gt = useTranslations()
   const [isOpen, toggle] = useToggle();
   const [isPending, startTransition] = useTransition();
@@ -62,36 +62,34 @@ const ModerateUser = ({
       label: t("userAccessManagement"),
       extra: <Lock className="size-4.5" />,
       key: 1,
-        onClick:() => toggle(),
+      onClick: () => toggle(),
       className: "h-10 text-sm!",
     },
     {
       label: t("editInformation"),
       key: 2,
-        onClick:() => toggleDrawer(),
+      onClick: () => toggleDrawer(),
       className: "h-10 text-sm!",
       extra: <UserPen className="size-4.5" />,
     },
     {
-      label: "حساب های کاربر",
+      label: t("accounts_of_user"),
       key: 3,
-        onClick:() => navigateToWithUser("/accounts", user._id),
+      onClick: () => navigateToWithUser("/accounts", user._id),
       className: "h-10 text-sm!",
       extra: <Users className="size-4.5" />,
     },
     {
-      label: "انتقالات کاربر",
+      label: t("user_transfers"),
       key: 4,
-            onClick:() => navigateToWithUser("/transfers", user._id),
-
+      onClick: () => navigateToWithUser("/transfers", user._id),
       className: "h-10 text-sm!",
       extra: <TrendingUpDown className="size-4.5" />,
     },
     {
-      label: "سفارشات کاربر",
+      label: t("user_orders"),
       key: 5,
-            onClick:() => navigateToWithUser("/orders", user._id),
-
+      onClick: () => navigateToWithUser("/orders", user._id),
       className: "h-10 text-sm!",
       extra: <ShoppingBag className="size-4.5" />,
     },
@@ -101,7 +99,6 @@ const ModerateUser = ({
     <>
       <Dropdown
         menu={{ items: menuItems }}
-        // className="**:font-estedad!"
         rootClassName="font-estedad!"
         trigger={["click"]}
         open={isDropdownOpen}
@@ -111,7 +108,7 @@ const ModerateUser = ({
           <Ellipsis />
         </button>
       </Dropdown>
-      <EditUserInfos onSuccess={onSuccess} isDrawerOpen={isDrawerOpen} toggleDrawer={toggleDrawer}  user={user}/>
+      <EditUserInfos onSuccess={onSuccess} isDrawerOpen={isDrawerOpen} toggleDrawer={toggleDrawer} user={user}/>
 
       <Modal
         open={isOpen}
@@ -123,14 +120,16 @@ const ModerateUser = ({
         title={isUserBanned ? t("unblockUser") : t("blockUser")}
         className="**:font-estedad!"
         okText={gt("common.confirm")}
-        onCancel={() => (toggle())}
+        onCancel={() => toggle()}
         cancelText={gt("common.cancel")}
         onOk={handleOk}
-        // centered
       >
         <div className="py-10 text-center">
           <p>
-          {t("confirm_user_restriction", {username: user.accountInfo.username, action: isUserBanned ? t("unblockUser") : t("blockUser")})}
+            {t("confirm_user_restriction", { 
+              username: user.accountInfo.username, 
+              action: isUserBanned ? t("unblockUser") : t("blockUser")
+            })}
           </p>
         </div>
       </Modal>

@@ -9,6 +9,7 @@ type UserSearchParams = {
   status?: 0 | 1; // 0 = free, 1 = blocked
   deviceId?: string;
   account?: string;
+  email?: string
 };
 
 interface UserSearchStore {

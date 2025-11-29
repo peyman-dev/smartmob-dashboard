@@ -13,7 +13,7 @@ const Header = () => {
   const { toggleMenu } = useSidebarStore();
 
   return (
-    <header className="flex items-center justify-between px-10">
+    <header className="flex items-center justify-between lg:px-10 mb-10 ">
       <div className="flex items-center gap-4">
         {isMobile && (
           <button onClick={toggleMenu}>

@@ -45,10 +45,10 @@ const Sidebar = () => {
           className="min-w-[250px] sticky top-0 h-dvh space-y-3 p-4"
         >
           <Item Icon={<Home />} href="/" label={t("sidebar.home")} />
+          <Item Icon={<Users />} href="/users" label={t("sidebar.users")} />
           <Item Icon={<ShoppingBag />} href="/orders" label={t("sidebar.orders")} />
           <Item Icon={<HandCoins />} href="/transfers" label={t("sidebar.transfers")} />
           <Item Icon={<UserSearch />} href="/accounts" label={t("sidebar.accounts")} />
-          <Item Icon={<Users />} href="/users" label={t("sidebar.users")} />
           <Item Icon={<Settings />} href="/settings" label={t("sidebar.settings")} />
         </motion.aside>
       </AnimatePresence>
