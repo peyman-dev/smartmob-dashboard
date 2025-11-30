@@ -53,7 +53,6 @@ const smartComparator = (valueA: any, valueB: any): number => {
 const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
   rowData,
   columnDefs: userColumnDefs,
-  tableTitle = "لیست داده‌ها",
   className = "",
   rowHeight = 72,
   headerHeight = 56,
