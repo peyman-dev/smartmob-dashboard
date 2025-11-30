@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { motion } from "motion/react"
-import { Wallet, Loader2 } from "lucide-react"
+import { motion } from "motion/react";
+import { Wallet, Loader2 } from "lucide-react";
+import { memo } from "react";
 
-export default function LoadingScreen() {
+export default memo(function LoadingScreen() {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-linear-to-br from-blue-600 via-blue-500 to-blue-400"
-     
     >
       <div className="flex flex-col items-center gap-6">
         {/* Animated Wallet Icon */}
@@ -89,5 +89,5 @@ export default function LoadingScreen() {
         </motion.div>
       </div>
     </motion.div>
-  )
-}
+  );
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, FC, JSX } from "react";
+import { useMemo, useRef, FC, JSX, memo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ColDef,
@@ -146,4 +146,4 @@ const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
   );
 };
 
-export default ProfessionalTable;
+export default memo(ProfessionalTable);
