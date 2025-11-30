@@ -100,6 +100,7 @@ export interface Account {
   sessionIdSetting: string;
   gender: -1 | 0 | 1;
   dateCreate: number;
+  password: string
 }
 
 export type Order = {
