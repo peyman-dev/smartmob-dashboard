@@ -76,7 +76,7 @@
     "quantityComp": "تعداد تکمیل شده‌ها",
     "quantityStart": "تعداد هنگام شروع",
     "mode": "نوع سفارش",
-    "dateCreate": "تاریخ ثبت",
+    "dateCreate": "تاریخ ایجاد",
     "dateUpdate": "تاریخ آخرین بروزرسانی",
     "manage": "مدیریت",
     "editOrder": "ویرایش سفارش",
@@ -238,6 +238,10 @@
     "id": "شناسه",
     "email": "پست الکترونیکی",
     "email_placeholder": "مثال: admin@smartmob.ir",
-    "searchUser": "جستجوی کاربر"
+    "searchUser": "جستجوی کاربر",
+    "dateCreate": "تاریخ ایجاد",
+    "dateUpdate": "تاریخ آخرین بروزرسانی",
+    "session": "نشست",
+    "password": "گذرواژه"
   }
 }

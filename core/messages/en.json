@@ -235,6 +235,10 @@
     "id": "Id",
     "email": "Email address",
     "email_placeholder": "example: admin@smartmob.ir",
-    "searchUser": "searchUsers"
+    "dateCreate": "Created At",
+    "dateUpdate": "Last Updated",
+    "searchUser": "searchUsers",
+    "session": "Session",
+    "password": "Password"
   }
 }
