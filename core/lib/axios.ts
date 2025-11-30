@@ -37,18 +37,18 @@ sendRequest.interceptors.response.use(
         const { config, response, request } = error;
 
         if (response) {
-            // if (response.status == 400) {
-            //     return toast.error('عملیات ناموفق بود !',{
-            //         description: response.data.data
-            //     })
-            // }
-            // console.error("خطای پاسخ سرور ❌", {
-            //     url: config?.url,
-            //     method: config?.method?.toUpperCase(),
-            //     status: response.status,
-            //     statusText: response.statusText,
-            //     data: response.data,
-            // });
+            if (response.status == 400) {
+                return toast.error('عملیات ناموفق بود !',{
+                    description: response.data.data
+                })
+            }
+            console.error("خطای پاسخ سرور ❌", {
+                url: config?.url,
+                method: config?.method?.toUpperCase(),
+                status: response.status,
+                statusText: response.statusText,
+                data: response.data,
+            });
         } else if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
             console.error("تایم‌اوت درخواست ⏱", config?.url);
         } else if (!response && request) {

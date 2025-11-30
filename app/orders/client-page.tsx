@@ -16,6 +16,7 @@ import Copyable from "@/components/common/copyable";
 import { useTranslations } from "next-intl";
 import useUserFinder from "@/core/hooks/use-user-finder";
 import { Button, Tooltip } from "antd";
+import { memo } from "react";
 
 interface IParams {
   data: Order;
@@ -26,9 +27,13 @@ const ClientPage = () => {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => await getOrders(),
+    staleTime: 1000 * 60 * 5,
   });
   const commonT = useTranslations("common");
-  const { foundedUsers, clearAllParams, isSearchingUser,navigateToWithUser } = useUserFinder();
+  const { foundedUsers, clearAllParams, isSearchingUser, navigateToWithUser } =
+    useUserFinder();
+
+  console.log(data);
 
   const { searchResult, isSearching } = useSearchStore();
 
@@ -50,8 +55,13 @@ const ClientPage = () => {
       cellRenderer: (param: IParams) => {
         const { data } = param;
         return (
-          <Tooltip title={t("userOrdersFiltering")}>
-            <p className="underline text-blue-500 cursor-pointer" onClick={() => navigateToWithUser("/orders", data.user)}>{data?.user}</p>
+          <Tooltip title={commonT("searchUser")}>
+            <p
+              className="underline text-blue-500 cursor-pointer"
+              onClick={() => navigateToWithUser("/users", data.user)}
+            >
+              {data?.user}
+            </p>
           </Tooltip>
         );
       },
@@ -79,7 +89,7 @@ const ClientPage = () => {
         return (
           <div>
             <Image
-              src={data.img}
+              src={data.img || ""}
               width={32}
               height={32}
               className="rounded-full max-w-8! max-h-8!"
@@ -128,18 +138,18 @@ const ClientPage = () => {
         );
       },
     },
-    // {
-    //   headerName: t(""),
-    //   valueGetter: (params: { data: Order }) => params.data.quantityComp,
-    //   cellRenderer: (param: IParams) => {
-    //     const { data } = param;
-    //     return (
-    //       <Copyable text={data?.quantityComp?.toString()}>
-    //         {data?.quantityComp}
-    //       </Copyable>
-    //     );
-    //   },
-    // },
+    {
+      headerName: t("remaining"),
+      valueGetter: (params: { data: Order }) => params.data.quantityComp,
+      cellRenderer: (param: IParams) => {
+        const { data } = param;
+        return (
+          <Copyable text={data?.quantityComp?.toString()}>
+            {data?.quantity - data?.quantityComp} {commonT("amount")}
+          </Copyable>
+        );
+      },
+    },
     {
       headerName: t("mode"),
       valueGetter: (params: { data: Order }) => params.data.status.code,
@@ -203,4 +213,4 @@ const ClientPage = () => {
   );
 };
 
-export default ClientPage;
+export default memo(ClientPage);

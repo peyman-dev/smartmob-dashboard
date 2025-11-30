@@ -63,7 +63,7 @@ const EditUserInfos = ({
     <DynamicDrawer
       footer={
         <div className="flex items-center gap-2 py-3 justify-end">
-          <Button color="red" variant="filled">
+          <Button onClick={toggleDrawer} color="red" variant="filled">
             {commonT("cancel")}
           </Button>
           <Button

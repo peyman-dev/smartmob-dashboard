@@ -15,8 +15,8 @@ import SearchUsers from "../search-users";
 import { useUserSearchStore } from "../settings/user.search.store";
 import CopyToken from "../copy-token";
 import Copyable from "@/components/common/copyable";
-import {  useSearchParams } from "next/navigation";
-import {  getUsersList } from "@/core/actions";
+import { useSearchParams } from "next/navigation";
+import { getUsersList } from "@/core/actions";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
@@ -109,17 +109,10 @@ const UsersTable = () => {
     },
     {
       headerName: t("balance"),
-      cellRenderer: (p: any) => p.data && <UserBalance user={p.data} />,
-    },
-    {
-      headerName: t("currency"),
-      valueGetter: (p: ValueGetterParams<User>) =>
-        gt(`common.currency.${p.data?.accountInfo.currency}`),
       cellRenderer: (p: any) => {
-        if (!p.data) return null;
         const isToman = p.data.accountInfo.currency === "TOMAN";
         return (
-          <div className="flex items-center gap-2">
+          <>
             <Image
               className="rounded-full"
               src={
@@ -127,18 +120,23 @@ const UsersTable = () => {
                   ? locateImagePath("iran-flag.png")
                   : locateImagePath("usa-flag.png")
               }
-              width={32}
-              height={32}
+              width={24}
+              height={24}
               alt=""
             />
-            <span>{gt(`common.currency.${p.data.accountInfo.currency}`)}</span>
-          </div>
+            <UserBalance user={p.data} />
+          </>
         );
       },
-      comparator: persianComparator,
-      filter: "agSetColumnFilter",
     },
-
+    {
+      headerName: gt("common.email"),
+      cellRenderer: (p: { data: User }) => (
+        <span>
+          {p.data.contacts.email.email || " - "}
+        </span>
+      ),
+    },
     {
       headerName: t("status"),
       cellRenderer: (p: { data: User }) => (

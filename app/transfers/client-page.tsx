@@ -3,25 +3,29 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import LoadingScreen from "@/components/common/loading-screen";
 import ProfessionalTable from "@/components/common/professional-table";
+import FilterTransfers from "@/components/templates/transfers/filter-transfers";
 import { getTransactionHistory } from "@/core/actions";
 import useUserFinder from "@/core/hooks/use-user-finder";
 import { localeDate } from "@/core/lib/helpers";
 import { CoinTransaction } from "@/core/types/types";
 import { useQuery } from "@tanstack/react-query";
-import { Tag } from "antd";
-import { Ellipsis } from "lucide-react";
+import { Button, Tag } from "antd";
+import { Ellipsis, FilterX } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
 const ClientPage = () => {
+  const [filter, setFilter] = useState({
+    isFiltered: false,
+    filteredItems: [],
+  });
   const {
     isSearchingUser,
     StopSearchingButton,
     foundedUsers,
     navigateToWithUser,
   } = useUserFinder();
-  console.log(foundedUsers);
   const { data, isLoading } = useQuery({
     queryKey: ["coin_transactions"],
     queryFn: async () =>
@@ -30,17 +34,35 @@ const ClientPage = () => {
         page: 0,
       }),
   });
-
-  if (isLoading) <LoadingScreen />;
-  const transactions = data?.data;
   const t = useTranslations("transfers");
+  const cT = useTranslations("common");
+  if (isLoading) return <LoadingScreen />;
+  const transactions = data?.data;
 
   return (
     <>
       <ProfessionalTable
-      HeaderActions={<div>
-        <StopSearchingButton />
-      </div>}
+        HeaderActions={
+          <div className="flex items-center gap-3">
+            {filter.isFiltered && (
+              <Button
+                color="red"
+                variant="filled"
+                icon={<FilterX className="size-4"/>}
+                onClick={() => {
+                  setFilter({
+                    filteredItems: [],
+                    isFiltered: false,
+                  });
+                }}
+              >
+                {cT("clear")}
+              </Button>
+            )}
+            <StopSearchingButton />
+            <FilterTransfers setFilters={setFilter} />
+          </div>
+        }
         columnDefs={[
           {
             headerName: t("id"),
@@ -111,7 +133,13 @@ const ClientPage = () => {
             ),
           },
         ]}
-        rowData={isSearchingUser ? foundedUsers : transactions || []}
+        rowData={
+          filter.isFiltered
+            ? filter?.filteredItems || []
+            : isSearchingUser
+            ? foundedUsers
+            : transactions || []
+        }
       />
     </>
   );

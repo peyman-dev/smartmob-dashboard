@@ -18,10 +18,14 @@ import dynamic from "next/dynamic"; // این خط رو فراموش نکن!
 import { FilterField } from "@/components/templates/auth/common/filter";
 import useUserFinder from "@/core/hooks/use-user-finder";
 import { Button } from "antd";
+import { localeDate } from "@/core/lib/helpers";
 
 // dynamic import با ssr: false
 const Filter = dynamic(
-  () => import("@/components/templates/auth/common/filter").then((mod) => mod.default),
+  () =>
+    import("@/components/templates/auth/common/filter").then(
+      (mod) => mod.default
+    ),
   { ssr: false }
 );
 
@@ -38,9 +42,12 @@ const AccountsPage = () => {
 
   const t = useTranslations("accounts");
   const commonT = useTranslations("common");
-  const {StopSearchingButton,foundedUsers,isSearchingUser} = useUserFinder()
-
-
+  const {
+    StopSearchingButton,
+    foundedUsers,
+    navigateToWithUser,
+    isSearchingUser,
+  } = useUserFinder();
 
   const { data, isLoading } = useQuery({
     queryKey: ["accounts", queries],
@@ -50,16 +57,18 @@ const AccountsPage = () => {
 
   const accounts: Account[] = data?.data ?? [];
 
+
   const columnDefs: ColDef<Account>[] = [
     {
       headerName: t("user"),
       flex: 1,
       cellRenderer: ({ data }: { data: Account }) => (
-        <p
-          // className="underline text-blue-600 hover:text-blue-800"
+        <button
+          className="text-blue-500 underline"
+          onClick={() => navigateToWithUser("/users", data.user)}
         >
-          {data?.userId || "-"}
-        </p>
+          {data?.user || "-"}
+        </button>
       ),
     },
     {
@@ -68,22 +77,39 @@ const AccountsPage = () => {
       field: "fullName",
     },
     {
+      headerName: t("username"),
+      flex: 1,
+      field: "username",
+      cellRenderer: (params: any) => (params.value ? `@${params.value}` : "-"),
+    },  
+    {
       headerName: t("numericId"),
       flex: 1,
       field: "userId",
       getQuickFilterText: (params) => params.value ?? "",
     },
     {
-      headerName: t("username"),
+      headerName: commonT("dateCreate"),
       flex: 1,
-      field: "username",
-      cellRenderer: (params: any) => (params.value ? `@${params.value}` : "-"),
+      cellRenderer: (p: {data: Account}) => {
+        return localeDate(p.data.dateCreate)
+      }
+    },
+    {
+      headerName: commonT("session"),
+      flex: 1,
+      field: "sessionId",
     },
     {
       headerName: t("gender"),
       flex: 1,
       field: "gender",
       cellRenderer: (params: any) => commonT(`gender.${params.value}`),
+    },
+    {
+      headerName: commonT("password"),
+      flex: 1,
+      field: "password",
     },
   ];
 
@@ -114,20 +140,19 @@ const AccountsPage = () => {
   return (
     <div className="  container">
       <ProfessionalTable
-        HeaderActions={<div className="flex items-center gap-2">
-          <StopSearchingButton />
-          <Filter
-            onSubmit={(values) => {
-              console.log("فیلتر اعمال شد:", values);
-              // بعداً اینجا setQueries رو آپدیت می‌کنی
-            }}
-            fields={filterFields}
+        HeaderActions={
+          <div className="flex items-center gap-2">
+            <StopSearchingButton />
+            <Filter
+              onSubmit={(values) => {
+                console.log("فیلتر اعمال شد:", values);
+              }}
+              fields={filterFields}
             />
-         
-            </div>
+          </div>
         }
         columnDefs={columnDefs}
-        rowData={isSearchingUser ? foundedUsers as any[] : accounts}
+        rowData={isSearchingUser ? (foundedUsers as any[]) : accounts}
         loading={isLoading}
         domLayout="autoHeight"
       />

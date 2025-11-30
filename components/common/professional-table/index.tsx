@@ -11,6 +11,7 @@ import {
   ICellRendererParams,
 } from "ag-grid-community";
 import { useTranslations } from "next-intl";
+import useIsEnglish from "@/core/hooks/use-is-english";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -100,6 +101,8 @@ const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
 
   const gridKey = useMemo(() => `${rowData.length}-${Date.now()}`, [rowData]);
 
+  const isEN = useIsEnglish();
+
   return (
     <div className={`min-h-[700px] rounded-2xl overflow-hidden ${className}`}>
       <div className="h-24 flex items-center justify-between bg-zinc-50 text-slate-700 rounded-t-2xl px-6 border-b border-zinc-200">
@@ -116,7 +119,7 @@ const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
-          enableRtl
+          enableRtl={!isEN}
           rowHeight={rowHeight}
           headerHeight={headerHeight}
           domLayout={domLayout}

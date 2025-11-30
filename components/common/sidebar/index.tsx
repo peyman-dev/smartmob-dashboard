@@ -41,7 +41,7 @@ const Sidebar = () => {
         <motion.aside
           key="desktop-sidebar"
           {...ui.desktop}
-          className="min-w-[250px] sticky top-0 h-dvh space-y-3 p-4"
+          className="w-[230px] sticky top-0 h-dvh space-y-3 p-4"
         >
           <Item Icon={<Home />} href="/" label={t("sidebar.home")} />
           <Item Icon={<Users />} href="/users" label={t("sidebar.users")} />

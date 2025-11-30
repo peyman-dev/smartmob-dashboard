@@ -300,13 +300,13 @@ export const getUserById = async (
   switch (endpoint) {
     case "users":
       url = "/admin/users";
-      params.account = user; 
+      params.account = user;
       break;
 
     case "accounts":
       url = "/admin/accounts";
-      params.user = user; 
-      params.username = user; 
+      params.user = user;
+      params.username = user;
       break;
 
     case "transfers":
@@ -317,11 +317,10 @@ export const getUserById = async (
 
     case "orders":
       url = "/admin/orders_list";
-      params.user = user
+      params.user = user;
       break;
   }
 
-  
   try {
     const res = await sendRequest.get(url, {
       params,
@@ -408,7 +407,7 @@ export const getAdminTransfers = async (user: string) => {
   const params: Record<string, any> = {
     page: 0,
     limit: 20,
-    sender: user,
+    user,
   };
 
   try {
@@ -419,6 +418,7 @@ export const getAdminTransfers = async (user: string) => {
       },
     });
 
+    console.log(res);
     return { ok: true, data: res.data };
   } catch (error: any) {
     return {
@@ -495,6 +495,35 @@ export const updateSetting = async (payload: {
     return {
       ok: false,
       error,
+    };
+  }
+};
+
+export const filterTransfers = async (params: {
+  sender?: string;
+  receiver?: string;
+}) => {
+  try {
+    const session = await getSession();
+    const res = await sendRequest.get("/admin/transcoin_history", {
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+      },
+      params: {
+        page: 0,
+        limit: 20,
+        ...params
+      },
+    });
+    const resolve = await res.data;
+    return {
+      ok: true,
+      data: resolve?.data,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      data: error,
     };
   }
 };

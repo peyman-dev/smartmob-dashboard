@@ -1,18 +1,13 @@
 "use client";
+
 import DynamicDrawer from "@/components/common/drawer";
 import { updateOrder } from "@/core/actions";
-import { findActiveStatus, statuses } from "@/core/lib/helpers";
+import { statuses } from "@/core/lib/helpers";
 import { Order } from "@/core/types/types";
-import {
-  Button,
-  Input,
-  InputNumber,
-  InputNumberProps,
-  Select,
-  SelectProps,
-} from "antd";
+import { Button, Input, InputNumber, InputNumberProps, Select } from "antd";
 import React, { memo, useState, useTransition } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl"; // اضافه شد
 
 const EditOrderDrawer = ({
   isOpen,
@@ -25,23 +20,27 @@ const EditOrderDrawer = ({
   isOpen: boolean;
   onSuccess: () => void;
 }) => {
+  const t = useTranslations("users.editOrder"); // مسیر ترجمه
+
   const [values, setValues] = useState<Order>(order);
-  const [status, setStatus] = useState<{statusCode?: number, statusText?: string}>({});
+  const [status, setStatus] = useState<{ statusCode?: number; statusText?: string }>({});
+  const [isPending, startTransition] = useTransition();
+
+  // فرمت عدد با کاما
   const formatter: InputNumberProps<number>["formatter"] = (value) => {
-    const [start, end] = `${value}`.split(".") || [];
+    if (!value) return "";
+    const [start, end] = `${value}`.split(".");
     const v = `${start}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return `${end ? `${v}.${end}` : `${v}`}`;
+    return end ? `${v}.${end}` : v;
   };
 
-  const options: SelectProps["options"] = statuses.map((stat) => ({
+  const options = statuses.map((stat) => ({
     label: stat.label,
     value: stat.value,
     disabled: stat.index === order?.status?.code,
   }));
-  const [isPending, startTransition] = useTransition();
 
   const handleOk = () => {
- 
     startTransition(async () => {
       const res = await updateOrder({
         order: order._id,
@@ -54,22 +53,22 @@ const EditOrderDrawer = ({
       });
 
       if (res.status) {
-        toast.success("سفارش با موفقیت بروزرسانی شد");
+        toast.success(t("successToast"));
         toggle();
         onSuccess();
       } else {
-        toast.error("ویرایش سفارش ناموفق بود.");
+        toast.error(t("errorToast"));
       }
     });
   };
 
   const DrawerFooter = (
-    <div className="flex! items-center! justify-end! space-y-0! gap-3!">
-      <Button variant="filled" color="red">
-        انصراف
+    <div className="flex items-center justify-end gap-3">
+      <Button onClick={toggle} variant="filled" color="red">
+        {t("cancelButton")}
       </Button>
-      <Button onClick={handleOk} color="blue" variant="solid">
-        ذخیره تغییرات
+      <Button onClick={handleOk} color="blue" variant="solid" loading={isPending}>
+        {t("saveButton")}
       </Button>
     </div>
   );
@@ -78,97 +77,78 @@ const EditOrderDrawer = ({
     <DynamicDrawer
       open={isOpen}
       toggle={toggle}
-      title="ویرایش سفارش"
+      title={t("title")}
       className="p-5 *:w-full! **:block *:space-y-5!"
       footer={DrawerFooter}
     >
-      <div className="space-y-2!">
-        <label htmlFor="">تعداد سفارش</label>
+      {/* تعداد سفارش */}
+      <div className="space-y-2">
+        <label>{t("quantityLabel")}</label>
         <InputNumber
-          className="w-full! mt-1! h-10 "
+          className="w-full mt-1 h-10"
           value={values.quantity || 0}
           formatter={formatter}
-          onChange={(v) => {
-            setValues((rest) => ({
-              ...rest,
-              quantity: Number(v),
-            }));
-          }}
+          onChange={(v) => setValues((prev) => ({ ...prev, quantity: Number(v) || 0 }))}
         />
       </div>
 
-      <div className="space-y-2!">
-        <label htmlFor="">مقدار تکمیل شده</label>
+      {/* مقدار تکمیل شده */}
+      <div className="space-y-2">
+        <label>{t("quantityCompLabel")}</label>
         <InputNumber
+          className="w-full mt-1 h-10"
           value={values.quantityComp || 0}
-          className="w-full! mt-1! h-10 "
           formatter={formatter}
-          onChange={(v) => {
-            setValues((rest) => ({
-              ...rest,
-              quantityComp: Number(v),
-            }));
-          }}
+          onChange={(v) => setValues((prev) => ({ ...prev, quantityComp: Number(v) || 0 }))}
         />
       </div>
 
-      <div className="space-y-2!">
-        <label htmlFor="">نام کاربری هدف</label>
+      {/* نام کاربری هدف */}
+      <div className="space-y-2">
+        <label>{t("targetLabel")}</label>
         <Input
-          className="w-full! mt-1! h-10 "
+          className="w-full mt-1 h-10"
           dir="ltr"
           value={values.target || ""}
-          placeholder="@instagram"
-          onChange={(e) => {
-            setValues((rest) => ({
-              ...rest,
-              target: String(e.target.value),
-            }));
-          }}
+          placeholder={t("targetPlaceholder")}
+          onChange={(e) => setValues((prev) => ({ ...prev, target: e.target.value }))}
         />
       </div>
 
-      <div className="space-y-2!">
-        <label htmlFor="">شناسه هدف</label>
+      {/* شناسه هدف */}
+      <div className="space-y-2">
+        <label>{t("targetIdLabel")}</label>
         <Input
-          className="w-full! mt-1! h-10 "
+          className="w-full mt-1 h-10"
           dir="ltr"
           value={values.targetId || ""}
-          placeholder="example: instagram-id948305857"
-          onChange={(e) => {
-            setValues((rest) => ({
-              ...rest,
-              targetId: String(e.target.value),
-            }));
-          }}
+          placeholder={t("targetIdPlaceholder")}
+          onChange={(e) => setValues((prev) => ({ ...prev, targetId: e.target.value }))}
         />
       </div>
 
-      <div className="space-y-2!">
-        <label htmlFor="">شروع از تعداد</label>
+      {/* شروع از تعداد */}
+      <div className="space-y-2">
+        <label>{t("startNumberLabel")}</label>
         <InputNumber
-          className="w-full! px-5! pt-1! mt-1! h-10 "
+          className="w-full mt-1 h-10"
           dir="ltr"
-          formatter={formatter}
           value={values.startNumber || 0}
-          onChange={(v) => {
-            setValues((rest) => ({
-              ...rest,
-              startNumber: Number(v),
-            }));
-          }}
+          formatter={formatter}
+          onChange={(v) => setValues((prev) => ({ ...prev, startNumber: Number(v) || 0 }))}
         />
       </div>
 
-      <div className="space-y-2!">
-        <label htmlFor="">وضعیت سفارش</label>
+      {/* وضعیت سفارش */}
+      <div className="space-y-2">
+        <label>{t("statusLabel")}</label>
         <Select
-          className="w-full! mt-1!  "
-          placeholder="انتخاب کنید ..."
+          className="w-full mt-1"
+          placeholder={t("statusPlaceholder")}
           options={options}
-          defaultValue={statuses.find(stat => (order?.status.code == stat.index))?.value}
+          defaultValue={statuses.find((s) => order?.status.code === s.index)?.value}
           onChange={(v) => {
-            const target = statuses.find((stat) => stat.value == v);
+            const target = statuses.find((stat) => stat.value === v);
             setStatus({
               statusCode: target?.index,
               statusText: target?.value.toLowerCase(),

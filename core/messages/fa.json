@@ -80,7 +80,23 @@
     "dateUpdate": "تاریخ آخرین بروزرسانی",
     "manage": "مدیریت",
     "editOrder": "ویرایش سفارش",
-    "userOrdersFiltering": "فیلتر کردن سفارشات کاربر"
+    "userOrdersFiltering": "فیلتر کردن سفارشات کاربر",
+    "editOrderDrawer": {
+      "title": "ویرایش سفارش",
+      "quantityLabel": "تعداد سفارش",
+      "quantityCompLabel": "مقدار تکمیل شده",
+      "targetLabel": "نام کاربری هدف",
+      "targetPlaceholder": "@instagram",
+      "targetIdLabel": "شناسه هدف",
+      "targetIdPlaceholder": "مثال: instagram-id948305857",
+      "startNumberLabel": "مقدار اولیه",
+      "statusLabel": "وضعیت سفارش",
+      "statusPlaceholder": "انتخاب کنید ...",
+      "cancelButton": "انصراف",
+      "saveButton": "ذخیره تغییرات",
+      "successToast": "سفارش با موفقیت بروزرسانی شد",
+      "errorToast": "ویرایش سفارش ناموفق بود."
+    }
   },
   "table": {
     "contains": "شامل",
@@ -108,7 +124,9 @@
     "unknown": "نامشخص",
     "followCoin": "سکه فالو",
     "sharedCoin": "سکه مشترک",
-    "countSuffix": "عدد"
+    "countSuffix": "عدد",
+
+    "filterTransfers": "فیلتر انتقال ها"
   },
   "users": {
     "userAccessManagement": "مدیریت دسترسی کاربر",

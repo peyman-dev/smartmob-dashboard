@@ -80,7 +80,23 @@
     "dateCreate": "Created At",
     "dateUpdate": "Last Updated",
     "manage": "Manage",
-    "editOrder": "Edit Order"
+    "editOrder": "Edit Order",
+    "editOrderDrawer": {
+      "title": "Edit Order",
+      "quantityLabel": "Order Quantity",
+      "quantityCompLabel": "Completed Quantity",
+      "targetLabel": "Target Username",
+      "targetPlaceholder": "@instagram",
+      "targetIdLabel": "Target ID",
+      "targetIdPlaceholder": "example: instagram-id948305857",
+      "startNumberLabel": "Start From Number",
+      "statusLabel": "Order Status",
+      "statusPlaceholder": "Select ...",
+      "cancelButton": "Cancel",
+      "saveButton": "Save Changes",
+      "successToast": "Order updated successfully",
+      "errorToast": "Failed to update order."
+    }
   },
   "table": {
     "contains": "Contains",
@@ -108,7 +124,8 @@
     "unknown": "Unknown",
     "followCoin": "Follow Coin",
     "sharedCoin": "Shared Coin",
-    "countSuffix": "units"
+    "countSuffix": "units",
+    "filterTransfers": "Filter transfers"
   },
   "users": {
     "id": "User ID",
