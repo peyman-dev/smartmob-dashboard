@@ -35,7 +35,6 @@ const Sidebar = () => {
     },
   };
 
-  // Desktop Sidebar
   if (!isMobile) {
     return (
       <AnimatePresence>
@@ -55,14 +54,15 @@ const Sidebar = () => {
     );
   }
 
-  // Mobile Sidebar
   return (
     <AnimatePresence>
       {isMenuOpen && (
         <motion.aside
           key="mobile-sidebar"
           {...ui.mobile}
-          className="w-[260px] fixed left-0 top-0 space-y-3 p-6 bg-white shadow-xl h-dvh min-h-dvh z-50"
+          className={`w-[260px] fixed top-0 space-y-3 p-6 bg-white shadow-xl h-dvh min-h-dvh z-50 ${
+            isEN ? "left-0" : "right-0"
+          }`}
         >
           <div className="mb-10 flex items-center justify-end">
             <button onClick={toggleMenu}>
