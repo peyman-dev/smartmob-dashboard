@@ -65,6 +65,7 @@
     }
   },
   "orders": {
+    "remaining": "باقی‌مانده",
     "orderId": "شناسه سفارش",
     "user": "کاربر",
     "target": "هدف",
@@ -110,7 +111,6 @@
     "countSuffix": "عدد"
   },
   "users": {
-
     "userAccessManagement": "مدیریت دسترسی کاربر",
     "editInformation": "ویرایش اطلاعات",
     "accountBalance": "موجودی حساب",
@@ -186,7 +186,7 @@
       "default": "سکه مشترک"
     },
     "dynamicCoins": "{count} سکه {coinType, select, follow {فالوور} other {مشترک}}",
-    "amount": "مقدار",
+    "amount": "عدد",
     "orderStatuses": {
       "0": "در انتظار",
       "1": "تکمیل شده",

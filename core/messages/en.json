@@ -66,6 +66,7 @@
   },
 
   "orders": {
+    "remaining": "Remaining",
     "orderId": "Order ID",
     "user": "User",
     "target": "Target",
@@ -138,7 +139,7 @@
     "search_button": "Search",
     "clear_button": "Clear",
     "searchUsers": "Search in users",
-"accounts_of_user": "User Accounts",
+    "accounts_of_user": "User Accounts",
     "user_transfers": "User Transfers",
     "user_orders": "User Orders"
   },
