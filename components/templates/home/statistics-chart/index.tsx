@@ -7,9 +7,12 @@ import {
   Title,
   Tooltip,
   Legend,
+  ChartOptions,
 } from "chart.js";
-import { useTranslations } from "next-intl";
 import { Bar } from "react-chartjs-2";
+import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import localeNum from "@/core/utils/locale-num";
 
 ChartJS.register(
   CategoryScale,
@@ -22,7 +25,21 @@ ChartJS.register(
 
 const StatisticsChart = ({ statistics }: { statistics: any }) => {
   const s = statistics || {};
-  const t = useTranslations()
+  const t = useTranslations();
+
+  // تشخیص موبایل برای تغییر جهت چارت
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // زیر 768px = موبایل و تبلت کوچیک
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const labels = [
     t("home.statistics.statisticsLabels.totalOrders"),
@@ -40,9 +57,8 @@ const StatisticsChart = ({ statistics }: { statistics: any }) => {
     t("home.statistics.statisticsLabels.totalUsers"),
     t("home.statistics.statisticsLabels.newUsersToday"),
     t("home.statistics.statisticsLabels.totalAccounts"),
-    t("home.statistics.statisticsLabels.newAccountsToday")
+    t("home.statistics.statisticsLabels.newAccountsToday"),
   ];
-  
 
   const values = [
     s.ordersAll || 0,
@@ -70,78 +86,78 @@ const StatisticsChart = ({ statistics }: { statistics: any }) => {
         data: values,
         backgroundColor: "#4e8aff",
         borderRadius: 8,
-        barThickness: 40,
+        barThickness: isMobile ? 24 : 32,
+        maxBarThickness: 40,
       },
     ],
   };
 
-  const options = {
+  const options: ChartOptions<"bar"> = {
+    indexAxis: isMobile ? ("y" as const) : ("x" as const),
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        display: false,
-      },
+      legend: { display: false },
       tooltip: {
         rtl: true,
         textDirection: "rtl",
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        backgroundColor: "rgba(0, 0, 0, 0.85)",
         padding: 12,
-        fontFamily: "--font-estedad",
-        titleFont: {
-          size: 13,
-          fontFamily: "--font-estedad",
-        },
-        bodyFont: {
-          size: 12,
-        },
+        cornerRadius: 8,
+        titleFont: { size: 14, family: "var(--font-estedad)" },
+        bodyFont: { size: 13, family: "var(--font-estedad)" },
         callbacks: {
-          title: (context: any) => context[0].label,
-          label: (context: any) => `${t("common.amount")}: ${context.parsed.y}`,
+          title: (context) => context[0].label,
+          label: (context) => {
+            const value = isMobile ? context.parsed.x : context.parsed.y;
+            return `${t("common.amount")}: ${localeNum(value as number)}`;
+          },
         },
       },
     },
     scales: {
       x: {
-        grid: {
-          display: false,
-        },
+        beginAtZero: true,
+        grid: { color: "#f3f4f6" },
         ticks: {
-          font: {
-            size: 11,
-          },
-          maxRotation: 45,
-          minRotation: 45,
-          align: "end" as const,
+          font: { size: 12, family: "var(--font-estedad)" },
+          callback: (value) => localeNum(Number(value)),
         },
       },
       y: {
         beginAtZero: true,
-        grid: {
-          color: "#e5e7eb",
-          lineWidth: 1,
-          drawBorder: false,
-        },
+        grid: { display: isMobile ? false : true, color: "#f3f4f6" },
         ticks: {
-          font: {
-            size: 12,
+          font: { size: isMobile ? 11.5 : 12, family: "var(--font-estedad)" },
+          padding: 10,
+          crossAlign: "far" as const,
+          autoSkip: false,
+          callback: function (tickValue) {
+            const label = labels[Number(tickValue)] || "";
+            if (isMobile && label.length > 18) {
+              return label.substring(0, 16) + "...";
+            }
+            return label;
           },
-          padding: 8,
         },
       },
     },
   };
 
   return (
-    <div className="w-full bg-white rounded-xl shadow-sm p-6 **:font-estedad!">
-      <h3 className="text-lg font-bold text-gray-800 mb-6 start">
+    <div className="w-full bg-white rounded-2xl shadow-sm p-5 md:p-6 font-estedad">
+      <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-6 text-right">
         {t("home.statistics.title")}
       </h3>
+
       <div
-        className="**:font-estedad!"
-        style={{ height: "450px", position: "relative" }}
+        className="w-full"
+        style={{
+          height: isMobile ? "680px" : "500px", // موبایل کمی بلندتر چون افقیه
+          position: "relative",
+        }}
       >
-        <Bar data={data} options={options} className="**:font-estedad!" />
+        <Bar data={data} options={options} />
       </div>
     </div>
   );
