@@ -1,151 +1,257 @@
+// components/common/professional-table.tsx
 "use client";
 
-import { useMemo, useRef, FC, JSX, memo } from "react";
-import { AgGridReact } from "ag-grid-react";
+import React from "react";
 import {
-  ColDef,
-  GridReadyEvent,
-  GetQuickFilterTextParams,
-  ModuleRegistry,
-  AllCommunityModule,
-  ICellRendererParams,
-} from "ag-grid-community";
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  flexRender,
+  ColumnDef,
+  SortingState,
+  ColumnFiltersState,
+} from "@tanstack/react-table";
+import { ArrowUpDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import useIsEnglish from "@/core/hooks/use-is-english";
 
-ModuleRegistry.registerModules([AllCommunityModule]);
-
-interface ProfessionalTableProps<TData = any> {
-  rowData: TData[];
-  columnDefs: ColDef<TData>[];
-  tableTitle?: string;
-  className?: string;
-  rowHeight?: number;
-  headerHeight?: number;
-  paginationPageSize?: number;
-  onGridReady?: (event: GridReadyEvent<TData>) => void;
+interface ProfessionalTableProps<T> {
+  columnDefs: {
+    headerName: string;
+    field?: keyof T | string;
+    valueGetter?: (params: { data: T }) => any;
+    cellRenderer?: (params: { data: T }) => React.ReactNode;
+    sortable?: boolean;
+    filter?: boolean;
+    width?: number;
+    fixed?: "left" | "right";
+  }[];
+  rowData: T[];
+  HeaderActions?: React.ReactNode;
   loading?: boolean;
-  domLayout?: "normal" | "autoHeight" | "print";
-  HeaderActions?: JSX.Element;
+  isFetchingMore?: boolean;
+  hasMore?: boolean;
+  onLoadMore?: () => void;
+  enableInfiniteScroll?: boolean;
+  noDataMessage?: string;
+  endMessage?: string;
+  tableTitle?: string;
+  error?: Error | null;
+  onRetry?: () => void;
+  enableRtl?: boolean;
+  scrollHeight?: string;
+  rowKey?: string | ((row: T) => string);
+  className?: string;
 }
 
-// کامپراتور هوشمند (عدد + متن فارسی/انگلیسی + null safe)
-const smartComparator = (valueA: any, valueB: any): number => {
-  // اگر هر دو null یا undefined → برابر
-  if (valueA == null && valueB == null) return 0;
-  if (valueA == null) return 1;
-  if (valueB == null) return -1;
-
-  // تلاش برای تبدیل به عدد
-  const numA = Number(valueA);
-  const numB = Number(valueB);
-
-  if (!isNaN(numA) && !isNaN(numB)) {
-    return numA - numB;
-  }
-
-  // سورت متنی با پشتیبانی کامل فارسی
-  const strA = String(valueA).trim();
-  const strB = String(valueB).trim();
-
-  return strA.localeCompare(strB, "fa", { numeric: true, sensitivity: "base" });
-};
-
-const ProfessionalTable: FC<ProfessionalTableProps<any>> = ({
-  rowData,
-  columnDefs: userColumnDefs,
-  className = "",
-  rowHeight = 72,
-  headerHeight = 56,
-  paginationPageSize = 20,
-  onGridReady,
-  loading,
-  domLayout = "normal",
+function ProfessionalTable<T extends object>({
+  columnDefs,
+  rowData = [],
   HeaderActions,
-}) => {
-  const gridRef = useRef<AgGridReact>(null);
-  const t = useTranslations("common");
-  const tableT = useTranslations("table");
-
-  const columnDefs = useMemo(() => {
-    return userColumnDefs.map((col): ColDef<any> => {
-      const hasCustomComparator = col.comparator != null;
-      const isUnsortable = col.sortable === false;
-
-      if (hasCustomComparator || isUnsortable) {
-        return col;
-      }
-
-      const valueGetter =
-        col.valueGetter ??
-        (col.field
-          ? (params: any) => params.data?.[col.field as string]
-          : undefined);
-
-      return {
-        ...col,
-        sortable: true,
-        comparator: smartComparator,
-        valueGetter,
-      };
-    });
-  }, [userColumnDefs]);
-  const defaultColDef = useMemo<ColDef>(
-    () => ({
-      resizable: true,
-      getQuickFilterText: (params: GetQuickFilterTextParams) =>
-        String(params.value ?? ""),
-    }),
+  loading = false,
+  isFetchingMore = false,
+  hasMore = false,
+  onLoadMore,
+  enableInfiniteScroll = false,
+  noDataMessage = "داده‌ای برای نمایش وجود ندارد",
+  endMessage = "همه موارد بارگذاری شدند",
+  tableTitle,
+  error,
+  onRetry,
+  scrollHeight = "600px",
+  rowKey = "_id",
+  className = "",
+}: ProfessionalTableProps<T>) {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [globalFilter, setGlobalFilter] = React.useState("");
+  const isEN = useIsEnglish()
+  const t = useTranslations("table");
 
-  const gridKey = useMemo(() => `${rowData.length}-${Date.now()}`, [rowData]);
+  const columns: ColumnDef<T>[] = React.useMemo(
+    () =>
+      columnDefs.map((col) => ({
+        accessorKey: col.field as string,
+        header: col.headerName,
+        enableSorting: col.sortable ?? true,
+        enableColumnFilter: col.filter ?? true,
+        cell: ({ row }) => {
+          const value = col.valueGetter
+            ? col.valueGetter({ data: row.original })
+            : col.field
+            ? row.getValue(col.field as string)
+            : null;
 
-  const isEN = useIsEnglish();
+          if (col.cellRenderer) {
+            return col.cellRenderer({ data: row.original });
+          }
+
+          return <span>{String(value ?? "-")}</span>;
+        },
+      })),
+    [columnDefs]
+  );
+
+  const table = useReactTable({
+    data: rowData,
+    columns,
+    state: {
+      sorting,
+      columnFilters,
+      globalFilter,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    // صفحه‌بندی داخلی کاملاً حذف شد!
+  });
+
+  // هندلر اسکرول برای Infinite Scroll
+  const tableContainerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!enableInfiniteScroll || !onLoadMore) return;
+
+    const handleScroll = () => {
+      const container = tableContainerRef.current;
+      if (!container) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = container;
+
+      if (
+        scrollTop + clientHeight >= scrollHeight - 100 &&
+        hasMore &&
+        !isFetchingMore
+      ) {
+        onLoadMore();
+      }
+    };
+
+    const container = tableContainerRef.current;
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [enableInfiniteScroll, onLoadMore, hasMore, isFetchingMore]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-gray-500">در حال بارگذاری...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600 mb-4">خطا در بارگذاری داده‌ها</p>
+        <button
+          onClick={onRetry}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          تلاش مجدد
+        </button>
+      </div>
+    );
+  }
+
+  if (!rowData || rowData.length === 0) {
+    return (
+      <div className="text-center py-12 text-gray-500">
+        <p>{noDataMessage}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className={`min-h-[700px] rounded-2xl overflow-hidden ${className}`}>
-      <div className="h-24 flex items-center justify-between bg-zinc-50 text-slate-700 rounded-t-2xl px-6 border-b border-zinc-200">
-        <h2 className="md:text-xl text-base lg:text-2xl font-bold">
-          {t("dataList")}
-        </h2>
-        <div className="*:rounded-lg!">{HeaderActions}</div>
-      </div>
+    <div  className={`w-full space-y-4 border rounded-lg border-neutral-200 ${className}`}>
+      {/* عنوان و اکشن‌ها */}
+      {(tableTitle || HeaderActions) && (
+        <div className="flex justify-between py-3 px-4 items-center flex-wrap gap-4">
+          <i></i>
+          {HeaderActions && <div>{HeaderActions}</div>}
+        </div>
+      )}
 
-      <div className="ag-theme-alpine h-[calc(100vh-200px)]">
-        <AgGridReact
-          key={gridKey}
-          ref={gridRef}
-          rowData={rowData}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          enableRtl={!isEN}
-          rowHeight={rowHeight}
-          headerHeight={headerHeight}
-          domLayout={domLayout}
-          pagination
-          paginationPageSize={paginationPageSize}
-          suppressDragLeaveHidesColumns
-          onGridReady={onGridReady}
-          loading={loading}
-          localeText={{
-            contains: tableT("contains"),
-            notContains: tableT("notContains"),
-            equals: tableT("equals"),
-            notEqual: tableT("notEqual"),
-            startsWith: tableT("startsWith"),
-            endsWith: tableT("endsWith"),
-            filterOoo: tableT("filterOoo"),
-            noRowsToShow: tableT("noRowsToShow"),
-            page: tableT("page"),
-            to: tableT("to"),
-            of: tableT("of"),
-            loadingOoo: tableT("loadingOoo"),
-          }}
-        />
+      {/* جدول با اسکرول و Infinite Scroll */}
+      <div
+        ref={tableContainerRef}
+        className="overflow-auto border border-gray-200 rounded-lg"
+        style={{ height: scrollHeight }}
+        dir={!isEN ? "rtl" : "ltr"}
+      >
+        <table className="w-full min-w-max table-auto text-sm">
+          <thead className=" border-b border-gray-200 sticky top-0 z-10">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="px-4 py-3 font-medium text-gray-700 hover:bg-gray-100 transition cursor-pointer select-none"
+                    onClick={header.column.getToggleSortingHandler()}
+                  >
+                    <div className="flex items-center gap-2">
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                      {header.column.getCanSort() && (
+                        <ArrowUpDown className="w-4 h-4 opacity-50" />
+                      )}
+                      {{
+                        asc: " (صعودی)",
+                        desc: " (نزولی)",
+                      }[header.column.getIsSorted() as string] ?? null}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {table.getRowModel().rows.map((row) => (
+              <tr
+                key={crypto.randomUUID()}
+                className="hover: transition"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className="px-4 py-3 *:flex *:items-center *:gap-1 text-gray-800"
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+
+            {/* ردیف لودینگ یا پایان */}
+          </tbody>
+        {enableInfiniteScroll && (
+          <tr className="grow flex items-center mx-auto!  text-sm! select-none justify-center w-full!">
+            <td
+              colSpan={columns.length}
+              className="py-8 text-center flex items-center justify-center w-full! text-gray-500"
+            >
+              {isFetchingMore ? (
+                <div>{t("loadingOoo")}</div>
+              ) : hasMore ? (
+                <div>{t("scrollToLoadMore")}</div>
+              ) : (
+                <div>{t("endOfList")}</div>
+              )}
+            </td>
+          </tr>
+        )}
+        </table>
       </div>
     </div>
   );
-};
+}
 
-export default memo(ProfessionalTable);
+export default ProfessionalTable;

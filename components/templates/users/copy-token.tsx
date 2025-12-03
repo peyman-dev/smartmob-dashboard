@@ -31,7 +31,7 @@ const CopyToken = ({ user }: { user: User }) => {
     <>
       <Tooltip title={copied ? t("copied") : t("clickToCopy")}>
         <Tag
-          className="text-sm! cursor-pointer"
+          className="text-sm! flex! items-center! gap-2! cursor-pointer"
           onClick={() => toggle()}
           color={copied ? "green" : "blue"}
         >
@@ -54,7 +54,7 @@ const CopyToken = ({ user }: { user: User }) => {
             onClick={copyAction}
             className="p-4 my-6 w-full cursor-pointer bg-neutral-100 hover:bg-neutral-200 transition-colors border border-neutral-200 rounded-lg  inline-flex gap-4 items-center break-all"
           >
-            {copied ? <CheckCircle2 className="text-green-600" /> : <Copy />}
+            {copied ? <CheckCircle2 className="text-green-600 size-5!" /> : <Copy className="size-5!"/>}
             <span className="text-sm font-mono" ref={ref}>
               {user.accountInfo.apiToken}
             </span>

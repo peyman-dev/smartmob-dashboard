@@ -214,7 +214,7 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, onSuccess }) => {
               >
                 <button
                   onClick={() => toggleExpanded(itemId)}
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3 hover: transition-colors"
                 >
                   <span className="text-sm font-medium text-gray-900 capitalize">
                     {subKey.replace(/_/g, " ")}
@@ -233,7 +233,7 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, onSuccess }) => {
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="overflow-hidden border-t border-gray-200 bg-gray-50"
+                      className="overflow-hidden border-t border-gray-200 "
                     >
                       <div className="px-4 py-3">
                         {renderField(subKey, subValue, depth + 1, itemId)}
@@ -265,7 +265,7 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, onSuccess }) => {
               >
                 <button
                   onClick={() => toggleExpanded(itemId)}
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3 hover: transition-colors"
                 >
                   <span className="text-sm font-medium text-gray-900">
                     {key.replace(/_/g, " ")} #{index + 1}
@@ -284,7 +284,7 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, onSuccess }) => {
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="overflow-hidden border-t border-gray-200 bg-gray-50"
+                      className="overflow-hidden border-t border-gray-200 "
                     >
                       <div className="px-4 py-3 space-y-3">
                         {typeof item === "object" ? (

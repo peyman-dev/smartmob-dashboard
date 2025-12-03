@@ -9,7 +9,7 @@ const UserCoins = ({ user }: { user: User }) => {
   const t = useTranslations("common");
   const isEN = useIsEnglish()
   return (
-    <div className="flex-col! gap-2! justify-center! p-0! **:p-! **:m-0! py-1 text-xs!  **:max-h-max!">
+    <div className="grid! grid-cols-! gap-1 p-0! **:p-! **:m-0! py-1 text-xs!  **:max-h-max!">
       <Tag
         color="green"
         dir={isEN ? "ltr" : "rtl"}

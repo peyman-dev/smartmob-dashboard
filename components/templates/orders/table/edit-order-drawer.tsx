@@ -20,7 +20,7 @@ const EditOrderDrawer = ({
   isOpen: boolean;
   onSuccess: () => void;
 }) => {
-  const t = useTranslations("users.editOrder"); // مسیر ترجمه
+  const t = useTranslations("orders.editOrderDrawer"); // مسیر ترجمه
 
   const [values, setValues] = useState<Order>(order);
   const [status, setStatus] = useState<{ statusCode?: number; statusText?: string }>({});

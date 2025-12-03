@@ -105,6 +105,7 @@ const EditUserInfos = ({
       </div>
       <div className="*:block">
         <label htmlFor="user-currency">ارز حساب</label>
+        
         <Select
           className="mt-2! h-12! border-neutral-200! w-full **:font-estedad!"
           id="user-currency"
@@ -193,7 +194,7 @@ const EditUserInfos = ({
       </div>
       <div>
         <label htmlFor="">{t("coins")}</label>
-        <div className="mt-2! grid grid-cols-2 gap-4!">
+        <div className="mt-2! grid grid-cols-1">
           <div>
             <InputNumber
               formatter={formatter}

@@ -1,6 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
 import LoadingScreen from "@/components/common/loading-screen";
 import ProfessionalTable from "@/components/common/professional-table";
 import SearchOrders from "@/components/templates/orders/search-orders";
@@ -10,102 +11,179 @@ import OrderModeTag from "@/components/ui/order-mode-tag";
 import { getOrders } from "@/core/actions";
 import { localeDate } from "@/core/lib/helpers";
 import { Order } from "@/core/types/types";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Copyable from "@/components/common/copyable";
 import { useTranslations } from "next-intl";
 import useUserFinder from "@/core/hooks/use-user-finder";
 import { Button, Tooltip } from "antd";
-import { memo } from "react";
+import { memo, useCallback, useMemo } from "react";
 
-interface IParams {
-  data: Order;
-}
+const PAGE_SIZE = 9;
 
 const ClientPage = () => {
   const t = useTranslations("orders");
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ["orders"],
-    queryFn: async () => await getOrders(),
-    staleTime: 1000 * 60 * 5,
-  });
   const commonT = useTranslations("common");
+  const queryClient = useQueryClient();
+
   const { foundedUsers, clearAllParams, isSearchingUser, navigateToWithUser } =
     useUserFinder();
-
-  console.log(data);
-
   const { searchResult, isSearching } = useSearchStore();
 
-  if (isLoading) return <LoadingScreen />;
-  const orders: Order[] = data?.data;
+  // فقط سفارشات رو از سرور می‌گیریم
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    error,
+  } = useInfiniteQuery({
+    queryKey: ["orders"],
+    queryFn: ({ pageParam = 0 }) =>
+      getOrders({ page: pageParam, limit: PAGE_SIZE }),
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage?.data?.length === PAGE_SIZE) {
+        return allPages.length;
+      }
+      return undefined;
+    },
+    initialPageParam: 0,
+    staleTime: 1000 * 60 * 2,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
 
+  // فقط سفارشات اصلی
+  const orders = useMemo(() => {
+    return data?.pages.flatMap((page) => page?.data ?? []) ?? [];
+  }, [data]);
+
+  const loadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const handleRetry = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["orders"] });
+  }, [queryClient]);
+
+  // تشخیص اینکه الان داریم سفارش نشون می‌دیم یا کاربر
+  const isShowingSearchResults = isSearching && searchResult?.data?.data;
+  const isShowingUserSearch =
+    isSearchingUser && foundedUsers && foundedUsers.length > 0;
+
+  // داده نهایی فقط وقتی سفارش باشه به تیبل سفارشات می‌ره
+  const tableRowData: Order[] = isShowingSearchResults
+    ? searchResult.data.data
+    : orders;
+
+  // اگر کاربر در حال جستجوی کاربر هست → جدول سفارشات رو اصلاً نشون نده
+  if (isShowingUserSearch) {
+    return (
+      <div className="p-8 text-center bg-white rounded-lg shadow">
+        <h3 className="text-lg font-semibold mb-4">
+          {commonT("searchResults")}
+        </h3>
+        <div className="space-y-3 max-w-2xl mx-auto">
+          {foundedUsers.map((user: any) => (
+            <div
+              key={user._id || user.id}
+              className="flex justify-between items-center p-4 border rounded-lg hover:"
+            >
+              <div>
+                <p className="font-medium">
+                  {user.username || user.phone || user.email}
+                </p>
+                <p className="text-sm text-gray-500">
+                  ID: {user._id || user.id}
+                </p>
+              </div>
+              <Button
+                type="primary"
+                onClick={() =>
+                  navigateToWithUser("/users", user._id || user.id)
+                }
+              >
+                مشاهده کاربر
+              </Button>
+            </div>
+          ))}
+        </div>
+        <Button danger onClick={clearAllParams} className="mt-6">
+          {commonT("clear")}
+        </Button>
+      </div>
+    );
+  }
+
+  // اگر لودینگ اولیه و هیچ داده‌ای نداریم
+  if (isLoading && orders.length === 0) return <LoadingScreen />;
+
+  // ستون‌های جدول سفارشات (همه مطمئنن _id دارن)
   const colDefs = [
     {
       headerName: t("orderId"),
-      valueGetter: (params: { data: Order }) => params.data._id,
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        return <Copyable text={data?._id}>{data?._id}</Copyable>;
-      },
+      field: "_id",
+      cellRenderer: ({ data }: { data: Order }) => (
+        <Copyable text={data._id}>{data._id}</Copyable>
+      ),
+      width: 180,
+      ellipsis: true,
     },
     {
       headerName: t("user"),
-      valueGetter: (params: { data: Order }) => params.data.user,
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        return (
-          <Tooltip title={commonT("searchUser")}>
-            <p
-              className="underline text-blue-500 cursor-pointer"
-              onClick={() => navigateToWithUser("/users", data.user)}
-            >
-              {data?.user}
-            </p>
-          </Tooltip>
-        );
-      },
+      field: "user",
+      cellRenderer: ({ data }: { data: Order }) => (
+        <Tooltip title={commonT("searchUser")}>
+          <button
+            className="underline text-blue-600 hover:text-blue-800 transition-colors"
+            onClick={() => navigateToWithUser("/users", data.user)}
+          >
+            {data.user}
+          </button>
+        </Tooltip>
+      ),
     },
     {
       headerName: t("target"),
-      valueGetter: (params: { data: Order }) => params.data.target,
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        return <Copyable text={data?.target}>{data?.target}</Copyable>;
-      },
+      field: "target",
+      cellRenderer: ({ data }: { data: Order }) => (
+        <Copyable text={data.target}>{data.target}</Copyable>
+      ),
+      ellipsis: true,
     },
     {
       headerName: t("targetId"),
-      valueGetter: (params: { data: Order }) => params.data.targetId,
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        return <Copyable text={data?.targetId}>{data?.targetId}</Copyable>;
-      },
+      field: "targetId",
+      cellRenderer: ({ data }: { data: Order }) => (
+        <Copyable text={data.targetId}>{data.targetId}</Copyable>
+      ),
+      ellipsis: true,
     },
     {
       headerName: t("image"),
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        return (
-          <div>
-            <Image
-              src={data.img || ""}
-              width={32}
-              height={32}
-              className="rounded-full max-w-8! max-h-8!"
-              alt={data._id}
-            />
-          </div>
-        );
-      },
+      field: "img",
+      cellRenderer: ({ data }: { data: Order }) => (
+        <div className="flex justify-center">
+          <Image
+            src={data.img || "/placeholder.png"}
+            width={40}
+            height={40}
+            alt="order"
+            className="rounded-full object-cover size-10"
+          />
+        </div>
+      ),
+      width: 80,
     },
     {
       headerName: t("price"),
-      valueGetter: (params: { data: Order }) => params.data.price,
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
+      field: "price",
+      cellRenderer: ({ data }: { data: Order }) => {
         const model = data.priceModel;
-
         const text = `${data.price} ${commonT(
           `priceModel.${
             ["USD", "TOMAN", "follow"].includes(model) ? model : "default"
@@ -116,98 +194,87 @@ const ClientPage = () => {
     },
     {
       headerName: t("quantity"),
-      valueGetter: (params: { data: Order }) => params.data.quantity,
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        return (
-          <Copyable text={data?.quantity?.toString()}>
-            {data?.quantity}
-          </Copyable>
-        );
-      },
+      field: "quantity",
+      cellRenderer: ({ data }: { data: Order }) => (
+        <Copyable text={data.quantity.toString()}>{data.quantity}</Copyable>
+      ),
     },
     {
       headerName: t("quantityComp"),
-      valueGetter: (params: { data: Order }) => params.data.quantityComp,
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        return (
-          <Copyable text={data?.quantityComp?.toString()}>
-            {data?.quantityComp}
-          </Copyable>
-        );
-      },
+      field: "quantityComp",
+      cellRenderer: ({ data }: { data: Order }) => (
+        <Copyable text={data.quantityComp.toString()}>
+          {data.quantityComp}
+        </Copyable>
+      ),
     },
     {
       headerName: t("remaining"),
-      valueGetter: (params: { data: Order }) => params.data.quantityComp,
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        return (
-          <Copyable text={data?.quantityComp?.toString()}>
-            {data?.quantity - data?.quantityComp} {commonT("amount")}
-          </Copyable>
-        );
-      },
+      cellRenderer: ({ data }: { data: Order }) => (
+        <Copyable text={(data.quantity - data.quantityComp).toString()}>
+          {data.quantity - data.quantityComp} {commonT("amount")}
+        </Copyable>
+      ),
     },
     {
       headerName: t("mode"),
-      valueGetter: (params: { data: Order }) => params.data.status.code,
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        return <OrderModeTag mode={data.mode} />;
-      },
+      field: "mode",
+      cellRenderer: ({ data }: { data: Order }) => (
+        <OrderModeTag mode={data.mode} />
+      ),
     },
     {
       headerName: t("dateCreate"),
-      valueGetter: (params: { data: Order }) => params.data.dateCreate,
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        const text = localeDate(data.dateCreate);
-        return <Copyable text={text}>{text}</Copyable>;
-      },
+      field: "dateCreate",
+      cellRenderer: ({ data }: { data: Order }) => (
+        <Copyable text={localeDate(data.dateCreate)}>
+          {localeDate(data.dateCreate)}
+        </Copyable>
+      ),
     },
     {
       headerName: t("dateUpdate"),
-      valueGetter: (params: { data: Order }) => params.data.dateUpdate,
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        const text = localeDate(data.dateUpdate);
-        return <Copyable text={text}>{text}</Copyable>;
-      },
+      field: "dateUpdate",
+      cellRenderer: ({ data }: { data: Order }) => (
+        <Copyable text={localeDate(data.dateUpdate)}>
+          {localeDate(data.dateUpdate)}
+        </Copyable>
+      ),
     },
     {
       headerName: t("manage"),
-      cellRenderer: (param: IParams) => {
-        const { data } = param;
-        return <ModerateOrder onSuccess={refetch} order={data} />;
-      },
+      cellRenderer: ({ data }: { data: Order }) => (
+        <ModerateOrder
+          onSuccess={() =>
+            queryClient.invalidateQueries({ queryKey: ["orders"] })
+          }
+          order={data}
+        />
+      ),
+      width: 100,
+      fixed: "right" as const,
     },
   ];
 
   return (
-    <div>
+    <div className="p-4 min-h-screen ">
       <ProfessionalTable
         columnDefs={colDefs}
-        rowData={
-          isSearchingUser
-            ? foundedUsers
-            : isSearching
-            ? searchResult?.data?.data?.length
-              ? searchResult?.data?.data
-              : []
-            : orders
-        }
-        HeaderActions={
-          <div className="flex items-center gap-3">
-            {isSearchingUser && (
-              <Button variant="filled" color="red" onClick={clearAllParams}>
-                {commonT("clear")}
-              </Button>
-            )}
-            <SearchOrders />
-          </div>
-        }
+        rowData={tableRowData}
+        loading={isLoading && orders.length === 0}
+        isFetchingMore={isFetchingNextPage}
+        hasMore={!isSearching && hasNextPage}
+        onLoadMore={loadMore}
+        enableInfiniteScroll={!isSearching}
+        noDataMessage={t("noData") || "هیچ سفارشی یافت نشد"}
+        endMessage={t("endMessage") || commonT("endOfList")}
+        tableTitle={t("title") || "سفارشات"}
+        error={isError ? (error as Error) : null}
+        onRetry={handleRetry}
+        enableRtl={true}
+        scrollHeight="calc(100vh - 180px)"
+        rowKey="_id"
+        className="shadow-lg"
       />
     </div>
   );

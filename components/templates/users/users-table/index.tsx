@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ColDef, ValueGetterParams } from "ag-grid-community";
+import { useCallback, useMemo } from "react";
 import { User } from "@/core/types/types";
 import UserName from "../../home/recent-users/user-card/elements/user-name";
 import UserBalance from "../../home/recent-users/user-card/elements/user-balance";
@@ -15,22 +14,12 @@ import SearchUsers from "../search-users";
 import { useUserSearchStore } from "../settings/user.search.store";
 import CopyToken from "../copy-token";
 import Copyable from "@/components/common/copyable";
-import { useSearchParams } from "next/navigation";
 import { getUsersList } from "@/core/actions";
-import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import useUserFinder from "@/core/hooks/use-user-finder";
+import useIsEnglish from "@/core/hooks/use-is-english";
 
-const Filter = dynamic(
-  () =>
-    import("@/components/templates/auth/common/filter").then(
-      (mod) => mod.default
-    ),
-  {
-    ssr: false, // این خط کل مشکل رو حل می‌کنه
-  }
-);
 const persianComparator = (a: any, b: any) => {
   return String(a || "").localeCompare(String(b || ""), "fa", {
     sensitivity: "base",
@@ -38,25 +27,48 @@ const persianComparator = (a: any, b: any) => {
   });
 };
 
+const PAGE_SIZE = 20;
+
 const UsersTable = () => {
-  const { data, refetch, isLoading } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () =>
-      await getUsersList({
-        params: {
-          limit: 20,
-          page: 0,
-        },
-      }),
-  });
-  const { isSearching, searchResult, searchById } = useUserSearchStore();
-  const { foundedUsers, isSearchingUser, StopSearchingButton } =
-    useUserFinder();
-  const [filterUserId, setFilterUserId] = useState("");
-  const params = useSearchParams();
+  const isEN = useIsEnglish()
   const t = useTranslations("users");
   const gt = useTranslations();
-  const colDefs: ColDef<User>[] = [
+  const queryClient = useQueryClient();
+
+  const { isSearching, searchResult } = useUserSearchStore();
+  const { foundedUsers, isSearchingUser, StopSearchingButton } =
+    useUserFinder();
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery({
+      queryKey: ["users"],
+      queryFn: ({ pageParam = 0 }) =>
+        getUsersList({
+          params: {
+            limit: PAGE_SIZE,
+            page: pageParam as number,
+          },
+        }),
+      getNextPageParam: (lastPage) => {
+        if (!lastPage?.data || lastPage.data.length < PAGE_SIZE)
+          return undefined;
+        return (lastPage.page || 0) + 1;
+      },
+      initialPageParam: 0,
+      staleTime: 60 * 1000,
+    });
+
+  const users = useMemo(() => {
+    return data?.pages.flatMap((p) => p?.data ?? []) ?? [];
+  }, [data]);
+
+  const loadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const colDefs = [
     {
       headerName: t("id"),
       cellRenderer: (p: { data: User }) => {
@@ -71,7 +83,7 @@ const UsersTable = () => {
     },
     {
       headerName: t("profile"),
-      valueGetter: (p: ValueGetterParams<User>) =>
+      valueGetter: (p: any) =>
         p.data?.accountInfo.name || p.data?.accountInfo.username || "بدون نام",
       cellRenderer: (p: { data: User }) =>
         p.data && (
@@ -87,17 +99,18 @@ const UsersTable = () => {
         ),
       comparator: persianComparator,
     },
-
     {
       headerName: t("coins"),
-      valueGetter: (p: ValueGetterParams<User>) =>
-        p.data?.accountInfo.coin?.follow ?? 0,
+      valueGetter: (p: any) => p.data?.accountInfo.coin?.follow ?? 0,
       cellRenderer: (p: any) =>
         p.data && (
           <Copyable
+            className="flex! *:flex! *:flex-col! flex-col!"
             text={`{follow: ${p.data?.accountInfo.coin?.follow}, other: ${p.data?.accountInfo.coin?.other}}`}
           >
-            <UserCoins user={p.data} />
+            <div className="grid! grid-cols-! flex-col!">
+              <UserCoins user={p.data} />
+            </div>
           </Copyable>
         ),
       comparator: (a: any, b: any) => (b ?? 0) - (a ?? 0),
@@ -112,7 +125,7 @@ const UsersTable = () => {
       cellRenderer: (p: any) => {
         const isToman = p.data.accountInfo.currency === "TOMAN";
         return (
-          <>
+          <div dir={isEN ? "ltr" : "rtl"} className="flex items-center!">
             <Image
               className="rounded-full"
               src={
@@ -125,16 +138,14 @@ const UsersTable = () => {
               alt=""
             />
             <UserBalance user={p.data} />
-          </>
+          </div>
         );
       },
     },
     {
       headerName: gt("common.email"),
       cellRenderer: (p: { data: User }) => (
-        <span>
-          {p.data.contacts.email.email || " - "}
-        </span>
+        <span>{p.data.contacts.email.email || " - "}</span>
       ),
     },
     {
@@ -148,26 +159,33 @@ const UsersTable = () => {
     {
       headerName: t("manage"),
       cellRenderer: (p: any) =>
-        p.data && <ModerateUser user={p.data} onSuccess={refetch} />,
+        p.data && (
+          <ModerateUser
+            user={p.data}
+            onSuccess={() =>
+              queryClient.invalidateQueries({ queryKey: ["users"] })
+            }
+          />
+        ),
       sortable: false,
       filter: false,
       floatingFilter: false,
     },
   ];
 
-  // const fields: FilterField[] = [
-  //   {
-  //     label: t("id"),
-  //     type: "input",
-  //     key: "_id",
-  //     defaultValue: filterUserId,
-  //   },
-  // ];
+  if (isLoading && users.length === 0) return <LoadingScreen />;
 
-  if (!data?.data?.length || isLoading) return <LoadingScreen />;
+  const rowData = isSearchingUser
+    ? foundedUsers
+    : isSearching
+    ? searchResult?.data?.data ?? []
+    : users;
+
+  const enableInfiniteScroll = !isSearching && !isSearchingUser;
+
   return (
-    <div className=" rounded-2xl">
-      <div className="ag-theme-alpine  **:font-estedad!">
+    <div className="rounded-2xl">
+      <div className="ag-theme-alpine **:font-estedad!">
         <ProfessionalTable
           HeaderActions={
             <div className="flex items-center gap-2">
@@ -176,15 +194,12 @@ const UsersTable = () => {
             </div>
           }
           columnDefs={colDefs}
-          rowData={
-            isSearchingUser
-              ? foundedUsers
-              : isSearching
-              ? searchResult?.data?.data?.length
-                ? searchResult?.data?.data
-                : []
-              : data?.data || []
-          }
+          rowData={rowData}
+          loading={isLoading && users.length === 0}
+          isFetchingMore={isFetchingNextPage}
+          hasMore={enableInfiniteScroll && hasNextPage}
+          onLoadMore={loadMore}
+          enableInfiniteScroll={enableInfiniteScroll}
         />
       </div>
     </div>
