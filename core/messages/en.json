@@ -41,6 +41,7 @@
     "latestUsers": "Latest users"
   },
   "accounts": {
+    "noName": "No Name",
     "user": "User",
     "fullName": "Full Name",
     "numericId": "Numeric ID",
@@ -66,9 +67,11 @@
   },
 
   "orders": {
+    "seeUsers": "مشاهده کاربر",
     "remaining": "Remaining",
     "orderId": "Order ID",
     "user": "User",
+    "status": "Order status",
     "target": "Target",
     "targetId": "Target ID",
     "image": "Image",
@@ -81,6 +84,7 @@
     "dateUpdate": "Last Updated",
     "manage": "Manage",
     "editOrder": "Edit Order",
+    "startNumber": "Start number",
     "editOrderDrawer": {
       "title": "Edit Order",
       "quantityLabel": "Order Quantity",
@@ -193,6 +197,7 @@
   },
   "common": {
     "yes": "Yes",
+    "loadingOoo": "Loading...",
     "priceModel": {
       "USD": "USD",
       "TOMAN": "Toman (IR)",
@@ -260,5 +265,35 @@
     "searchUser": "searchUsers",
     "session": "Session",
     "password": "Password"
+  },
+  "pwa": {
+    "title": "نصب اپلیکیشن",
+    "subtitle": "دسترسی سریع‌تر و تجربه‌ای بهتر",
+
+    "benefits": {
+      "fastAccess": "دسترسی سریع از صفحه اصلی",
+      "offline": "قابلیت استفاده آفلاین",
+      "nativeExperience": "تجربه مشابه اپلیکیشن‌های native",
+      "noStore": "بدون نیاز به اپ‌استور"
+    },
+
+    "installNow": "نصب کنید",
+    "installOnWindows": "نصب روی ویندوز",
+
+    "ios": {
+      "title": "نصب در iOS",
+      "step1": "۱. روی دکمه اشتراک‌گذاری (Share) در پایین بزنید",
+      "step2": "۲. اسکرول کنید و گزینه «افزودن به صفحه اصلی» (Add to Home Screen) را انتخاب کنید",
+      "step3": "۳. روی «افزودن» (Add) بزنید تا تایید شود"
+    },
+
+    "windows": {
+      "title": "نصب در ویندوز",
+      "message": "روی دکمه «نصب روی ویندوز» در بالا بزنید تا اپ به دسکتاپ و منوی Start اضافه شود."
+    },
+
+    "notSupported": "مرورگر شما از نصب اپلیکیشن پشتیبانی نمی‌کند. لطفاً از Chrome، Edge یا Safari استفاده کنید.",
+
+    "maybeLater": "بعداً"
   }
 }

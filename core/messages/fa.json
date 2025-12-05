@@ -43,6 +43,7 @@
   "accounts": {
     "user": "کاربر",
     "fullName": "نام کامل",
+    "noName": "بدون نام",
     "numericId": "آیدی عددی",
     "username": "یوزرنیم",
     "gender": "جنسیت",
@@ -65,9 +66,11 @@
     }
   },
   "orders": {
+    "seeUsers": "مشاهده کاربر",
     "remaining": "باقی‌مانده",
     "orderId": "شناسه سفارش",
     "user": "کاربر",
+    "status": "وضعیت سفارش",
     "target": "هدف",
     "targetId": "شناسه هدف",
     "image": "تصویر",
@@ -81,6 +84,7 @@
     "manage": "مدیریت",
     "editOrder": "ویرایش سفارش",
     "userOrdersFiltering": "فیلتر کردن سفارشات کاربر",
+    "startNumber": "مقدار اولیه",
     "editOrderDrawer": {
       "title": "ویرایش سفارش",
       "quantityLabel": "تعداد سفارش",
@@ -104,7 +108,7 @@
     "equals": "مساوی",
     "notEqual": "نامساوی",
     "startsWith": "شروع با",
-     "scrollToLoadMore": "برای بارگذاری بیشتر به پایین اسکرول کنید",
+    "scrollToLoadMore": "برای بارگذاری بیشتر به پایین اسکرول کنید",
     "endOfList": "پایان لیست داده‌ها",
     "noData": "هیچ داده‌ای یافت نشد",
     "endsWith": "پایان با",
@@ -196,7 +200,9 @@
   },
 
   "common": {
+    "status": "وضعیت",
     "filter": "فیلترسازی",
+    "loadingOoo": "در حال بارگذاری...",
     "update_success": "دیتا باموفقیت بروزرسانی شد",
     "update_failed": "بروزرسانی دیتا ناموفق بود !",
     "applyFilter": "اعمال فیلتر",
@@ -264,5 +270,35 @@
     "dateUpdate": "تاریخ آخرین بروزرسانی",
     "session": "نشست",
     "password": "گذرواژه"
+  },
+  "pwa": {
+    "title": "نصب اپلیکیشن",
+    "subtitle": "دسترسی سریع‌تر و تجربه‌ای بهتر",
+
+    "benefits": {
+      "fastAccess": "دسترسی سریع از صفحه اصلی",
+      "offline": "قابلیت استفاده آفلاین",
+      "nativeExperience": "تجربه مشابه اپلیکیشن‌های native",
+      "noStore": "بدون نیاز به اپ‌استور"
+    },
+
+    "installNow": "نصب کنید",
+    "installOnWindows": "نصب روی ویندوز",
+
+    "ios": {
+      "title": "نصب در iOS",
+      "step1": "۱. روی دکمه اشتراک‌گذاری (Share) در پایین بزنید",
+      "step2": "۲. اسکرول کنید و گزینه «افزودن به صفحه اصلی» (Add to Home Screen) را انتخاب کنید",
+      "step3": "۳. روی «افزودن» (Add) بزنید تا تایید شود"
+    },
+
+    "windows": {
+      "title": "نصب در ویندوز",
+      "message": "روی دکمه «نصب روی ویندوز» در بالا بزنید تا اپ به دسکتاپ و منوی Start اضافه شود."
+    },
+
+    "notSupported": "مرورگر شما از نصب اپلیکیشن پشتیبانی نمی‌کند. لطفاً از Chrome، Edge یا Safari استفاده کنید.",
+
+    "maybeLater": "بعداً"
   }
 }
