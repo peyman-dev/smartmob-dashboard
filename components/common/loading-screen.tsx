@@ -3,8 +3,10 @@
 import { motion } from "motion/react";
 import { Wallet, Loader2 } from "lucide-react";
 import { memo } from "react";
+import { useTranslations } from "next-intl";
 
 export default memo(function LoadingScreen() {
+  const t = useTranslations("table")
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -53,7 +55,7 @@ export default memo(function LoadingScreen() {
           className="text-center"
         >
           <h2 className="text-3xl font-bold text-white mb-2">Smart Mob</h2>
-          <p className="text-blue-100 text-lg">در حال بارگذاری...</p>
+          <p className="text-blue-100 text-lg">{t("loadingOoo")}</p>
         </motion.div>
 
         {/* Animated Loading Dots */}

@@ -1,18 +1,17 @@
 // components/common/professional-table.tsx
 "use client";
 
-import React from "react";
+import React, { memo, useCallback, useRef } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
   getFilteredRowModel,
   flexRender,
-  ColumnDef,
-  SortingState,
-  ColumnFiltersState,
+  type ColumnDef,
+  type SortingState,
+  type ColumnFiltersState,
 } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import useIsEnglish from "@/core/hooks/use-is-english";
 
@@ -45,6 +44,26 @@ interface ProfessionalTableProps<T> {
   className?: string;
 }
 
+const TableRow = memo(
+  <T extends object>({ row, cells }: { row: any; cells: any[] }) => {
+    return (
+      <tr className="hover:bg-gray-50 transition">
+        {cells.map((cell) => (
+          <td
+            key={cell.id}
+            className="px-4 py-3 *:flex *:items-center *:gap-1 text-gray-800"
+          >
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </td>
+        ))}
+      </tr>
+    );
+  },
+  (prev, next) => prev.row.id === next.row.id
+);
+
+TableRow.displayName = "TableRow";
+
 function ProfessionalTable<T extends object>({
   columnDefs,
   rowData = [],
@@ -68,8 +87,13 @@ function ProfessionalTable<T extends object>({
     []
   );
   const [globalFilter, setGlobalFilter] = React.useState("");
-  const isEN = useIsEnglish()
+  const [showOverlay, setShowOverlay] = React.useState(false);
+  const isEN = useIsEnglish();
   const t = useTranslations("table");
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isLoadingRef = useRef(false);
 
   const columns: ColumnDef<T>[] = React.useMemo(
     () =>
@@ -95,9 +119,20 @@ function ProfessionalTable<T extends object>({
     [columnDefs]
   );
 
+  const getRowId = useCallback(
+    (row: T, index: number) => {
+      if (typeof rowKey === "function") {
+        return rowKey(row);
+      }
+      return (row as any)[rowKey] ?? `row-${index}`;
+    },
+    [rowKey]
+  );
+
   const table = useReactTable({
     data: rowData,
     columns,
+    getRowId,
     state: {
       sorting,
       columnFilters,
@@ -109,34 +144,76 @@ function ProfessionalTable<T extends object>({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    // صفحه‌بندی داخلی کاملاً حذف شد!
   });
 
-  // هندلر اسکرول برای Infinite Scroll
-  const tableContainerRef = React.useRef<HTMLDivElement>(null);
+  const handleScroll = useCallback(() => {
+    if (!enableInfiniteScroll || !onLoadMore || isLoadingRef.current) return;
+
+    const container = tableContainerRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+
+    if (
+      scrollTop + clientHeight >= scrollHeight - 100 &&
+      hasMore &&
+      !isFetchingMore
+    ) {
+      isLoadingRef.current = true;
+      onLoadMore();
+      setTimeout(() => {
+        isLoadingRef.current = false;
+      }, 500);
+    }
+  }, [enableInfiniteScroll, onLoadMore, hasMore, isFetchingMore]);
 
   React.useEffect(() => {
     if (!enableInfiniteScroll || !onLoadMore) return;
 
-    const handleScroll = () => {
-      const container = tableContainerRef.current;
-      if (!container) return;
+    const container = tableContainerRef.current;
+    if (!container) return;
 
-      const { scrollTop, scrollHeight, clientHeight } = container;
+    const throttledScroll = () => {
+      if (scrollTimeoutRef.current) return;
 
-      if (
-        scrollTop + clientHeight >= scrollHeight - 100 &&
-        hasMore &&
-        !isFetchingMore
-      ) {
-        onLoadMore();
-      }
+      scrollTimeoutRef.current = setTimeout(() => {
+        handleScroll();
+        scrollTimeoutRef.current = null;
+      }, 150);
     };
 
-    const container = tableContainerRef.current;
-    container?.addEventListener("scroll", handleScroll);
-    return () => container?.removeEventListener("scroll", handleScroll);
-  }, [enableInfiniteScroll, onLoadMore, hasMore, isFetchingMore]);
+    container.addEventListener("scroll", throttledScroll, { passive: true });
+    return () => {
+      container.removeEventListener("scroll", throttledScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, [handleScroll, enableInfiniteScroll, onLoadMore]);
+
+  React.useEffect(() => {
+    if (isFetchingMore) {
+      // Clear any pending hide timeout
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
+      }
+      setShowOverlay(true);
+    } else if (showOverlay && !hasMore) {
+      // When finished and no more data, hide after delay
+      hideTimeoutRef.current = setTimeout(() => {
+        setShowOverlay(false);
+      }, 800);
+    } else if (!hasMore) {
+      setShowOverlay(false);
+    }
+
+    return () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    };
+  }, [isFetchingMore, hasMore, showOverlay]);
 
   if (loading) {
     return (
@@ -169,7 +246,9 @@ function ProfessionalTable<T extends object>({
   }
 
   return (
-    <div  className={`w-full space-y-4 border rounded-lg border-neutral-200 ${className}`}>
+    <div
+      className={`w-full space-y-4 border rounded-lg py-4 border-neutral-200 ${className}`}
+    >
       {/* عنوان و اکشن‌ها */}
       {(tableTitle || HeaderActions) && (
         <div className="flex justify-between py-3 px-4 items-center flex-wrap gap-4">
@@ -178,35 +257,30 @@ function ProfessionalTable<T extends object>({
         </div>
       )}
 
-      {/* جدول با اسکرول و Infinite Scroll */}
       <div
         ref={tableContainerRef}
-        className="overflow-auto border border-gray-200 rounded-lg"
-        style={{ height: scrollHeight }}
+        className="overflow-auto rounded-lg relative"
+        style={{
+          height: scrollHeight,
+          willChange: "scroll-position",
+          transform: "translateZ(0)",
+        }}
         dir={!isEN ? "rtl" : "ltr"}
       >
         <table className="w-full min-w-max table-auto text-sm">
-          <thead className=" border-b border-gray-200 sticky top-0 z-10">
+          <thead className="border-b sticky top-0 left-0 right-0 w-full bg-white border-gray-200 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="px-4 py-3 font-medium text-gray-700 hover:bg-gray-100 transition cursor-pointer select-none"
-                    onClick={header.column.getToggleSortingHandler()}
+                    className="p-4 font-medium text-gray-700 hover:bg-gray-100 transition cursor-pointer select-none"
                   >
                     <div className="flex items-center gap-2">
                       {flexRender(
                         header.column.columnDef.header,
                         header.getContext()
                       )}
-                      {header.column.getCanSort() && (
-                        <ArrowUpDown className="w-4 h-4 opacity-50" />
-                      )}
-                      {{
-                        asc: " (صعودی)",
-                        desc: " (نزولی)",
-                      }[header.column.getIsSorted() as string] ?? null}
                     </div>
                   </th>
                 ))}
@@ -215,43 +289,46 @@ function ProfessionalTable<T extends object>({
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {table.getRowModel().rows.map((row) => (
-              <tr
-                key={crypto.randomUUID()}
-                className="hover: transition"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className="px-4 py-3 *:flex *:items-center *:gap-1 text-gray-800"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
+              <TableRow key={row.id} row={row} cells={row.getVisibleCells()} />
             ))}
-
-            {/* ردیف لودینگ یا پایان */}
           </tbody>
-        {enableInfiniteScroll && (
-          <tr className="grow flex items-center mx-auto!  text-sm! select-none justify-center w-full!">
-            <td
-              colSpan={columns.length}
-              className="py-8 text-center flex items-center justify-center w-full! text-gray-500"
-            >
-              {isFetchingMore ? (
-                <div>{t("loadingOoo")}</div>
-              ) : hasMore ? (
-                <div>{t("scrollToLoadMore")}</div>
-              ) : (
-                <div>{t("endOfList")}</div>
-              )}
-            </td>
-          </tr>
-        )}
         </table>
+
+        {enableInfiniteScroll &&
+          (isFetchingMore || (!hasMore && showOverlay)) && (
+            <div className="sticky bottom-0 left-0 right-0 w-full py-6 bg-white border-t border-gray-200">
+              <div className="flex flex-col items-center gap-3">
+                {isFetchingMore ? (
+                  <>
+                    <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                    <div className="text-gray-600 text-sm font-medium">
+                      {t("loadingOoo")}
+                    </div>
+                  </>
+                ) : !hasMore ? (
+                  <div className="text-green-600 text-sm font-medium flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    {t("endOfList")}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          )}  
       </div>
     </div>
   );
 }
 
-export default ProfessionalTable;
+export default memo(ProfessionalTable);

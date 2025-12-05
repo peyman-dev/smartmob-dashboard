@@ -41,7 +41,7 @@ const Sidebar = () => {
         <motion.aside
           key="desktop-sidebar"
           {...ui.desktop}
-          className="w-[230px] sticky top-0 h-dvh space-y-3 p-4"
+          className="w-[230px]! min-w-[230px]! pt-10 sticky top-0 h-dvh space-y-3 ps-6 pe-3"
         >
           <Item Icon={<Home />} href="/" label={t("sidebar.home")} />
           <Item Icon={<Users />} href="/users" label={t("sidebar.users")} />
@@ -74,6 +74,7 @@ const Sidebar = () => {
           <Item Icon={<ShoppingBag />} href="/orders" label={t("sidebar.orders")} />
           <Item Icon={<HandCoins />} href="/transfers" label={t("sidebar.transfers")} />
           <Item Icon={<Users />} href="/users" label={t("sidebar.users")} />
+          <Item Icon={<UserSearch />} href="/accounts" label={t("sidebar.accounts")} />
           <Item Icon={<Settings />} href="/settings" label={t("sidebar.settings")} />
         </motion.aside>
       )}
