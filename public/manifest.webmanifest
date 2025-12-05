@@ -1,0 +1,28 @@
+{
+  "theme_color": "#8936FF",
+  "background_color": "#2EC6FE",
+  "icons": [
+    {
+      "purpose": "maskable",
+      "sizes": "512x512",
+      "src": "/assets/static/icons/icon512_maskable.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "512x512",
+      "src": "/assets/static/icons/icon512_rounded.png",
+      "type": "image/png"
+    }
+  ],
+  "orientation": "any",
+  "display": "standalone",
+  "dir": "auto",
+  "lang": "en-US",
+  "name": "Riva follower CMS Application",
+  "short_name": "Riva follower CMS Application",
+  "start_url": "/",
+  "scope": "/",
+  "description": "RivaCMS - Powered by Smart-mob.ir",
+  "id": "/"
+}
