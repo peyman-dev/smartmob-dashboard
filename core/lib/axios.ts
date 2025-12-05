@@ -26,11 +26,11 @@ sendRequest.interceptors.request.use(
 
 sendRequest.interceptors.response.use(
     (response) => {
-        console.log("پاسخ موفق ✅", {
-            status: response.status,
-            url: response.config.url,
-            data: response.data,
-        });
+        // console.log("پاسخ موفق ✅", {
+        //     status: response.status,
+        //     url: response.config.url,
+        //     data: response.data,
+        // });
         return response; 
     },
     (error) => {
