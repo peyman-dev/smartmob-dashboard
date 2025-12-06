@@ -56,3 +56,11 @@ canvas {
     @apply rounded-t-none!;
   }
 }
+
+.ant-modal {
+  @apply **:font-estedad!
+}
+
+.ant-drawer {
+  @apply **:font-estedad!
+}

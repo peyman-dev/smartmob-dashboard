@@ -16,6 +16,7 @@ type SearchParams = {
 interface SearchStore {
   isSearching: boolean;
   searchResult: any;
+  isPendingSearch: boolean,
   search: (params?: SearchParams) => Promise<any>;
   setIsSearching: (value: boolean) => void;
   setSearchResult: (result: any) => void;
@@ -42,21 +43,24 @@ const buildQuery = (params?: SearchParams): string => {
 export const useSearchStore = create<SearchStore>((set) => ({
   isSearching: false,
   searchResult: null,
+  isPendingSearch: false,
 
   search: async (params?: SearchParams) => {
     set({ isSearching: true, searchResult: null });
 
     try {
+      set({ isPendingSearch: true})
       const queryString = buildQuery(params);
       const res = await fetch(`/api/search/orders?${queryString}`);
       const data = await res.json();
-
+      console.log(data)
       set({ searchResult: data });
       return data;
     } catch (error) {
       set({ searchResult: null });
       throw error;
     } finally {
+      set({ isPendingSearch: false})
     }
   },
 

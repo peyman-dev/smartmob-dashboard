@@ -18,8 +18,9 @@ import { useTranslations } from "next-intl";
 import useUserFinder from "@/core/hooks/use-user-finder";
 import { Button, Tooltip } from "antd";
 import { memo, useCallback, useMemo } from "react";
+import { Loader2 } from "lucide-react";
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 20;
 
 const ClientPage = () => {
   const t = useTranslations("orders");
@@ -28,7 +29,7 @@ const ClientPage = () => {
 
   const { foundedUsers, clearAllParams, isSearchingUser, navigateToWithUser } =
     useUserFinder();
-  const { searchResult, isSearching } = useSearchStore();
+  const { searchResult, isSearching, isPendingSearch } = useSearchStore();
 
   // فقط سفارشات رو از سرور می‌گیریم
   const {
@@ -70,18 +71,8 @@ const ClientPage = () => {
     queryClient.invalidateQueries({ queryKey: ["orders"] });
   }, [queryClient]);
 
-  // تشخیص اینکه الان داریم سفارش نشون می‌دیم یا کاربر
-  const isShowingSearchResults = isSearching && searchResult?.data?.data;
-  const isShowingUserSearch =
-    isSearchingUser && foundedUsers && foundedUsers.length > 0;
-
-  // داده نهایی فقط وقتی سفارش باشه به تیبل سفارشات می‌ره
-  const tableRowData: Order[] = isShowingSearchResults
-    ? searchResult.data.data
-    : orders;
-
   // اگر کاربر در حال جستجوی کاربر هست → جدول سفارشات رو اصلاً نشون نده
-  if (isShowingUserSearch) {
+  if (isSearchingUser && foundedUsers && foundedUsers.length > 0) {
     return (
       <div className="p-8 text-center bg-white rounded-lg shadow">
         <h3 className="text-lg font-semibold mb-4">
@@ -91,7 +82,7 @@ const ClientPage = () => {
           {foundedUsers.map((user: any) => (
             <div
               key={user._id || user.id}
-              className="flex justify-between items-center p-4 border rounded-lg hover:"
+              className="flex justify-between items-center p-4 border rounded-lg hover:bg-gray-50"
             >
               <div>
                 <p className="font-medium">
@@ -122,14 +113,14 @@ const ClientPage = () => {
   // اگر لودینگ اولیه و هیچ داده‌ای نداریم
   if (isLoading && orders.length === 0) return <LoadingScreen />;
 
-  // ستون‌های جدول سفارشات (همه مطمئنن _id دارن)
-  const colDefs = [
+  // ستون‌های جدول سفارشات
+  const colDefs: any = [
     {
       headerName: t("orderId"),
       field: "_id",
-      cellRenderer: ({ data }: { data: Order }) => (
-        <Copyable text={data._id}>{data._id}</Copyable>
-      ),
+      cellRenderer: ({ data }: { data: Order }) => {
+        return <Copyable text={data._id}>{data._id}</Copyable>;
+      },
       width: 180,
       ellipsis: true,
     },
@@ -164,6 +155,22 @@ const ClientPage = () => {
       ellipsis: true,
     },
     {
+      headerName: t("status"),
+      cellRenderer: ({ data }: { data: Order }) => {
+        return (
+          <p
+            className={
+              "text-xs px-2 py-1.5 text-white text-center max-w-max select-none rounded-lg"
+            }
+            style={{ backgroundColor: data.status.color }}
+          >
+            {data.status.text}
+          </p>
+        );
+      },
+      ellipsis: true,
+    },
+    {
       headerName: t("image"),
       field: "img",
       cellRenderer: ({ data }: { data: Order }) => (
@@ -191,6 +198,15 @@ const ClientPage = () => {
         )}`;
         return <Copyable text={text}>{text}</Copyable>;
       },
+    },
+    {
+      headerName: t("startNumber"),
+      field: "startNumber",
+      cellRenderer: ({ data }: { data: Order }) => (
+        <Copyable text={data.startNumber.toString()}>
+          {data.startNumber}
+        </Copyable>
+      ),
     },
     {
       headerName: t("quantity"),
@@ -256,11 +272,28 @@ const ClientPage = () => {
     },
   ];
 
+  if (isPendingSearch) {
+    return (
+      <div className="flex items-center justify-center gap-2 py-20 text-zinc-500">
+        <p>{commonT("loadingOoo")}</p>
+        <Loader2 className="size-5 animate-spin"/>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-4 min-h-screen ">
+    <div className="lg:p-4 pb-5 lg:min-h-screen">
       <ProfessionalTable
         columnDefs={colDefs}
-        rowData={tableRowData}
+        rowData={
+          isSearchingUser
+            ? foundedUsers
+            : isSearching
+            ? searchResult?.data?.data?.length
+              ? searchResult?.data?.data
+              : []
+            : orders
+        }
         loading={isLoading && orders.length === 0}
         isFetchingMore={isFetchingNextPage}
         hasMore={!isSearching && hasNextPage}
@@ -275,6 +308,16 @@ const ClientPage = () => {
         scrollHeight="calc(100vh - 180px)"
         rowKey="_id"
         className="shadow-lg"
+        HeaderActions={
+          <div className="flex items-center gap-3">
+            {isSearchingUser && (
+              <Button variant="filled" color="red" onClick={clearAllParams}>
+                {commonT("clear")}
+              </Button>
+            )}
+            <SearchOrders />
+          </div>
+        }
       />
     </div>
   );

@@ -15,7 +15,7 @@ import { Ellipsis, FilterX } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo, useCallback, useMemo, useState } from "react";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 
 const ClientPage = () => {
   const t = useTranslations("transfers");
@@ -109,7 +109,7 @@ const ClientPage = () => {
 
   if (isLoading && transactions.length === 0) return <LoadingScreen />;
 
-  const columnDefs = [
+  const columnDefs: any = [
     {
       headerName: t("id"),
       field: "_id",
@@ -179,7 +179,7 @@ const ClientPage = () => {
   const finalRowData = filter.isFiltered ? filter.filteredItems : transactions;
 
   return (
-    <div className="p-4 min-h-screen ">
+    <div className="lg:p-4 pb-5 lg:min-h-screen ">
       <ProfessionalTable
         HeaderActions={
           <div className="flex items-center gap-3">
@@ -207,7 +207,6 @@ const ClientPage = () => {
         enableInfiniteScroll={true}
         error={isError ? (error as Error) : null}
         onRetry={handleRetry}
-        enableRtl={true}
         scrollHeight="calc(100vh - 180px)"
         rowKey="_id"
         className="shadow-lg"

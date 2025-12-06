@@ -26,18 +26,14 @@ ChartJS.register(
 const StatisticsChart = ({ statistics }: { statistics: any }) => {
   const s = statistics || {};
   const t = useTranslations();
-
-  // تشخیص موبایل برای تغییر جهت چارت
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // زیر 768px = موبایل و تبلت کوچیک
+      setIsMobile(window.innerWidth < 768);
     };
-
     checkMobile();
     window.addEventListener("resize", checkMobile);
-
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
@@ -60,7 +56,7 @@ const StatisticsChart = ({ statistics }: { statistics: any }) => {
     t("home.statistics.statisticsLabels.newAccountsToday"),
   ];
 
-  const values = [
+  const rawValues = [
     s.ordersAll || 0,
     s.ordersIsRun || 0,
     s.ordersFollowCompleted || 0,
@@ -79,6 +75,8 @@ const StatisticsChart = ({ statistics }: { statistics: any }) => {
     s.accountsTodayAdd || 0,
   ];
 
+  const values = rawValues.map((v) => (v === 0 ? 0.3 : v));
+
   const data = {
     labels,
     datasets: [
@@ -88,14 +86,21 @@ const StatisticsChart = ({ statistics }: { statistics: any }) => {
         borderRadius: 8,
         barThickness: isMobile ? 24 : 32,
         maxBarThickness: 40,
+        minBarLength: 4,
       },
     ],
   };
 
   const options: ChartOptions<"bar"> = {
-    indexAxis: isMobile ? ("y" as const) : ("x" as const),
+    indexAxis: isMobile ? "y" : "x",
     responsive: true,
     maintainAspectRatio: false,
+
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
+
     plugins: {
       legend: { display: false },
       tooltip: {
@@ -109,38 +114,68 @@ const StatisticsChart = ({ statistics }: { statistics: any }) => {
         callbacks: {
           title: (context) => context[0].label,
           label: (context) => {
-            const value = isMobile ? context.parsed.x : context.parsed.y;
-            return `${t("common.amount")}: ${localeNum(value as number)}`;
+            const rawValue = rawValues[context.dataIndex];
+            return `${t("common.amount")}: ${localeNum(rawValue)}`;
           },
         },
       },
     },
-    scales: {
-      x: {
-        beginAtZero: true,
-        grid: { color: "#f3f4f6" },
-        ticks: {
-          font: { size: 12, family: "var(--font-estedad)" },
-          callback: (value) => localeNum(Number(value)),
-        },
-      },
-      y: {
-        beginAtZero: true,
-        grid: { display: isMobile ? false : true, color: "#f3f4f6" },
-        ticks: {
-          font: { size: isMobile ? 11.5 : 12, family: "var(--font-estedad)" },
-          padding: 10,
-          crossAlign: "far" as const,
-          autoSkip: false,
-          callback: function (tickValue) {
-            const label = labels[Number(tickValue)] || "";
-            if (isMobile && label.length > 18) {
-              return label.substring(0, 16) + "...";
-            }
-            return label;
+
+    scales: isMobile
+      ? {
+          // ----------- موبایل → افقی → محور Y لیبل های ما هستند
+          y: {
+            type: "category",
+            labels: labels,
+            grid: { display: false },
+            ticks: {
+              autoSkip: false,
+              font: { size: 11.5, family: "var(--font-estedad)" },
+              padding: 10,
+              callback: (_, index) => {
+                const label = labels[index];
+                return label.length > 18
+                  ? label.substring(0, 16) + "..."
+                  : label;
+              },
+            },
+          },
+
+          x: {
+            beginAtZero: true,
+            grid: { color: "#f3f4f6" },
+            ticks: {
+              font: { size: 12, family: "var(--font-estedad)" },
+              callback: (value) => localeNum(Number(value)),
+            },
+          },
+        }
+      : {
+          // ----------- دسکتاپ → عمودی → محور X لیبل های ما هستند
+          x: {
+            type: "category",
+            labels: labels,
+            grid: { display: true, color: "#f3f4f6" },
+            ticks: {
+              autoSkip: false,
+              font: { size: 12, family: "var(--font-estedad)" },
+              callback: (_, index) => labels[index],
+            },
+          },
+
+          y: {
+            beginAtZero: true,
+            grid: { color: "#f3f4f6" },
+            ticks: {
+              font: { size: 12, family: "var(--font-estedad)" },
+              callback: (value) => localeNum(Number(value)),
+            },
           },
         },
-      },
+
+    hover: {
+      mode: "index",
+      intersect: false,
     },
   };
 
@@ -153,7 +188,7 @@ const StatisticsChart = ({ statistics }: { statistics: any }) => {
       <div
         className="w-full"
         style={{
-          height: isMobile ? "680px" : "500px", // موبایل کمی بلندتر چون افقیه
+          height: isMobile ? "680px" : "500px",
           position: "relative",
         }}
       >

@@ -62,13 +62,15 @@ const UsersTable = () => {
     return data?.pages.flatMap((p) => p?.data ?? []) ?? [];
   }, [data]);
 
+  console.log(users)
+
   const loadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const colDefs = [
+  const colDefs: any = [
     {
       headerName: t("id"),
       cellRenderer: (p: { data: User }) => {

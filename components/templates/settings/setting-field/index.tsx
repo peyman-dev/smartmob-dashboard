@@ -2,7 +2,7 @@
 
 import type { Setting } from "@/core/types/types";
 import type React from "react";
-import { type JSX, useState } from "react";
+import { JSX, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Switch } from "antd";
 import { updateSetting } from "@/core/actions";
@@ -17,18 +17,58 @@ interface SettingFieldProps {
 
 const SettingField: React.FC<SettingFieldProps> = ({ setting, onSuccess }) => {
   const initialData = setting.data as any;
-  const [formData, setFormData] = useState(initialData);
+  const [formData, setFormData] = useState<any>(initialData);
   const [changedField, setChangedField] = useState<string | null>(null);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const t = useTranslations("common");
 
+  const convertToOriginalType = (current: any, original: any): any => {
+    if (original === null || original === undefined) return current;
+
+    if (typeof original === "number") {
+      if (current === "" || current === null || current === undefined)
+        return original;
+      const num = Number(current);
+      return isNaN(num) ? original : num;
+    }
+
+    if (typeof original === "boolean") {
+      if (current === "true" || current === true) return true;
+      if (current === "false" || current === false) return false;
+      return original;
+    }
+
+    if (typeof original === "string") {
+      return String(current ?? "").trim();
+    }
+
+    if (Array.isArray(original)) {
+      return current.map((item: any, idx: number) =>
+        convertToOriginalType(item, original[idx] ?? item)
+      );
+    }
+
+    if (typeof original === "object") {
+      const result: any = {};
+      for (const key in original) {
+        result[key] = convertToOriginalType(
+          current[key] ?? original[key],
+          original[key]
+        );
+      }
+      return result;
+    }
+
+    return current;
+  };
+
   const setDeepValue = (obj: any, path: string, value: any) => {
     if (!path) return value;
     const keys = path.split(".");
-    const last = keys.pop() as string;
+    const last = keys.pop()!;
     let pointer = obj;
     for (const k of keys) {
-      if (!pointer[k]) pointer[k] = {};
+      if (!pointer[k] || typeof pointer[k] !== "object") pointer[k] = {};
       pointer = pointer[k];
     }
     pointer[last] = value;
@@ -43,45 +83,21 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, onSuccess }) => {
     setChangedField(path);
   };
 
-  const getChangedData = (current: any, initial: any, prefix = "") => {
-    const changes: Record<string, any> = {};
-    if (typeof current !== "object" || current === null) {
-      if (JSON.stringify(current) !== JSON.stringify(initial))
-        changes[prefix] = current;
-      return changes;
-    }
-    for (const key in current) {
-      const currentVal = current[key];
-      const initialVal = initial[key];
-      const fullKey = prefix ? `${prefix}.${key}` : key;
-      if (
-        typeof currentVal === "object" &&
-        currentVal !== null &&
-        !Array.isArray(currentVal)
-      ) {
-        Object.assign(changes, getChangedData(currentVal, initialVal, fullKey));
-      } else if (JSON.stringify(currentVal) !== JSON.stringify(initialVal)) {
-        changes[fullKey] = currentVal;
-      }
-    }
-    return changes;
+  const getDeepValue = (obj: any, path: string) => {
+    if (!path) return obj;
+    return path.split(".").reduce((acc, k) => acc?.[k], obj);
+  };
+
+  const hasChanges = (): boolean => {
+    return JSON.stringify(formData) !== JSON.stringify(initialData);
   };
 
   const handleSubmit = async () => {
-    let parsedData = formData;
-
-    if (typeof setting.data === "number") {
-      const num = Number(formData);
-      parsedData = formData === "" || isNaN(num) ? setting.data : num;
-    } else if (typeof setting.data === "boolean") {
-      parsedData = formData === "true" || formData === true;
-    } else if (typeof setting.data === "string") {
-      parsedData = String(formData).trim();
-    }
+    const convertedData = convertToOriginalType(formData, initialData);
 
     const payload = {
       name: setting.name,
-      data: parsedData,
+      data: convertedData,
     };
 
     try {
@@ -91,34 +107,19 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, onSuccess }) => {
         toast.success(t("update_success"));
         onSuccess?.();
       } else {
-        toast.error(t("update_failed"));
+        toast.error(res.message || t("update_failed"));
       }
-    } catch (error) {
+    } catch {
       toast.error("خطا در ارتباط با سرور");
+    } finally {
+      setChangedField(null);
     }
-
-    setChangedField(null);
-  };
-
-  const getDeepValue = (obj: any, path: string) => {
-    if (!path) return obj;
-    const keys = path.split(".");
-    let pointer = obj;
-    for (const k of keys) {
-      if (pointer === undefined || pointer === null) return undefined;
-      pointer = pointer[k];
-    }
-    return pointer;
   };
 
   const toggleExpanded = (id: string) => {
     setExpandedItems((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
       return newSet;
     });
   };
@@ -127,221 +128,205 @@ const SettingField: React.FC<SettingFieldProps> = ({ setting, onSuccess }) => {
     key: string,
     value: any,
     depth = 0,
-    path: string
+    path: string = ""
   ): JSX.Element | null => {
-    const isFieldChanged = changedField === path;
-    const initialValue = getDeepValue(initialData, path);
-    const hasChanged = JSON.stringify(value) !== JSON.stringify(initialValue);
-    const showButton = isFieldChanged && hasChanged;
+    const fullPath = path ? `${path}.${key}` : key;
+    const initialValue = getDeepValue(initialData, fullPath);
+    const currentValue = getDeepValue(formData, fullPath);
+    const hasChangedField =
+      JSON.stringify(currentValue) !== JSON.stringify(initialValue);
+    const showSaveButton = changedField === fullPath && hasChangedField;
 
     if (typeof value === "boolean") {
       return (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-center justify-between py-2"
-        >
+        <div className="flex items-center justify-between py-3">
           <Switch
             checked={value}
-            onChange={(c) => handleChange(path, c)}
-            style={{ backgroundColor: value ? "#2563eb" : "#d1d5db" }}
+            onChange={(checked) => handleChange(fullPath, checked)}
+            className="bg-gray-300"
+            style={{ backgroundColor: value ? "#2563eb" : undefined }}
           />
           <AnimatePresence>
-            {showButton && (
+            {showSaveButton && (
               <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
+                initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                onClick={() => handleSubmit()}
-                className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                exit={{ opacity: 0, scale: 0.9 }}
+                onClick={handleSubmit}
+                className="mr-3 px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-1"
               >
-                <Check size={16} />
+                <Check size={15} />
                 {t("confirm")}
               </motion.button>
             )}
           </AnimatePresence>
-        </motion.div>
+        </div>
       );
     }
 
-    if (typeof value === "string" || typeof value === "number") {
+    if (typeof value === "number" || typeof value === "string") {
+      const isNumber = typeof initialValue === "number";
+
       return (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-2"
-        >
+        <div className="space-y-3 py-2">
           <input
-            type="text"
-            value={value}
-            onChange={(e) => handleChange(path, e.target.value)}
-            dir="rtl"
-            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-            placeholder="Enter value..."
+            type={isNumber ? "number" : "text"}
+            value={value ?? ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              handleChange(
+                fullPath,
+                isNumber ? (val === "" ? "" : Number(val)) : val
+              );
+            }}
+            dir={isNumber ? "ltr" : "rtl"}
+            className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <AnimatePresence>
-            {showButton && (
+            {showSaveButton && (
               <motion.button
-                initial={{ opacity: 0, y: -5 }}
+                initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                onClick={() => handleSubmit()}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                exit={{ opacity: 0, y: -8 }}
+                onClick={handleSubmit}
+                className="w-full py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center gap-2"
               >
                 <Check size={16} />
                 {t("confirm")}
               </motion.button>
             )}
           </AnimatePresence>
-        </motion.div>
+        </div>
       );
     }
 
-    if (typeof value === "object" && !Array.isArray(value)) {
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      const itemId = fullPath;
+      const isExpanded = expandedItems.has(itemId);
+
       return (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-1"
-        >
-          {Object.entries(value).map(([subKey, subValue]) => {
-            const itemId = path ? `${path}.${subKey}` : subKey;
-            const isExpanded = expandedItems.has(itemId);
-            return (
+        <div className="border border-gray-200 rounded-xl overflow-hidden">
+          <button
+            onClick={() => toggleExpanded(itemId)}
+            className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-gray-50"
+          >
+            <span className="font-medium capitalize">
+              {key.replace(/_/g, " ")}
+            </span>
+            <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
+              <ChevronDown size={20} className="text-gray-500" />
+            </motion.div>
+          </button>
+
+          <AnimatePresence>
+            {isExpanded && (
               <motion.div
-                key={subKey}
-                className="border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-colors"
+                initial={{ height: 0 }}
+                animate={{ height: "auto" }}
+                exit={{ height: 0 }}
+                className="overflow-hidden border-t border-gray-200 bg-gray-50/50"
               >
-                <button
-                  onClick={() => toggleExpanded(itemId)}
-                  className="w-full flex items-center justify-between px-4 py-3 hover: transition-colors"
-                >
-                  <span className="text-sm font-medium text-gray-900 capitalize">
-                    {subKey.replace(/_/g, " ")}
-                  </span>
-                  <motion.div
-                    animate={{ rotate: isExpanded ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ChevronDown size={18} className="text-gray-500" />
-                  </motion.div>
-                </button>
-                <AnimatePresence initial={false}>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden border-t border-gray-200 "
-                    >
-                      <div className="px-4 py-3">
-                        {renderField(subKey, subValue, depth + 1, itemId)}
-                      </div>
-                    </motion.div>
+                <div className="p-5 space-y-6">
+                  {Object.entries(value).map(([subKey, subValue]) =>
+                    renderField(subKey, subValue, depth + 1, fullPath)
                   )}
-                </AnimatePresence>
+                </div>
               </motion.div>
-            );
-          })}
-        </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       );
     }
 
     if (Array.isArray(value)) {
       return (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-1"
-        >
+        <div className="space-y-3">
           {value.map((item, index) => {
-            const itemId = path ? `${path}.${index}` : `${index}`;
-            const isExpanded = expandedItems.has(itemId);
+            const itemPath = `${fullPath}[${index}]`;
+            const isExpanded = expandedItems.has(itemPath);
+
             return (
-              <motion.div
+              <div
                 key={index}
-                className="border border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 transition-colors"
+                className="border border-gray-200 rounded-xl overflow-hidden"
               >
                 <button
-                  onClick={() => toggleExpanded(itemId)}
-                  className="w-full flex items-center justify-between px-4 py-3 hover: transition-colors"
+                  onClick={() => toggleExpanded(itemPath)}
+                  className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-gray-50"
                 >
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="font-medium text-gray-700">
                     {key.replace(/_/g, " ")} #{index + 1}
                   </span>
-                  <motion.div
-                    animate={{ rotate: isExpanded ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ChevronDown size={18} className="text-gray-500" />
+                  <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
+                    <ChevronDown size={20} className="text-gray-500" />
                   </motion.div>
                 </button>
-                <AnimatePresence initial={false}>
+
+                <AnimatePresence>
                   {isExpanded && (
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden border-t border-gray-200 "
+                      initial={{ height: 0 }}
+                      animate={{ height: "auto" }}
+                      exit={{ height: 0 }}
+                      className="border-t border-gray-200 bg-gray-50/30"
                     >
-                      <div className="px-4 py-3 space-y-3">
-                        {typeof item === "object" ? (
-                          <>
-                            {Object.entries(item).map(([subKey, subValue]) => (
-                              <div key={subKey} className="space-y-1">
-                                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide capitalize">
-                                  {subKey.replace(/_/g, " ")}
-                                </label>
-                                {renderField(
-                                  subKey,
-                                  subValue,
-                                  depth + 1,
-                                  itemId
-                                    ? `${itemId}.${subKey}`
-                                    : `${index}.${subKey}`
-                                )}
-                              </div>
-                            ))}
-                          </>
-                        ) : (
-                          renderField(
-                            `${key}-${index}`,
-                            item,
-                            depth + 1,
-                            itemId
-                          )
-                        )}
+                      <div className="p-5 space-y-5">
+                        {typeof item === "object" && item !== null
+                          ? Object.entries(item).map(([k, v]) =>
+                              renderField(
+                                k,
+                                v,
+                                depth + 1,
+                                `${fullPath}.${index}`
+                              )
+                            )
+                          : renderField(
+                              `${key}-${index}`,
+                              item,
+                              depth + 1,
+                              `${fullPath}.${index}`
+                            )}
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       );
     }
 
     return null;
   };
 
-  if (setting.editable) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 transition-colors"
-      >
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-          <h3 className="text-lg font-semibold text-white">{setting.desc}</h3>
-        </div>
-        <div className="p-6">{renderField(setting.name, formData, 0, "")}</div>
-      </motion.div>
-    );
-  }
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md"
+    >
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+        <h3 className="text-lg font-bold text-white">{setting.desc}</h3>
+      </div>
+
+      <div className="p-6">
+        {renderField(setting.name, formData)}
+
+        {hasChanges() && changedField === null && (
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <button
+              onClick={handleSubmit}
+              className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl flex items-center justify-center gap-2"
+            >
+              <Check size={18} />
+              ذخیره همه تغییرات
+            </button>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
 };
 
 export default SettingField;

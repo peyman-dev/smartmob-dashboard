@@ -19,10 +19,10 @@
   "display": "standalone",
   "dir": "auto",
   "lang": "en-US",
-  "name": "Riva follower CMS Application",
-  "short_name": "Riva follower CMS Application",
+  "name": "Riva Admin",
+  "short_name": "Riva Admin",
   "start_url": "/",
   "scope": "/",
-  "description": "RivaCMS - Powered by Smart-mob.ir",
+  "description": "RivaAdmin - Powered by Smart-mob.ir",
   "id": "/"
 }

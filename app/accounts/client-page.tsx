@@ -17,13 +17,14 @@ import { localeDate } from "@/core/lib/helpers";
 import { FilterX } from "lucide-react";
 
 const Filter = dynamic(
-  () => import("@/components/templates/auth/common/filter").then((mod) => mod.default),
+  () =>
+    import("@/components/templates/auth/common/filter").then(
+      (mod) => mod.default
+    ),
   { ssr: false }
 );
 
-const PAGE_SIZE = 10;
-
-
+const PAGE_SIZE = 20;
 
 const AccountsPage = () => {
   const t = useTranslations("accounts");
@@ -57,7 +58,6 @@ const AccountsPage = () => {
     queryFn: ({ pageParam = 0 }) =>
       getAccounts({ limit: PAGE_SIZE, page: pageParam as number }),
     getNextPageParam: (lastPage) => {
-      // مهم: فقط وقتی صفحه کامل پر بود، صفحه بعدی رو بده
       if (!lastPage?.data || lastPage.data.length < PAGE_SIZE) {
         return undefined;
       }
@@ -82,22 +82,22 @@ const AccountsPage = () => {
     queryClient.invalidateQueries({ queryKey: ["accounts"] });
   }, [queryClient]);
 
-  // رفتار دقیقاً مثل صفحه کاربران
   const isFilteredOrSearching = filter.isFiltered || isSearchingUser;
+
   const enableInfiniteScroll = !isFilteredOrSearching;
 
-  // دیتای نهایی
   const rowData: Account[] = filter.isFiltered
     ? filter.filteredItems
     : isSearchingUser
-    ? (foundedUsers as any) // چون foundedUsers نوع User داره ولی ما فقط ID رو می‌خوایم
+    ? (foundedUsers as any)
     : accounts;
 
-  // وقتی کاربر جستجو شده → فقط نتایج کاربر رو نشون بده
   if (isSearchingUser && foundedUsers.length > 0) {
     return (
       <div className="p-8 text-center bg-white rounded-lg shadow">
-        <h3 className="text-lg font-semibold mb-4">{commonT("searchResults")}</h3>
+        <h3 className="text-lg font-semibold mb-4">
+          {commonT("searchResults")}
+        </h3>
         <div className="space-y-3 max-w-2xl mx-auto">
           {foundedUsers.map((user: any) => (
             <div
@@ -106,7 +106,7 @@ const AccountsPage = () => {
             >
               <div>
                 <p className="font-medium">
-                  {user.username || user.phone || user.email || "بدون نام"}
+                  {user.username || user.phone || user.email || t("noName")}
                 </p>
                 <p className="text-sm text-gray-500">ID: {user._id}</p>
               </div>
@@ -139,7 +139,7 @@ const AccountsPage = () => {
     );
   }
 
-  const columnDefs = [
+  const columnDefs: any = [
     {
       headerName: t("user"),
       cellRenderer: ({ data }: { data: Account }) => (
@@ -166,7 +166,8 @@ const AccountsPage = () => {
     },
     {
       headerName: commonT("dateCreate"),
-      cellRenderer: ({ data }: { data: Account }) => localeDate(data.dateCreate),
+      cellRenderer: ({ data }: { data: Account }) =>
+        localeDate(data.dateCreate),
     },
     {
       headerName: commonT("session"),
@@ -175,7 +176,7 @@ const AccountsPage = () => {
     {
       headerName: t("gender"),
       cellRenderer: ({ data }: { data: Account }) =>
-        commonT(`gender.${data.gender || "-1"}`),
+        commonT(`gender.${data.gender}`),
     },
     {
       headerName: commonT("password"),
@@ -184,7 +185,12 @@ const AccountsPage = () => {
   ];
 
   const filterFields: FilterField[] = [
-    { label: t("filterForm.id.label"), key: "id", type: "input", placeholder: t("filterForm.id.placeholder") },
+    {
+      label: t("filterForm.id.label"),
+      key: "id",
+      type: "input",
+      placeholder: t("filterForm.id.placeholder"),
+    },
     {
       label: t("filterForm.status.label"),
       key: "status",
@@ -199,7 +205,7 @@ const AccountsPage = () => {
   ];
 
   return (
-    <div className="p-4 min-h-screen bg-gray-50">
+    <div className="lg:p-4 pb-5 lg:min-h-screen bg-gray-50">
       <ProfessionalTable
         columnDefs={columnDefs}
         rowData={rowData}
@@ -215,7 +221,7 @@ const AccountsPage = () => {
         onRetry={handleRetry}
         enableRtl={!isEN}
         scrollHeight="calc(100vh - 180px)"
-        rowKey="userId" // یا "_id" — هر چی تو دیتا داری
+        rowKey="userId"
         className="shadow-lg"
         HeaderActions={
           <div className="flex items-center gap-3">
@@ -232,11 +238,7 @@ const AccountsPage = () => {
               </Button>
             )}
             <StopSearchingButton />
-            <Filter
-              onSubmit={() => {
-              }}
-              fields={filterFields}
-            />
+            <Filter onSubmit={() => {}} fields={filterFields} />
           </div>
         }
       />

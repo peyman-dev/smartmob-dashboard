@@ -296,7 +296,7 @@ function ProfessionalTable<T extends object>({
 
         {enableInfiniteScroll &&
           (isFetchingMore || (!hasMore && showOverlay)) && (
-            <div className="sticky bottom-0 left-0 right-0 w-full py-6 bg-white border-t border-gray-200">
+            <div className="sticky bottom-0 left-0 right-0 w-full md:py-4 sm:py-3 py-2.5 lg:py-6 bg-white border-t border-gray-200">
               <div className="flex flex-col items-center gap-3">
                 {isFetchingMore ? (
                   <>

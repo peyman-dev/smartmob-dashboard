@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+
 import DynamicAuthHeader from "../../templates/auth/common/dynamic-auth-header";
 import AuthInput from "./auth-input";
 import LoginFormActions from "./actions";
@@ -11,17 +12,18 @@ import WithError from "./with-error";
 import { login } from "@/core/actions";
 import { toast } from "sonner";
 import { useSessionStore } from "@/core/stores/auth.store";
-import { redirect } from "next/navigation";
-import { User } from "@/core/types/types";
 import { useTwoAuthentication } from "@/core/stores/two.authentication.store";
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 
 const LoginForm = () => {
+  const t = useTranslations("auth.login");
+
   const { setIsOTPSent, setPassword, setUsername } = useTwoAuthentication();
   const { updateSession } = useSessionStore();
   const [isPending, startAsyncAction] = useTransition();
+
   const {
-    getValues,
     register,
     reset,
     formState: { errors },
@@ -36,7 +38,6 @@ const LoginForm = () => {
   });
 
   const submitted = async (values: any) => {
-    // toast.promise(
     startAsyncAction(
       async () =>
         await login({
@@ -44,81 +45,59 @@ const LoginForm = () => {
           username: values.username,
         }).then(async (r) => {
           if (r.code == 1) {
-            toast.error("اطلاعات نامعتبر", {
+            toast.error(t("invalid"), {
               position: "top-right",
-              description: "نام کاربری یا گذرواژه شما اشتباه است."
+              description: t("wrongUserPass"),
             });
           } else if (r.code == 4) {
-            toast.error("لطفا منتظر بمانید", {
+            toast.error(t("pleaseWait"), {
               position: "top-right",
-              description: "رمز یکبار مصرف برای شما ارسال شده است"
+              description: t("otpSent"),
             });
-            setIsOTPSent(true)
+            setIsOTPSent(true);
           } else {
             if (r.code == 201) {
-              // await handleCookies(r.data as User);
               setUsername(values.username);
               setPassword(values.password);
               setIsOTPSent(true);
-              toast.success("کد عبور با موفقیت ارسال گردید", {
+
+              toast.success(t("otpSentOk"), {
                 position: "top-right",
               });
-              // await updateSession();
             }
           }
         })
     );
-
-    // {
-    //   closeButton: true,
-    //   loading: "درحال ورود به حساب کاربری ...",
-    //   className: "font-estedad!",
-    //   success: "شما با موفقیت وارد شدید !",
-    //   duration: 2500,
-    //   error: (r) => {
-    //     return r.message;
-    //   },
-    //   description(data) {
-    //     if (data.code == 200) {
-    //       return "درحال انتقال, لطفا صبور باشید ..";
-    //     }
-    //   },
-    //   onAutoClose(toast) {
-    //     redirect("/");
-    //   },
-    // }
-    // );
   };
 
   return (
     <form
-      className="space-y-4 container md:w-[60%]!  w-full *:w-full! h-dvh flex items-center justify-center! *:max-h-max! flex-col"
+      className="space-y-4 container md:w-[60%]! w-full h-dvh flex items-center justify-center flex-col"
       action={"#"}
       onSubmit={handleSubmit(submitted)}
     >
       <DynamicAuthHeader />
-      <WithError error={errors.username?.message}>
-        <AuthInput
-          placeholder="نام کاربری یا شماره موبایل"
-          dir="ltr"
-          onChange={(e) => {
-            setValue("username", e.target.value);
-          }}
-          className="placeholder:text-end!"
-        />
-      </WithError>
-      <WithError error={errors.password?.message}>
-        <AuthInput
-          type="password"
-          placeholder="لطفا گذرواژه خود را وارد نمائید"
-          dir="ltr"
-          className="placeholder:text-end!"
-          onChange={(e) => {
-            setValue("password", e.target.value);
-          }}
-        />
-      </WithError>
-      <LoginFormActions />
+      <div className="w-full! min-w-full! **:w-full! space-y-2 my-10!">
+        <WithError error={errors.username?.message}>
+          <AuthInput
+            placeholder={t("usernamePlaceholder")}
+            dir="ltr"
+            onChange={(e) => setValue("username", e.target.value)}
+            className="placeholder:text-end!"
+          />
+        </WithError>
+
+        <WithError error={errors.password?.message}>
+          <AuthInput
+            type="password"
+            placeholder={t("passwordPlaceholder")}
+            dir="ltr"
+            className="placeholder:text-end!"
+            onChange={(e) => setValue("password", e.target.value)}
+          />
+        </WithError>
+      </div>
+      {/* <LoginFormActions /> */}
       <LoginButton loading={isPending} />
     </form>
   );

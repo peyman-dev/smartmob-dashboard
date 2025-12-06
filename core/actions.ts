@@ -429,6 +429,7 @@ export const getAdminTransfers = async (user: string) => {
 };
 
 export const getAdminOrders = async (user: string) => {
+  console.log(user)
   const session = await getSession();
 
   if (!session?.accessToken) {

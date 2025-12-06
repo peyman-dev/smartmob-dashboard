@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 const AuthInput = (inputProps: InputProps) => {
   return (
-    <div className="grow">
+    <div className="grow w-full!">
       <Input
       {...inputProps}
         className={clsx("w-full h-14 **:font-estedad! placeholder:font-estedad!", inputProps?.className)}

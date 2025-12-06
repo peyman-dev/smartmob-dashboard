@@ -295,5 +295,30 @@
     "notSupported": "مرورگر شما از نصب اپلیکیشن پشتیبانی نمی‌کند. لطفاً از Chrome، Edge یا Safari استفاده کنید.",
 
     "maybeLater": "بعداً"
+  },
+    "auth": {
+    "otp": {
+      "enterCode": "Please enter the 6-digit verification code sent to you",
+      "resend": "Resend Code",
+      "successLogin": "You have logged in successfully",
+      "failedLogin": "Login failed!",
+      "otpSent": "A one-time code has been sent",
+      "otpResent": "A new one-time code has been sent",
+      "confirmAndContinue": "Confirm & Continue",
+      "back": "Back"
+    },
+     "login": {
+      "usernamePlaceholder": "Username or phone number",
+      "passwordPlaceholder": "Please enter your password",
+
+      "invalid": "Invalid credentials",
+      "wrongUserPass": "The username or password is incorrect.",
+
+      "pleaseWait": "Please wait",
+      "otpSent": "Your one-time password has been sent",
+      "otpSentOk": "Verification code sent successfully",
+      "login": "Login to your account"
+    }
   }
+
 }

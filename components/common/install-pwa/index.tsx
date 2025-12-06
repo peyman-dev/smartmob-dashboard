@@ -85,7 +85,6 @@ export default function PWAInstallModal() {
         <div
           style={{
             fontSize: "48px",
-            marginBottom: "16px",
             background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
@@ -223,8 +222,7 @@ export default function PWAInstallModal() {
         placement="bottom"
         height="auto"
         className="**:font-estedad!"
-        styles={{ body: { padding: "24px" } }}
-      >s
+      >
         <Content />
       </Drawer>
     );
